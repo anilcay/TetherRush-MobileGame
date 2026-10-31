@@ -1,0 +1,243 @@
+--- SAYFA 1 ---
+OYUN TASARIM BELGESİ
+TETHER
+RUSH
+İki küre. Tek enerji bağı. Üç kritik karar.
+DARAL
+GENİŞLE
+ENERJİ PATLAT
+3D hypercasual parkur oyununda oyuncu, ortak bir enerji bağıyla bağlı iki küreyi yönetir.
+Engellerden kaçınmak, kristalleri süpürmek ve biriken enerjiyi tam zamanında kullanmak aynı
+tek dokunuş kontrolüne bağlıdır.
+GÜNCELLENMİŞ KONSEPT  ·  ENERJİ BAĞI + PULSE SİSTEMİ
+31.10.2026
+
+
+--- SAYFA 2 ---
+01 / OYUN KIMLIĞI
+Fikir ve oyun dünyası
+Orijinal parkur fikri korunur; enerji bağı artık oynanışı değiştiren aktif bir araçtır.
+TETHER RUSH  /  OYUN TASARIM BELGESİ  /  V2.0
+02
+TEMEL FİKİR
+Tether Rush; otomatik ilerleyen, aralarında esnek bir enerji bağı bulunan iki küreyi tek
+parmakla yönettiğimiz, refleks ve risk-ödül kararlarına dayalı 3D mobil parkur oyunudur.
+Oyuncu mesafeyi ayarlayarak tehlikelerden kaçınır, açılmış bağla enerji parçacıklarını toplar ve dolu enerjiyi
+daralma anında güçlü bir Pulse dalgasına dönüştürür.
+Konu / dünya
+Soyut bir enerji test tesisindeki iki çekirdek,
+birlikte çalışan tek sistemdir. Her parkur;
+geçit, bariyer, toplayıcı ve enerjiyle açılan
+kapılardan oluşan yeni bir senaryodur.
+Oyuncunun amacı
+Her iki küreyi de koruyarak bitişe ulaşmak,
+bonus kristalleri toplamak ve doğru yerde
+enerji harcayarak yeni yollar açmaktır.
+OYUNUN AYIRT EDİCİ NOKTASI
+Enerji bağı yalnızca iki küreyi bağlayan görsel bir çizgi değildir.
+Bağ açıldığında geniş alanı tarar ve özel enerji parçacıklarını toplar. Enerji dolduğunda oyuncunun parmağı
+bırakması, yalnızca daralmaya değil, çevredeki özel hedeflere etki eden bir Pulse dalgasına dönüşür.
+TASARIM İLKELERİ
+Tek kontrol
+Anlaşılır engel
+Risk / ödül
+Her mekanik ilk bakışta anlaşılmalı; başarısızlığın nedeni oyuncuya açık olmalıdır.
+
+
+--- SAYFA 3 ---
+02 / KONTROL SISTEMI
+Tek parmak, üç karar
+Küreler kendiliğinden ileri gider. Oyuncu yalnızca aralarındaki mesafeyi yönetir.
+TETHER RUSH  /  OYUN TASARIM BELGESİ  /  V2.0
+03
+PARMAĞI BIRAK
+BASILI TUT
+Küreler birbirine yaklaşır. Yanlardan daralan
+geçitlerden geçmek için kullanılır.
+Küreler iki yana açılır. Orta bariyerin yanından
+geçmek ve enerji parçacıklarını taramak için
+kullanılır.
+PASİF KURALLAR
+Otomatik hareket
+İkili sabit tempoyla ileri ilerler; ileri gaz kontrolü yoktur.
+Simetrik mesafe
+İki küre ortak merkezden eşit uzaklaşır; merkez sabittir.
+Yumuşak geçiş
+Açılma ve kapanma iki sınır arasında akıcı şekilde gerçekleşir.
+KONTROLDEKİ ÖZEL DURUM
+Enerji göstergesi doluyken parmağı bırakmak, normal daralmaya ek olarak bir Pulse üretir.
+Gösterge dolu değilse bırakma yalnızca daraltır. Pulse otomatik olarak bir kez tetiklenir ve enerjiyi tüketir.
+Oyuncuya ikinci bir buton eklenmez.
+Not: İki küreden biri ölümcül bir engele çarparsa deneme biter. Normal engeller enerji bağının kendisine çarpışma
+uygulamaz.
+
+
+--- SAYFA 4 ---
+03 / ANA YENILIK
+Enerji bağı ve Pulse
+Genişlemek artık yalnızca engelden kaçmak için değil, güç toplamak için de gereklidir.
+TETHER RUSH  /  OYUN TASARIM BELGESİ  /  V2.0
+04
+01
+GENİŞLE
+Bağ yüzeyi büyür; enerji
+parçacıklarına ulaş.
+02
+BİRİKTİR
+Bağdan geçen enerji
+parçacıkları göstergeyi
+doldurur.
+03
+BIRAK / PULSE
+Gösterge doluyken bırak;
+dalga özel hedefleri
+etkinleştirir.
+ENERJİ GÖSTERGESİ
+ENERJİ
+GÖSTERGE DOLDUĞUNDA PULSE HAZIR
+Pulse hazır olduğunda bağın rengi ve hafif titreşimi değişir. Oyuncu enerji durumunu yalnızca metinle değil,
+anlık görsel geri bildirimle de anlayabilir.
+PULSE ETKİSİ
+Pulse yakındaki işaretli kırılabilir blokları parçalar veya enerji kapılarını
+etkinleştirir. Normal ölümcül engelleri yok etmez. Etkisi yalnızca belirlenmiş
+kısa menzile ulaşır.
+Risk: Enerji toplamak için açılmak, küreleri daha fazla engele maruz bırakır. Pulse kullanımı için de doğru konumda daralmak
+gerekir.
+
+
+--- SAYFA 5 ---
+04 / PARKUR BILEŞENLERI
+Engeller ve etkileşimler
+Her nesne daralma, genişleme, toplama veya Pulse zamanlamasını farklı şekilde sınar.
+TETHER RUSH  /  OYUN TASARIM BELGESİ  /  V2.0
+05
+DAR GEÇİT
+İki yandaki duvar arasında daralan boşluk. Küreleri
+yakınlaştır.
+DARAL
+ORTA BARİYER
+Merkezi kapatan blok. İki küreyi karşı şeritlere aç.
+GENİŞLE
+HAREKETLİ DUVAR
+İleri-geri kayan blok. Açılma ve kapanmanın
+zamanlamasını sınar.
+ZAMANLA
+DÖNEN KOL
+Dönüşü değişen kol. Geçiş anının okunmasını
+gerektirir.
+ZAMANLA
+ENERJİ PARÇACIĞI
+Yalnızca bağlantı hattına değdiğinde enerji
+göstergesini doldurur.
+BAĞLA TOPLA
+BONUS KRİSTAL
+Kürelerden biri temas edince skor kazandırır; Pulse
+için gerekli değildir.
+PUAN
+KIRILABİLİR BLOK
+Özel işaretli yapı. Sadece yakın menzilli Pulse ile
+parçalanır.
+PULSE
+ENERJİ KAPISI
+Pulse ile açılan geçit. Normal daralma-genişleme
+yeterli değildir.
+PULSE
+Çarpışma kuralı: Bağ standart duvarlardan geçebilir; yalnızca küreler ölümcül engellere çarpar. Pulse sadece özel
+işaretli nesnelerle etkileşir.
+
+
+--- SAYFA 6 ---
+05 / BÖLÜM TASARIMI
+Zorluk ve ritim
+Yeni tuşlar eklemek yerine, aynı kontrol farklı koşullarda yeni kararlar üretir.
+TETHER RUSH  /  OYUN TASARIM BELGESİ  /  V2.0
+06
+A
+TEMEL HAREKET
+Dar geçit  →  orta bariyer  →  bitiş
+Oyuncu mesafe değişimini ve küre çarpışmasını kavrar.
+B
+BAĞI KEŞFET
+Genişle  →  enerji parçacıkları  →  bonus kristal
+Bağın yalnızca görsel değil, toplayıcı bir araç olduğunu öğrenir.
+C
+İLK PULSE
+Enerjiyi doldur  →  Pulse kapısı  →  bitiş
+Parmağı bırakmanın dolu enerjiyle farklı sonuç verdiğini öğrenir.
+D
+RİSK / ÖDÜL
+Hareketli duvar  →  enerji hattı  →  kırılabilir blok
+Oyuncu daha fazla enerji toplamak için ne kadar risk alacağını seçer.
+BÖLÜM SONU / BAŞARI KRİTERLERİ
+Başarı: İki küre de bitişe ulaşır. Bonus kristaller bölüm skorunu artırır. Ek yıldız değerlendirmesi, toplanan
+bonus kristallerin oranına dayanabilir; Pulse kullanımı tek başına puan zorunluluğu değildir.
+
+
+--- SAYFA 7 ---
+06 / OYUNCU DENEYIMI
+Görsel dil ve geri bildirim
+Oyuncu önündeki engeli, enerji durumunu ve kendi hatasının nedenini anında anlamalıdır.
+TETHER RUSH  /  OYUN TASARIM BELGESİ  /  V2.0
+07
+RENK SİSTEMİ
+ÇEKİRDEK A
+ÇEKİRDEK B
+ENERJİ BAĞI
+TEHLİKE
+PULSE HEDEFİ
+Basit geometriler, koyu kontrastlı parkur ve ölçülü neon efektler. Kamera hafif yukarıdan arkayı takip eder;
+oyuncunun sonraki engeli önceden görebilmesi esastır.
+Görsel geri bildirim
+Bağ genişlerken akıcı esneme ve ışık izi.
+Enerji toplandığında bağ boyunca parçacık akışı.
+Pulse hazır olduğunda belirgin parlama.
+Pulse tetiklendiğinde kısa şok dalgası.
+Çarpışmada kısa, okunabilir tepki.
+Ses ve his
+Genişleme/daralmada hafif elektronik kayma.
+Enerji parçacığında tok, kısa toplama sesi.
+Dolu göstergede yükselen ses ipucu.
+Pulse sırasında güçlü ama kısa vurgu.
+Başarı ve hatada ayrı, net ses imzası.
+ARAYÜZ TASLAĞI
+BÖLÜM 07
+BONUS  05
+Ekranın üstünde bölüm adı, enerji barı ve bonus kristal sayacı bulunur.
+Pulse hazır olduğunda gösterge parlar; başlarken kısa “Basılı tut /
+Bırak” ipucu gösterilir.
+Arayüz olabildiğince az yer kaplamalı. Oyuncunun gözü engellerde ve
+kürelerin arasındaki bağda kalmalıdır.
+
+
+--- SAYFA 8 ---
+07 / TAMAMLANMIŞ DENEYIM
+Örnek bir bölüm akışı
+Oyun, tek bir hareket dizisinde güvenlik, koleksiyon ve enerji kullanımını birleştirir.
+TETHER RUSH  /  OYUN TASARIM BELGESİ  /  V2.0
+08
+1
+Başlangıç
+Küreler otomatik ilerler. Oyuncu ilk dar geçidi görür ve bırakır.
+2
+Genişle
+Ortadaki bariyer görünür. Oyuncu basılı tutarak küreleri ayırır.
+3
+Enerji topla
+Açılmış bağ, iki kürenin arasından geçen enerji parçacıklarını toplar.
+4
+Riskli alan
+Hareketli duvara yaklaşırken oyuncu güvenliği seçer; gerekirse daralır.
+5
+Pulse hazır
+Gösterge dolmuştur. Oyuncu özel işaretli enerji kapısına yaklaşır.
+6
+Tam zamanında bırak
+Oyuncu parmağını bırakır; daralma ve Pulse aynı eylemde gerçekleşir.
+7
+Bitiş
+Kapı açılır. İki küre de çıkışa ulaşır ve bonus skoru görüntülenir.
+TASARIMI SABİTLEYEN KURALLAR
+• Tek bir dokunma kontrolü vardır; ayrıca Pulse tuşu bulunmaz.
+• Gösterge dolmadan bırakmak Pulse üretmez.
+• Pulse yalnızca özel işaretli nesnelerde çalışır; genel engel dokunulmazdır.
+• İki küreden herhangi birinin ölümcül çarpışması denemeyi sonlandırır.

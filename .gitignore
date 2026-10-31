@@ -1,0 +1,50 @@
+# Unity generated content (also supports a future nested project)
+**/[Ll]ibrary/
+**/[Tt]emp/
+**/[Oo]bj/
+**/[Ll]ogs/
+**/[Uu]ser[Ss]ettings/
+**/[Mm]emoryCaptures/
+**/[Rr]ecordings/
+**/[Bb]uild/
+**/[Bb]uilds/
+**/.vs/
+**/.idea/
+*.csproj
+*.sln
+*.slnx
+*.user
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+sysinfo.txt
+
+# Local outputs and temporary PDF inspection
+/tmp/
+/output/
+*.apk
+*.aab
+*.unitypackage
+*.log
+
+# Blender backups; keep .blend sources and exported assets
+*.blend1
+*.blend2
+*.blend@
+
+# Local secrets and signing material
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.p12
+*.pfx
+credentials.json
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
