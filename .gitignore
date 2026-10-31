@@ -34,6 +34,8 @@ sysinfo.txt
 *.blend1
 *.blend2
 *.blend@
+__pycache__/
+*.py[cod]
 
 # Local secrets and signing material
 .env

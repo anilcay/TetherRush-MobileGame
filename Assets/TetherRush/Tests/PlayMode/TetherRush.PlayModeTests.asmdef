@@ -3,7 +3,8 @@
   "rootNamespace": "TetherRush.Tests",
   "references": [
     "TetherRush.Core",
-    "TetherRush.Runtime"
+    "TetherRush.Runtime",
+    "Unity.RenderPipelines.Universal.Runtime"
   ],
   "optionalUnityReferences": ["TestAssemblies"],
   "autoReferenced": false

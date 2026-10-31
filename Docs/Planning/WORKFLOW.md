@@ -21,6 +21,8 @@ Tüm alt ajanlar: **GPT-6.1 Sol / medium**. İlk tur yalnız planlama; Unity pro
 
 M1 üretim turu da aynı model/eforla dağıtıldı: `m1_core` saf C# durum mantığı ve EditMode testlerine, `m1_gameplay` yalnız runtime klasörüne, `m1_playmode_qa` yalnız PlayMode testlerine sahipti. Ana yönetici proje/paket ayarlarını, Editor hazırlık/build araçlarını, entegrasyon düzeltmelerini ve doğrulamayı yürütür. Blender ve animasyon üretimi D-010 gereği oynanış incelemesinden sonraya bırakılmıştır.
 
+M2 turu (D-018): `m2_blender_art` Blender kaynak/FBX/önizleme ve üretim scriptlerine; `m2_animation_vfx` efekt/ses/shader ve sunum testlerine; `m2_timed_hazards` hareketli OBB geometri, ikinci parkur tanımı ve testlerine sahipti. Hepsi GPT-6.1 Sol / medium ile çalıştı. Ana yönetici görsel kütüphaneyi, ana oyun entegrasyonunu, UI/sahne bağlantılarını, import kurallarını, gerçek Unity render incelemesini, build ve GitHub teslimini yürütür. Ana runtime dosyası tek sahipli kaldı.
+
 ```text
 Rol: [Unity gameplay / Blender modelleme / animasyon-VFX / QA].
 Model: gpt-6.1-sol, reasoning medium.

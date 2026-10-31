@@ -1,0 +1,307 @@
+using TetherRush.Core;
+using UnityEngine;
+
+namespace TetherRush.Presentation
+{
+    /// <summary>Visual/audio only. Tick is driven by the game, including zero delta while paused.</summary>
+    public sealed class GameFeedback : MonoBehaviour
+    {
+        private const int SparkCount = 28, GhostCount = 24, RingCount = 4;
+        private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
+        private static readonly int ColorId = Shader.PropertyToID("_Color");
+        private static readonly int Emission = Shader.PropertyToID("_EmissionColor");
+        private static readonly Color Teal = new Color(.08f, .95f, .9f);
+        private static readonly Color Gold = new Color(1f, .72f, .18f);
+        private MaterialPropertyBlock block;
+        private readonly Spark[] sparks = new Spark[SparkCount];
+        private readonly Ghost[] ghosts = new Ghost[GhostCount];
+        private readonly Ring[] rings = new Ring[RingCount];
+        private Transform left, right, effects;
+        private Renderer[] tetherRenderers;
+        private Transform leftMesh, rightMesh;
+        private Quaternion leftRotation, rightRotation;
+        private Material effectMaterial;
+        private AudioSource audioSource;
+        private AudioClip collectClip, bonusClip, readyClip, pulseClip, failClip, successClip;
+        private float clock, radius, terminalTime;
+        private bool initialized, wasReady, audioEnabled = true, ownsSource;
+        private Color terminalColor;
+        private int sparkCursor, ghostCursor, ringCursor;
+
+        private sealed class Spark
+        {
+            public LineRenderer View;
+            public Vector3 Origin, Velocity;
+            public Color Color;
+            public float Age, Life;
+            public bool Flow;
+        }
+        private sealed class Ghost
+        {
+            public Transform Transform;
+            public MeshFilter Filter;
+            public MeshRenderer Renderer;
+            public Vector3 Origin, Travel, Scale;
+            public Quaternion Rotation;
+            public float Age, Life;
+            public Color Color;
+        }
+        private sealed class Ring
+        {
+            public LineRenderer View;
+            public float Age, Life, Radius;
+            public Color Color;
+        }
+
+        public bool AudioEnabled
+        {
+            get => audioEnabled;
+            set { audioEnabled = value; if (audioSource != null) audioSource.mute = !value; }
+        }
+
+        public void Initialize(Transform leftCore, Transform rightCore, Transform tether, Camera camera,
+            Material tetherMaterial, float pulseRadius)
+        {
+            if (initialized) return;
+            initialized = true;
+            block = new MaterialPropertyBlock();
+            left = leftCore; right = rightCore; radius = Mathf.Max(0, pulseRadius);
+            // Never rotate the core roots: their transforms belong to the simulation manager.
+            leftMesh = FindChildMesh(left); rightMesh = FindChildMesh(right);
+            if (leftMesh != null) leftRotation = leftMesh.localRotation;
+            if (rightMesh != null) rightRotation = rightMesh.localRotation;
+            tetherRenderers = tether != null ? tether.GetComponentsInChildren<Renderer>() : new Renderer[0];
+            effects = new GameObject("Pooled feedback (visual only)").transform;
+            effects.SetParent(transform, false);
+            Shader shader = Shader.Find("Tether Rush/NeonEffect") ?? Shader.Find("Sprites/Default");
+            effectMaterial = new Material(shader) { name = "Feedback transparent (owned)" };
+            effectMaterial.SetColor(BaseColor, Color.white);
+            for (int i = 0; i < SparkCount; i++) sparks[i] = new Spark { View = MakeLine("Pickup spark", 2, false, .035f) };
+            for (int i = 0; i < RingCount; i++) rings[i] = new Ring { View = MakeLine("Pulse / feedback ring", 64, true, .045f) };
+            for (int i = 0; i < GhostCount; i++)
+            {
+                var go = new GameObject("Target mesh echo", typeof(MeshFilter), typeof(MeshRenderer));
+                go.transform.SetParent(effects, false);
+                var renderer = go.GetComponent<MeshRenderer>(); renderer.sharedMaterial = effectMaterial;
+                renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; renderer.receiveShadows = false;
+                renderer.enabled = false;
+                ghosts[i] = new Ghost { Transform = go.transform, Filter = go.GetComponent<MeshFilter>(), Renderer = renderer };
+            }
+            if (camera != null)
+            {
+                audioSource = camera.GetComponent<AudioSource>();
+                if (audioSource == null) { audioSource = camera.gameObject.AddComponent<AudioSource>(); ownsSource = true; }
+                audioSource.playOnAwake = false; audioSource.loop = false; audioSource.spatialBlend = 0; audioSource.volume = .55f;
+                audioSource.mute = !audioEnabled;
+            }
+            // Procedural mono cues are allocated once; no runtime loading or per-frame clip generation.
+            collectClip = MakeCue("Energy", .085f, 540, 800, .18f);
+            bonusClip = MakeCue("Bonus", .12f, 880, 1320, .16f);
+            readyClip = MakeCue("Ready", .23f, 580, 1160, .15f);
+            pulseClip = MakeCue("Pulse", .22f, 320, 90, .23f);
+            failClip = MakeCue("Failure", .23f, 175, 65, .19f);
+            successClip = MakeCue("Completion", .35f, 660, 1320, .17f);
+            ResetPresentation();
+        }
+
+        public void Tick(float dt, bool held, bool ready, RunPhase phase)
+        {
+            if (!initialized) return;
+            bool paused = phase == RunPhase.Paused;
+            if (audioSource != null)
+            {
+                if (paused) audioSource.Pause(); else audioSource.UnPause();
+            }
+            if (paused || dt <= 0 || float.IsNaN(dt) || float.IsInfinity(dt)) return;
+            clock += dt;
+            if (ready && !wasReady && phase == RunPhase.Running) Play(readyClip);
+            wasReady = ready;
+            bool active = phase == RunPhase.Ready || phase == RunPhase.Running;
+            if (active)
+            {
+                float speed = held ? 44 : 22;
+                if (leftMesh != null) leftMesh.localRotation = leftRotation * Quaternion.Euler(clock * speed, clock * 28, 0);
+                if (rightMesh != null) rightMesh.localRotation = rightRotation * Quaternion.Euler(-clock * speed, -clock * 28, 0);
+            }
+            terminalTime = Mathf.Max(0, terminalTime - dt);
+            Color tint = ready ? Color.Lerp(Teal, Gold, .5f + .12f * Mathf.Sin(clock * 13)) : Teal;
+            if (terminalTime > 0) tint = Color.Lerp(tint, terminalColor, Mathf.Clamp01(terminalTime * 3));
+            // The ready vibration is an emission shimmer, not displacement of the tether/core roots.
+            float glow = ready ? 1.2f + .2f * Mathf.Sin(clock * 21) : .35f;
+            foreach (var renderer in tetherRenderers) if (renderer != null) Tint(renderer, tint, glow);
+            TickSparks(dt); TickRings(dt); TickGhosts(dt);
+        }
+
+        public void EnergyCollected(Vector3 position) { if (!initialized) return; Emit(position, Teal, true, 4); Play(collectClip); }
+        public void BonusCollected(Vector3 position) { if (!initialized) return; Emit(position, Gold, false, 5); Play(bonusClip); }
+        public void Pulse(Vector3 position)
+        {
+            if (!initialized) return;
+            SpawnRing(position, radius, .34f, Teal); Play(pulseClip);
+        }
+        public void TargetOpened(GameObject visual, bool isGate)
+        {
+            if (!initialized || visual == null) return;
+            // Copy mesh references and transforms only. No colliders, scripts, or hierarchy are cloned.
+            var renderers = visual.GetComponentsInChildren<MeshRenderer>();
+            int emitted = 0;
+            foreach (var renderer in renderers)
+            {
+                string label = renderer.name;
+                if (isGate && label.IndexOf("Frame", System.StringComparison.OrdinalIgnoreCase) >= 0) continue;
+                var filter = renderer.GetComponent<MeshFilter>();
+                if (filter == null || filter.sharedMesh == null || emitted >= 10) continue;
+                var ghost = ghosts[ghostCursor++ % GhostCount];
+                ghost.Filter.sharedMesh = filter.sharedMesh;
+                if (ghost.Renderer.sharedMaterials.Length != filter.sharedMesh.subMeshCount)
+                {
+                    var slots = new Material[filter.sharedMesh.subMeshCount];
+                    for (int i = 0; i < slots.Length; i++) slots[i] = effectMaterial;
+                    ghost.Renderer.sharedMaterials = slots;
+                }
+                ghost.Origin = renderer.transform.position; ghost.Rotation = renderer.transform.rotation;
+                ghost.Scale = renderer.transform.lossyScale; ghost.Age = 0; ghost.Life = isGate ? .4f : .32f; ghost.Color = Gold;
+                float sign = label.IndexOf("DoorLeft", System.StringComparison.OrdinalIgnoreCase) >= 0 ? -1 :
+                    label.IndexOf("DoorRight", System.StringComparison.OrdinalIgnoreCase) >= 0 ? 1 : (emitted % 2 == 0 ? -1 : 1);
+                ghost.Travel = isGate ? new Vector3(sign * .9f, 0, 0) : new Vector3(sign * .35f, .25f + emitted * .025f, .12f);
+                ghost.Transform.SetPositionAndRotation(ghost.Origin, ghost.Rotation); ghost.Transform.localScale = ghost.Scale;
+                Tint(ghost.Renderer, Gold, 0); ghost.Renderer.enabled = true; emitted++;
+            }
+            if (emitted == 0) SpawnRing(visual.transform.position, .65f, .22f, Gold);
+        }
+        public void Failed()
+        {
+            if (!initialized) return;
+            terminalTime = .25f; terminalColor = new Color(1, .12f, .2f);
+            Emit(Center, terminalColor, false, 6); Play(failClip);
+        }
+        public void Completed()
+        {
+            if (!initialized) return;
+            terminalTime = .45f; terminalColor = Gold;
+            SpawnRing(Center, 1.25f, .5f, Gold); Emit(Center, Gold, false, 8); Play(successClip);
+        }
+        public void ResetPresentation()
+        {
+            if (!initialized) return;
+            clock = terminalTime = 0; wasReady = false;
+            if (leftMesh != null) leftMesh.localRotation = leftRotation;
+            if (rightMesh != null) rightMesh.localRotation = rightRotation;
+            foreach (var spark in sparks) { spark.Life = 0; spark.View.enabled = false; }
+            foreach (var ring in rings) { ring.Life = 0; ring.View.enabled = false; }
+            foreach (var ghost in ghosts) { ghost.Life = 0; ghost.Renderer.enabled = false; }
+            foreach (var renderer in tetherRenderers) if (renderer != null) renderer.SetPropertyBlock(null);
+            if (audioSource != null) audioSource.Stop();
+        }
+
+        private Vector3 Center => left != null && right != null ? (left.position + right.position) * .5f : transform.position;
+        private static Transform FindChildMesh(Transform root)
+        {
+            if (root == null) return null;
+            var visualGroup = root.Find("Visual");
+            if (visualGroup != null) return visualGroup;
+            foreach (var renderer in root.GetComponentsInChildren<MeshRenderer>())
+                if (renderer.transform != root) return renderer.transform;
+            return null;
+        }
+        private LineRenderer MakeLine(string label, int count, bool loop, float width)
+        {
+            var go = new GameObject(label); go.transform.SetParent(effects, false);
+            var line = go.AddComponent<LineRenderer>(); line.sharedMaterial = effectMaterial; line.useWorldSpace = true;
+            line.positionCount = count; line.loop = loop; line.widthMultiplier = width; line.numCapVertices = 2;
+            line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; line.receiveShadows = false; line.enabled = false;
+            return line;
+        }
+        private void Tint(Renderer renderer, Color color, float glow)
+        {
+            renderer.GetPropertyBlock(block); block.SetColor(BaseColor, color); block.SetColor(ColorId, color);
+            block.SetColor(Emission, new Color(color.r * glow, color.g * glow, color.b * glow, color.a));
+            renderer.SetPropertyBlock(block); block.Clear();
+        }
+        private void Emit(Vector3 position, Color color, bool flow, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                var spark = sparks[sparkCursor++ % SparkCount]; float angle = i * 2.39996f;
+                spark.Origin = position + new Vector3(Mathf.Cos(angle), .3f, Mathf.Sin(angle)) * .07f;
+                spark.Velocity = new Vector3(Mathf.Cos(angle), .6f, Mathf.Sin(angle)) * .85f;
+                spark.Age = 0; spark.Life = flow ? .25f : .3f; spark.Flow = flow; spark.Color = color;
+                spark.View.SetPosition(0, spark.Origin); spark.View.SetPosition(1, spark.Origin + Vector3.up * .05f);
+                spark.View.enabled = true;
+            }
+        }
+        private void TickSparks(float dt)
+        {
+            foreach (var spark in sparks)
+            {
+                if (spark.Life <= 0) continue;
+                spark.Age += dt; float t = Mathf.Clamp01(spark.Age / spark.Life);
+                Vector3 position = spark.Flow ? Vector3.Lerp(spark.Origin, Center, t * t) : spark.Origin + spark.Velocity * spark.Age;
+                spark.View.SetPosition(0, position); spark.View.SetPosition(1, position + Vector3.up * .055f * (1 - t));
+                Color color = spark.Color; color.a = 1 - t; spark.View.startColor = spark.View.endColor = color;
+                if (t >= 1) { spark.View.enabled = false; spark.Life = 0; }
+            }
+        }
+        private void SpawnRing(Vector3 position, float maxRadius, float life, Color color)
+        {
+            var ring = rings[ringCursor++ % RingCount]; ring.Age = 0; ring.Life = life; ring.Radius = maxRadius; ring.Color = color;
+            ring.View.transform.position = position; ring.View.enabled = true; UpdateRing(ring, 0);
+        }
+        private void UpdateRing(Ring ring, float t)
+        {
+            // Reach the exact gameplay radius at 65% lifetime, then retain that radius while fading.
+            float size = ring.Radius * Mathf.Clamp01(t / .65f);
+            Vector3 center = ring.View.transform.position;
+            for (int i = 0; i < 64; i++) { float a = i * Mathf.PI * 2 / 64; ring.View.SetPosition(i, center + new Vector3(Mathf.Cos(a), 0, Mathf.Sin(a)) * size); }
+            Color color = ring.Color; color.a = 1 - t; ring.View.startColor = ring.View.endColor = color;
+            ring.View.widthMultiplier = .035f + .035f * (1 - t);
+        }
+        private void TickRings(float dt)
+        {
+            foreach (var ring in rings)
+            {
+                if (ring.Life <= 0) continue;
+                ring.Age += dt; float t = Mathf.Clamp01(ring.Age / ring.Life); UpdateRing(ring, t);
+                if (t >= 1) { ring.View.enabled = false; ring.Life = 0; }
+            }
+        }
+        private void TickGhosts(float dt)
+        {
+            foreach (var ghost in ghosts)
+            {
+                if (ghost.Life <= 0) continue;
+                ghost.Age += dt; float t = Mathf.Clamp01(ghost.Age / ghost.Life);
+                ghost.Transform.position = ghost.Origin + ghost.Travel * (1 - (1 - t) * (1 - t));
+                ghost.Transform.localScale = ghost.Scale * (1 - .12f * t);
+                Color color = ghost.Color; color.a = .8f * (1 - t); Tint(ghost.Renderer, color, 0);
+                if (t >= 1) { ghost.Renderer.enabled = false; ghost.Filter.sharedMesh = null; ghost.Life = 0; }
+            }
+        }
+        private void Play(AudioClip clip)
+        {
+            // Replace the short cue rather than stack voices when a swept frame collects several items.
+            if (audioEnabled && audioSource != null && clip != null && isActiveAndEnabled)
+            { audioSource.clip = clip; audioSource.Play(); }
+        }
+        private static AudioClip MakeCue(string name, float length, float from, float to, float amplitude)
+        {
+            const int rate = 22050;
+            var data = new float[Mathf.CeilToInt(length * rate)]; float phase = 0;
+            for (int i = 0; i < data.Length; i++)
+            {
+                float t = (float)i / data.Length;
+                phase += Mathf.Lerp(from, to, t) * Mathf.PI * 2 / rate;
+                float envelope = Mathf.Min(1, t * 35) * (1 - t) * (1 - t);
+                data[i] = (Mathf.Sin(phase) + .2f * Mathf.Sin(phase * 2)) * envelope * Mathf.Min(amplitude, .25f);
+            }
+            var clip = AudioClip.Create("Procedural " + name, data.Length, 1, rate, false); clip.SetData(data, 0); return clip;
+        }
+        private void OnDestroy()
+        {
+            if (effects != null) Destroy(effects.gameObject);
+            if (effectMaterial != null) Destroy(effectMaterial);
+            if (ownsSource && audioSource != null) Destroy(audioSource);
+            foreach (var clip in new[] { collectClip, bonusClip, readyClip, pulseClip, failClip, successClip }) if (clip != null) Destroy(clip);
+        }
+    }
+}

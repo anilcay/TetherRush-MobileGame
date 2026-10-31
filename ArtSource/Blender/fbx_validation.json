@@ -1,0 +1,244 @@
+{
+  "blender_version": "5.2.3 LTS",
+  "checks": [
+    {
+      "id": "Core",
+      "imported_bounds_xyz": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "bounds_center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triangles": 480,
+      "mesh_count": 3,
+      "root": "Core",
+      "materials": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "TrackTile",
+      "imported_bounds_xyz": [
+        1.0,
+        1.0000001192092896,
+        1.0000001192092896
+      ],
+      "bounds_center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triangles": 220,
+      "mesh_count": 5,
+      "root": "TrackTile",
+      "materials": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "Barrier",
+      "imported_bounds_xyz": [
+        1.0,
+        1.0,
+        1.0000001192092896
+      ],
+      "bounds_center": [
+        0.0,
+        5.960464477539063e-08,
+        0.0
+      ],
+      "triangles": 176,
+      "mesh_count": 4,
+      "root": "Barrier",
+      "materials": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "MovingWall",
+      "imported_bounds_xyz": [
+        1.0,
+        1.0000001192092896,
+        1.0000001192092896
+      ],
+      "bounds_center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triangles": 220,
+      "mesh_count": 5,
+      "root": "MovingWall",
+      "materials": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "RotatingArm",
+      "imported_bounds_xyz": [
+        1.0,
+        1.0000001192092896,
+        1.0000001192092896
+      ],
+      "bounds_center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triangles": 176,
+      "mesh_count": 4,
+      "root": "RotatingArm",
+      "materials": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "EnergyGate",
+      "imported_bounds_xyz": [
+        1.0,
+        1.0000001192092896,
+        1.0000001192092896
+      ],
+      "bounds_center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triangles": 440,
+      "mesh_count": 3,
+      "root": "EnergyGate",
+      "materials": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "BreakableBlock",
+      "imported_bounds_xyz": [
+        1.0,
+        1.0000001192092896,
+        1.0000001192092896
+      ],
+      "bounds_center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triangles": 528,
+      "mesh_count": 4,
+      "root": "BreakableBlock",
+      "materials": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "EnergyPickup",
+      "imported_bounds_xyz": [
+        1.0,
+        1.0000001192092896,
+        1.0000001192092896
+      ],
+      "bounds_center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triangles": 172,
+      "mesh_count": 2,
+      "root": "EnergyPickup",
+      "materials": [
+        "Accent",
+        "Body"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "BonusCrystal",
+      "imported_bounds_xyz": [
+        1.0,
+        1.0,
+        1.0000001192092896
+      ],
+      "bounds_center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triangles": 64,
+      "mesh_count": 2,
+      "root": "BonusCrystal",
+      "materials": [
+        "Body",
+        "Dark"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "PulseBadge",
+      "imported_bounds_xyz": [
+        1.0,
+        1.0,
+        1.0000001192092896
+      ],
+      "bounds_center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triangles": 216,
+      "mesh_count": 3,
+      "root": "PulseBadge",
+      "materials": [
+        "Accent",
+        "Body"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "FinishMarker",
+      "imported_bounds_xyz": [
+        1.0,
+        1.0,
+        1.0000001192092896
+      ],
+      "bounds_center": [
+        0.0,
+        5.960464477539063e-08,
+        0.0
+      ],
+      "triangles": 308,
+      "mesh_count": 7,
+      "root": "FinishMarker",
+      "materials": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "result": "PASS"
+    }
+  ]
+}

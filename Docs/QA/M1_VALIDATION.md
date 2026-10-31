@@ -1,5 +1,7 @@
 # M1 doğrulama kaydı
 
+Bu, M1 tesliminin tarihsel kaydıdır. Yerel `output/validation` dosyaları her çalıştırmada yenilenir; güncel M2 sonuçları [M2 doğrulama kaydındadır](M2_VALIDATION.md).
+
 Tarih: 31.10.2026. Yapı: Unity 6000.3.19f1 / URP 17.3.0 / Input System 1.19.0. Tablodaki durumlar gerçekten yürütülen kontrolü gösterir; test kaynaklarının varlığı tek başına başarı kanıtı değildir.
 
 | Kontrol | Durum | Kanıt / sınır |

@@ -1,0 +1,268 @@
+{
+  "milestone": "M2",
+  "unity": "6000.3.19f1",
+  "app_version": "0.2.0",
+  "device_test": "deferred_by_user",
+  "suites": [
+    {
+      "platform": "EditMode",
+      "result": "Passed",
+      "total": 29,
+      "passed": 29,
+      "failed": 0,
+      "started_utc": "2026-10-31 09:56:28Z",
+      "tests": [
+        {
+          "name": "TetherRush.Tests.RunModelTests.AllFloatTuningMustBeFiniteAndPositive(\"ForwardSpeed\")",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.AllFloatTuningMustBeFiniteAndPositive(\"MinHalfSeparation\")",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.AllFloatTuningMustBeFiniteAndPositive(\"MaxHalfSeparation\")",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.AllFloatTuningMustBeFiniteAndPositive(\"SeparationSpeed\")",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.AllFloatTuningMustBeFiniteAndPositive(\"SphereRadius\")",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.AllFloatTuningMustBeFiniteAndPositive(\"PulseRadius\")",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.CancelInputDoesNotPulseOrConsumeFullEnergy",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.CollectionAmountsMustBePositive(0)",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.CollectionAmountsMustBePositive(-1)",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.CollectionIdsAreConsumedOnceAndHaveIndependentKinds",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.ConstructorIsReadyNarrowAndEmpty",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.EnergyClampsAndFullPickupStaysConsumedAfterPulse",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.ForwardSpeedIsConstantAndSeparationMovesLinearlyWithinLimits",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.FullEnergyRealReleasePulsesExactlyOnce",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.HalfSeparationDefinesEqualOppositeOffsetsAroundFixedCenter",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.InvalidDeltaIsRejectedEvenOutsideRunning(-1.0f)",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.InvalidDeltaIsRejectedEvenOutsideRunning(float.NaN)",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.InvalidDeltaIsRejectedEvenOutsideRunning(float.PositiveInfinity)",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.InvalidDeltaIsRejectedEvenOutsideRunning(float.NegativeInfinity)",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.LargeBonusAmountsDoNotWrapNegative",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.NullTuningIsRejected",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.PartialReleaseKeepsEnergyAndNarrowsWithoutPulse",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.PauseFreezesAndResumeRequiresFreshPress",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.ReadyIgnoresGameplayAndZeroDeltaIsValid",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.ResetClearsCountersIdsAndStaleInput",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.ReversedSeparationAndNonpositiveCapacityAreRejected",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.StartingAgainResetsAnActiveRun",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.TerminalStatesFreezeAndCannotBeOverwritten(False)",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.RunModelTests.TerminalStatesFreezeAndCannotBeOverwritten(True)",
+          "result": "Passed"
+        }
+      ]
+    },
+    {
+      "platform": "PlayMode",
+      "result": "Passed",
+      "total": 31,
+      "passed": 31,
+      "failed": 0,
+      "started_utc": "2026-10-31 09:59:23Z",
+      "tests": [
+        {
+          "name": "TetherRush.Tests.ChallengeFlowTests.AuthoredChallengeCompletesWithBothSphereBonusRows",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.ChallengeFlowTests.HalfSecondFrameCannotSkipMovingWallWhileNarrow",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.ChallengeFlowTests.HoldingPastFirstWallFailsAtSecondMovingWall",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.ChallengeFlowTests.PauseFreezesHazardPoseAndRestartRestoresInitialPoseAndRun",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.ChallengeFlowTests.StayingNarrowFailsAtFirstMovingWall",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.PresentationSmokeTests.AllElevenBlenderModelsHaveCenteredUnitBoundsAndSupportedShaders",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.PresentationSmokeTests.FeedbackPreservesGameplayRootsFreezesWhilePausedAndClearsOnRetry",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.PresentationSmokeTests.RenderActualReadyFoundationPulseAndChallengePreviews",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.PrototypeFlowTests.AuthoredRouteCollectsEnergyAndBonusActivatesBothTargetsAndCompletes",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.PrototypeFlowTests.EarlyFullPulseSpendsChargeAndClosedGateEndsRun",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.PrototypeFlowTests.FullPulseDoesNotDestroyNormalCenterHazard",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.PrototypeFlowTests.HalfSecondFrameCannotSkipCenterBarrierWhileNarrow",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.PrototypeFlowTests.HalfSecondReleaseFramesOpenBothTargetsAndBeginNarrowingWithoutFatalDelay",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.PrototypeFlowTests.PauseFreezesRunAndResumeRequiresFreshPressBeforePulse",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.PrototypeFlowTests.ReleasingWithAuthoredPartialChargeDoesNotPulseOrSpendEnergy",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.PrototypeFlowTests.RestartRestoresWorldChargeBonusInputAndTargets",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.PrototypeFlowTests.StayingNarrowFailsAtCenterBarrier",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.PrototypeFlowTests.StayingWideFailsAtFirstNarrowGate",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.PrototypeFlowTests.WideTetherCrossesNormalCenterBarrierWithoutFatalContact",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.TimedHazardTests.AuthoredArmReachesWideSpheresHorizontallyButArrivalPhaseIsSafe",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.TimedHazardTests.AuthoredRoutePassesBothSpheresWithBroadTimingMargins",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.TimedHazardTests.CircleCornerMissAndExactSideTouchUseRoundedBoxGeometry",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.TimedHazardTests.FullRotationIntervalCannotTunnelAndDoesNotInflateOutsideArm",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.TimedHazardTests.InvalidInputsFailExplicitly",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.TimedHazardTests.RotatedBoxRejectsEmptyAabbCornerAndAcceptsActualArm",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.TimedHazardTests.SameSimulationTimeFreezesAndResetRestoresInitialState",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.TimedHazardTests.SmallSphereAndFastRelativeMotionStillCollide",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.TimedHazardTests.SpatialSweepCannotTunnelFromEitherSide(-4.0f,4.0f)",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.TimedHazardTests.SpatialSweepCannotTunnelFromEitherSide(4.0f,-4.0f)",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.TimedHazardTests.WallCanCrossStationarySphereWithBothEndpointsClear",
+          "result": "Passed"
+        },
+        {
+          "name": "TetherRush.Tests.TimedHazardTests.WallSineUsesPhaseAndKeepsForwardPositionFixed",
+          "result": "Passed"
+        }
+      ]
+    }
+  ]
+}

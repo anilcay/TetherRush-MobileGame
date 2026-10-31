@@ -1,6 +1,6 @@
 # Tether Rush — Sanat ve Animasyon Hazırlığı
 
-Durum: Hazırlık belgesi; gerçek varlık üretilmedi. Yönetici ajan `C:/Program Files (x86)/Steam/steamapps/common/Blender/blender.exe` yolunda Blender executable bulunduğunu bildirdi; dosya sürüm bilgisi 5.2 olarak okundu, uygulama çalıştırılmadı. Bu belge Blender veya Unity çalıştırıldığı, paket kurulduğu ya da import testi yapıldığı anlamına gelmez. İlk hedef kullanıcı onayıyla Android telefon ve dikey ekrandır (D-006).
+Güncel durum: M2'de Blender 5.2.3 LTS ile gerçek kaynak ve 11 FBX üretildi; Unity import/model kontrolleri geçti. Ayrıntılar [varlık manifestinde](M2_ASSET_MANIFEST.md), [efekt tesliminde](M2_FEEDBACK.md) ve [doğrulama kaydında](../QA/M2_VALIDATION.md). Aşağıdaki metin başlangıç üretim planını korur; tüm önerilerin kullanıcı tarafından ayrıca onaylandığı anlamına gelmez. İlk hedef Android telefon ve dikey ekrandır (D-006).
 
 Kaynak: `Docs/Source/GDD-extracted.txt`, GDD V2.0, 31.10.2026. Aşağıdaki **ÖNERİ** maddeleri onaylanmış üretim kararları değildir; önemli kararlar ana yönetim sohbetinde kullanıcı onayına sunulur.
 
@@ -29,7 +29,7 @@ Kaynak: `Docs/Source/GDD-extracted.txt`, GDD V2.0, 31.10.2026. Aşağıdaki **Ö
 Örnek varlık kimlikleri: `Core_A`, `Core_B`, `Track_Straight`, `Obstacle_CenterBarrier`, `Obstacle_NarrowPass`, `Obstacle_MovingWall`, `Obstacle_RotatingArm`, `Pickup_Energy`, `Pickup_BonusCrystal`, `Pulse_BreakableBlock`, `Pulse_EnergyGate`, `Finish_Marker`.
 
 - Kaynak: `ArtSource/Blender/<AssetId>.blend`
-- Teslim: `Assets/TetherRush/Art/Models/<AssetId>.fbx`
+- M2 teslimi: `Assets/TetherRush/Resources/ArtModels/<AssetId>.fbx` (küçük kitin kontrollü runtime yüklemesi).
 - Mesh: `SM_<AssetId>`; materyal: `M_<Role>`; prefab: `PF_<AssetId>`.
 - Gerekli obje animasyon klibi: `AN_<AssetId>_<Action>`; efekt: `VFX_<Action>`.
 

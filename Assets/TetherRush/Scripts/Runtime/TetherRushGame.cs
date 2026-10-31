@@ -5,6 +5,10 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using TetherRush.Art;
+using TetherRush.Course;
+using TetherRush.Presentation;
 
 namespace TetherRush
 {
@@ -12,7 +16,18 @@ namespace TetherRush
     public sealed class TetherRushGame : MonoBehaviour
     {
         public const float FinishDistance = PrototypeLayout.FinishDistance;
+        private static bool preferredAudio = true;
         [SerializeField] private RunTuning tuning = new RunTuning();
+        [SerializeField] private bool advancedCourse;
+        public bool IsAdvancedCourse => advancedCourse;
+        public float CourseFinishDistance => advancedCourse ? TimedCourseLayout.FinishDistance : FinishDistance;
+        public int TimedHazardCount => timedHazards.Length;
+        public GameFeedback Feedback { get; private set; }
+        public void ConfigureCourse(bool advanced)
+        {
+            if (Model != null) throw new System.InvalidOperationException("Configure the course before Awake.");
+            advancedCourse = advanced;
+        }
         public RunModel Model { get; private set; }
         public bool AutoSimulate { get; set; } = true;
         public Transform LeftCore { get; private set; }
@@ -20,22 +35,24 @@ namespace TetherRush
         public int ActivatedTargetCount { get; private set; }
         public int RemainingEnergyCount { get { int n = 0; foreach (var c in pickups) if (!c.Bonus && c.View.activeSelf) n++; return n; } }
 
-        private sealed class Hazard { public Bounds Bounds; public GameObject View; public bool Marked; public bool Open; public string Reason; }
+        private sealed class Hazard { public Bounds Bounds; public GameObject View, OpenFrame; public bool Marked; public bool Open; public bool Gate; public string Reason; }
         private sealed class Pickup { public Vector3 Position; public GameObject View; public bool Bonus; public int Id; }
         private readonly List<Hazard> hazards = new List<Hazard>();
         private readonly List<Pickup> pickups = new List<Pickup>();
         private readonly List<Material> materials = new List<Material>();
         private readonly List<RaycastResult> uiHits = new List<RaycastResult>();
         private readonly float[] sweepTimes = new float[6];
-        private Material trackMat, redMat, goldMat, tealMat, purpleMat, lineMat;
+        private Material trackMat, redMat, goldMat, tealMat, purpleMat, lineMat, darkMat, accentMat, tetherMat;
+        private VisualLibrary visuals;
+        private TimedHazard[] timedHazards = new TimedHazard[0];
+        private Transform[] timedViews = new Transform[0];
         private Transform world, tether;
         private Camera gameCamera;
-        private LineRenderer pulseRing;
-        private float pulseLife;
+        private LineRenderer tetherLine;
         private Canvas canvas;
         private RectTransform safeArea, energyFill, progressFill;
-        private Text energyText, hintText, statsText, overlayText, actionText, pauseText;
-        private GameObject overlay, pauseButton;
+        private Text energyText, hintText, statsText, overlayText, actionText, pauseText, audioText;
+        private GameObject overlay, pauseButton, courseButton;
         private int activeTouchId = -1;
         private bool mouseHeld, keyboardHeld;
         private RunPhase lastPhase = (RunPhase)(-1);
@@ -47,6 +64,9 @@ namespace TetherRush
             Application.targetFrameRate = 60;
             Model = new RunModel(tuning);
             BuildWorld();
+            Feedback = gameObject.AddComponent<GameFeedback>();
+            Feedback.Initialize(LeftCore, RightCore, tether, gameCamera, tetherMat, tuning.PulseRadius);
+            Feedback.AudioEnabled = !Application.isBatchMode && preferredAudio;
             BuildHud();
             RefreshVisuals(0);
         }
@@ -56,9 +76,10 @@ namespace TetherRush
             ClearPointer();
             Model.StartRun();
             ActivatedTargetCount = 0;
-            foreach (var h in hazards) { h.Open = false; h.View.SetActive(true); }
+            foreach (var h in hazards) { h.Open = false; h.View.SetActive(true); if (h.OpenFrame != null) h.OpenFrame.SetActive(false); }
             foreach (var c in pickups) c.View.SetActive(true);
-            pulseLife = 0;
+            Feedback.ResetPresentation();
+            lastPhase = (RunPhase)(-1);
             RefreshVisuals(0);
         }
         public void RestartRun() { StartRun(); }
@@ -96,7 +117,7 @@ namespace TetherRush
                     releasePending = false;
                 }
                 remaining -= step;
-                if (Model.Phase == RunPhase.Running && Model.Distance >= FinishDistance) Model.Complete();
+                if (Model.Phase == RunPhase.Running && Model.Distance >= CourseFinishDistance) Model.Complete();
             }
             if (releasePending && Model.Release()) ActivatePulse();
             RefreshVisuals(dt);
@@ -112,6 +133,11 @@ namespace TetherRush
                     SweptCircleBox(new Vector2(-a.x, a.y), new Vector2(-b.x, b.y), h.Bounds, tuning.SphereRadius))
                 { Model.Fail(h.Reason); return; }
             }
+            float startTime = oldZ / tuning.ForwardSpeed, endTime = Model.Distance / tuning.ForwardSpeed;
+            foreach (var h in timedHazards)
+                if (h.HitsSweptSphere(a, b, tuning.SphereRadius, startTime, endTime) ||
+                    h.HitsSweptSphere(new Vector2(-a.x, a.y), new Vector2(-b.x, b.y), tuning.SphereRadius, startTime, endTime))
+                { Model.Fail(h.Hint); return; }
             foreach (var c in pickups)
             {
                 if (!c.View.activeSelf) continue;
@@ -131,7 +157,11 @@ namespace TetherRush
                     float half = Mathf.Max(Mathf.Lerp(a.x, b.x, lo), Mathf.Lerp(a.x, b.x, hi));
                     hit = c.Position.z + .18f >= a.y && c.Position.z - .18f <= b.y && Mathf.Abs(c.Position.x) <= half + .08f;
                 }
-                if (hit && (c.Bonus ? Model.CollectBonus(c.Id) : Model.CollectEnergy(c.Id))) c.View.SetActive(false);
+                if (hit && (c.Bonus ? Model.CollectBonus(c.Id) : Model.CollectEnergy(c.Id)))
+                {
+                    if (c.Bonus) Feedback.BonusCollected(c.Position); else Feedback.EnergyCollected(c.Position);
+                    c.View.SetActive(false);
+                }
             }
         }
 
@@ -174,10 +204,14 @@ namespace TetherRush
                 if (!h.Marked || h.Open) continue;
                 Vector3 near = h.Bounds.ClosestPoint(center); near.y = center.y;
                 if ((near - center).sqrMagnitude <= tuning.PulseRadius * tuning.PulseRadius + .00001f)
-                { h.Open = true; h.View.SetActive(false); ActivatedTargetCount++; }
+                {
+                    Feedback.TargetOpened(h.View, h.Gate);
+                    h.Open = true; h.View.SetActive(false);
+                    if (h.OpenFrame != null) h.OpenFrame.SetActive(true);
+                    ActivatedTargetCount++;
+                }
             }
-            pulseLife = .32f;
-            pulseRing.transform.position = center;
+            Feedback.Pulse(center);
         }
 
         private void PollInput(out bool press, out bool release)
@@ -231,65 +265,100 @@ namespace TetherRush
 
         private Material MakeMaterial(string label, Color color)
         {
-            Shader shader = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color") ?? Shader.Find("Hidden/InternalErrorShader");
+            Shader shader = Shader.Find("Tether Rush/NeonSurface") ?? Shader.Find("Universal Render Pipeline/Unlit");
             var material = new Material(shader) { name = label };
-            material.SetColor("_BaseColor", color); material.SetColor("_Color", color);
+            material.SetColor("_BaseColor", color);
+            if (material.HasProperty("_EmissionColor")) material.SetColor("_EmissionColor", color * .12f);
             materials.Add(material); return material;
         }
-        private GameObject Primitive(string label, PrimitiveType type, Vector3 pos, Vector3 scale, Material material)
+        private GameObject ModelVisual(VisualKind kind, string label, Vector3 pos, Vector3 size, Material material)
         {
-            var obj = GameObject.CreatePrimitive(type); obj.name = label; obj.transform.SetParent(world, false);
-            obj.transform.position = pos; obj.transform.localScale = scale;
-            obj.GetComponent<Renderer>().sharedMaterial = material;
-            var collider = obj.GetComponent<Collider>(); collider.enabled = false; Destroy(collider);
-            return obj;
+            return visuals.Create(kind, label, world, pos, size, material, kind == VisualKind.TrackTile ? lineMat : null);
         }
-        private void AddHazard(string label, Vector3 pos, Vector3 size, bool marked, string reason)
+        private void AddHazard(string label, Vector3 pos, Vector3 size, bool marked, string reason, bool gate = false)
         {
-            var obj = Primitive(label, PrimitiveType.Cube, pos, size, marked ? goldMat : redMat);
-            hazards.Add(new Hazard { Bounds = new Bounds(pos, size), View = obj, Marked = marked, Reason = reason });
+            var obj = ModelVisual(marked ? (gate ? VisualKind.EnergyGate : VisualKind.BreakableBlock) : VisualKind.Barrier,
+                label, pos, size, marked ? goldMat : redMat);
+            var hazard = new Hazard { Bounds = new Bounds(pos, size), View = obj, Marked = marked, Gate = gate, Reason = reason };
+            hazards.Add(hazard);
+            if (gate)
+            {
+                foreach (var renderer in obj.GetComponentsInChildren<MeshRenderer>())
+                {
+                    if (renderer.name.IndexOf("Frame", System.StringComparison.OrdinalIgnoreCase) < 0) continue;
+                    var filter = renderer.GetComponent<MeshFilter>();
+                    if (filter == null) continue;
+                    var frame = new GameObject("Opened gate frame", typeof(MeshFilter), typeof(MeshRenderer));
+                    frame.transform.SetParent(world, false);
+                    frame.transform.SetPositionAndRotation(renderer.transform.position, renderer.transform.rotation);
+                    frame.transform.localScale = renderer.transform.lossyScale;
+                    frame.GetComponent<MeshFilter>().sharedMesh = filter.sharedMesh;
+                    frame.GetComponent<MeshRenderer>().sharedMaterials = renderer.sharedMaterials;
+                    frame.SetActive(false); hazard.OpenFrame = frame; break;
+                }
+            }
             if (marked)
             {
-                var sign = Primitive(label + " pulse mark", PrimitiveType.Cube, pos + new Vector3(0, 1.1f, 0), new Vector3(.65f, .65f, .12f), tealMat);
-                sign.transform.SetParent(obj.transform, true); sign.transform.Rotate(0, 0, 45);
+                var sign = ModelVisual(VisualKind.PulseBadge, label + " pulse mark", pos + new Vector3(0, 1.1f, 0), new Vector3(.65f, .65f, .12f), tealMat);
+                sign.transform.SetParent(obj.transform, true);
             }
         }
         private void BuildWorld()
         {
-            world = new GameObject("M1 prototype world").transform; world.SetParent(transform, false);
+            world = new GameObject(advancedCourse ? "Timing course" : "Foundation course").transform; world.SetParent(transform, false);
             trackMat = MakeMaterial("Track", new Color(.035f, .055f, .09f));
             redMat = MakeMaterial("Fatal obstacle", new Color(.95f, .16f, .24f));
             goldMat = MakeMaterial("Pulse target / bonus", new Color(1f, .69f, .16f));
             tealMat = MakeMaterial("Left core / energy", new Color(.08f, .95f, .9f));
             purpleMat = MakeMaterial("Right core", new Color(.72f, .35f, 1f));
             lineMat = MakeMaterial("Track markings", new Color(.12f, .26f, .36f));
-            Primitive("Track", PrimitiveType.Cube, new Vector3(0, -.22f, 92), new Vector3(7.2f, .4f, 210), trackMat);
-            for (int i = 0; i < 2; i++) Primitive("Track edge", PrimitiveType.Cube, new Vector3(i == 0 ? -3.6f : 3.6f, .02f, 92), new Vector3(.06f, .05f, 210), tealMat);
-            for (int z = 0; z <= 190; z += 5) Primitive("Distance marker", PrimitiveType.Cube, new Vector3(0, .005f, z), new Vector3(7.1f, .015f, .035f), lineMat);
+            darkMat = MakeMaterial("Recessed panels", new Color(.014f, .023f, .04f));
+            accentMat = MakeMaterial("Edge accents", new Color(.62f, .78f, .86f));
+            visuals = new VisualLibrary(darkMat, accentMat);
+            for (int z = -10; z <= CourseFinishDistance + 10; z += 10)
+                ModelVisual(VisualKind.TrackTile, "Track tile", new Vector3(0, -.22f, z + 5), new Vector3(7.2f, .4f, 10), trackMat);
             AddHazard("Narrow gate left", new Vector3(-2.425f, .65f, 20), new Vector3(2.35f, 1.3f, 1), false, "Dar geçit: bırak ve daral.");
             AddHazard("Narrow gate right", new Vector3(2.425f, .65f, 20), new Vector3(2.35f, 1.3f, 1), false, "Dar geçit: bırak ve daral.");
-            AddHazard("Center barrier", new Vector3(0, .65f, 42), new Vector3(2.5f, 1.3f, 1.2f), false, "Orta bariyer: basılı tut ve açıl.");
-            AddHazard("Energy gate", new Vector3(0, .65f, 100), new Vector3(7.2f, 1.3f, .7f), true, "Kapalı enerji kapısı! Tam enerjiyle menzilde bırak.");
-            AddHazard("Marked breakable", new Vector3(0, .65f, 153), new Vector3(7.2f, 1.3f, .7f), true, "İşaretli hedef kapalı! Tam enerjiyle menzilde bırak.");
-            for (int i = 0; i < PrototypeLayout.EnergyDistances.Length; i++)
-                AddPickup(new Vector3(PrototypeLayout.EnergyOffsets[i], .55f, PrototypeLayout.EnergyDistances[i]), false, i);
-            foreach (float z in new[] { 49f, 85f, 141f, 167f })
-            { AddPickup(new Vector3(-2.2f, .55f, z), true, pickups.Count); AddPickup(new Vector3(2.2f, .55f, z), true, pickups.Count); }
-            Primitive("Finish stripe", PrimitiveType.Cube, new Vector3(0, .02f, FinishDistance), new Vector3(7.2f, .04f, .6f), tealMat);
-            LeftCore = Primitive("Left core", PrimitiveType.Sphere, Vector3.zero, Vector3.one * tuning.SphereRadius * 2, tealMat).transform;
-            RightCore = Primitive("Right core", PrimitiveType.Sphere, Vector3.zero, Vector3.one * tuning.SphereRadius * 2, purpleMat).transform;
-            tether = Primitive("Energy tether", PrimitiveType.Cube, Vector3.zero, Vector3.one, tealMat).transform;
+            if (advancedCourse)
+            {
+                timedHazards = TimedCourseLayout.Create(); timedViews = new Transform[timedHazards.Length];
+                for (int i = 0; i < timedHazards.Length; i++)
+                {
+                    var h = timedHazards[i];
+                    timedViews[i] = ModelVisual(h.Kind == TimedHazardKind.RotatingArm ? VisualKind.RotatingArm : VisualKind.MovingWall,
+                        "Timed hazard " + i, new Vector3(h.Center.x, .65f, h.Center.y),
+                        new Vector3(h.HalfExtents.x * 2, 1.3f, h.HalfExtents.y * 2), redMat).transform;
+                }
+                foreach (var point in new[] { new Vector2(2.2f, 52), new Vector2(.65f, 82), new Vector2(2.2f, 110) })
+                { AddPickup(new Vector3(-point.x, .55f, point.y), true, pickups.Count); AddPickup(new Vector3(point.x, .55f, point.y), true, pickups.Count); }
+            }
+            else
+            {
+                AddHazard("Center barrier", new Vector3(0, .65f, 42), new Vector3(2.5f, 1.3f, 1.2f), false, "Orta bariyer: basılı tut ve açıl.");
+                AddHazard("Energy gate", new Vector3(0, .65f, 100), new Vector3(7.2f, 1.3f, .7f), true, "Kapalı enerji kapısı! Tam enerjiyle menzilde bırak.", true);
+                AddHazard("Marked breakable", new Vector3(0, .65f, 153), new Vector3(7.2f, 1.3f, .7f), true, "İşaretli hedef kapalı! Tam enerjiyle menzilde bırak.");
+                for (int i = 0; i < PrototypeLayout.EnergyDistances.Length; i++)
+                    AddPickup(new Vector3(PrototypeLayout.EnergyOffsets[i], .55f, PrototypeLayout.EnergyDistances[i]), false, i);
+                foreach (float z in new[] { 49f, 85f, 141f, 167f })
+                { AddPickup(new Vector3(-2.2f, .55f, z), true, pickups.Count); AddPickup(new Vector3(2.2f, .55f, z), true, pickups.Count); }
+            }
+            ModelVisual(VisualKind.FinishMarker, "Finish arch", new Vector3(0, 1.6f, CourseFinishDistance), new Vector3(7.2f, 3.2f, .45f), tealMat);
+            LeftCore = ModelVisual(VisualKind.Core, "Left core", Vector3.zero, Vector3.one * tuning.SphereRadius * 2, tealMat).transform;
+            RightCore = ModelVisual(VisualKind.Core, "Right core", Vector3.zero, Vector3.one * tuning.SphereRadius * 2, purpleMat).transform;
+            tether = new GameObject("Energy tether").transform; tether.SetParent(world, false);
+            tetherMat = new Material(Shader.Find("Tether Rush/NeonEffect") ?? Shader.Find("Sprites/Default")) { name = "Tether beam" };
+            tetherMat.SetColor("_BaseColor", new Color(.08f, .95f, .9f)); materials.Add(tetherMat);
+            tetherLine = tether.gameObject.AddComponent<LineRenderer>(); tetherLine.sharedMaterial = tetherMat;
+            tetherLine.positionCount = 2; tetherLine.useWorldSpace = true; tetherLine.widthMultiplier = .065f; tetherLine.numCapVertices = 4;
             var cameraObj = new GameObject("Main Camera"); cameraObj.transform.SetParent(world); cameraObj.tag = "MainCamera";
             gameCamera = cameraObj.AddComponent<Camera>(); gameCamera.clearFlags = CameraClearFlags.SolidColor; gameCamera.backgroundColor = new Color(.018f, .025f, .05f);
             gameCamera.fieldOfView = 62; gameCamera.nearClipPlane = .1f; gameCamera.farClipPlane = 90;
-            var pulseObj = new GameObject("Pulse range"); pulseObj.transform.SetParent(world); pulseRing = pulseObj.AddComponent<LineRenderer>();
-            pulseRing.sharedMaterial = tealMat; pulseRing.useWorldSpace = false; pulseRing.loop = true; pulseRing.positionCount = 64; pulseRing.widthMultiplier = .07f;
-            for (int i = 0; i < 64; i++) { float angle = i * Mathf.PI * 2 / 64; pulseRing.SetPosition(i, new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * tuning.PulseRadius); }
+            cameraObj.AddComponent<AudioListener>();
         }
         private void AddPickup(Vector3 pos, bool bonus, int id)
         {
-            var obj = Primitive(bonus ? "Bonus crystal" : "Tether energy", bonus ? PrimitiveType.Cube : PrimitiveType.Sphere, pos, Vector3.one * (bonus ? .3f : .32f), bonus ? goldMat : tealMat);
-            if (bonus) obj.transform.Rotate(0, 35, 45);
+            var obj = ModelVisual(bonus ? VisualKind.BonusCrystal : VisualKind.EnergyPickup, bonus ? "Bonus crystal" : "Tether energy",
+                pos, Vector3.one * (bonus ? .38f : .32f), bonus ? goldMat : tealMat);
             pickups.Add(new Pickup { Position = pos, View = obj, Bonus = bonus, Id = id });
         }
         private RectTransform UiRect(string label, Transform parent, Vector2 min, Vector2 max, Vector2 offsetMin, Vector2 offsetMax)
@@ -325,9 +394,12 @@ namespace TetherRush
             scaler.referenceResolution = new Vector2(540, 960); scaler.matchWidthOrHeight = .5f;
             safeArea = UiRect("Safe area", go.transform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             UiImage("HUD background", safeArea, new Color(.02f, .035f, .065f, .95f), new Vector2(0, 1), Vector2.one, new Vector2(0, -185), Vector2.zero);
-            UiText("Title", safeArea, "TETHER RUSH  /  01", 29, new Vector2(0, 1), Vector2.one, new Vector2(20, -49), new Vector2(-120, -8));
+            UiText("Title", safeArea, "TETHER RUSH  /  " + (advancedCourse ? "02" : "01"), 24, new Vector2(0, 1), Vector2.one, new Vector2(16, -49), new Vector2(-225, -8));
             pauseButton = UiButton("Pause", safeArea, "Duraklat", new Vector2(1, 1), Vector2.one, new Vector2(-125, -53), new Vector2(-10, -9), () => PauseRun(), out pauseText);
             pauseText.fontSize = 20;
+            UiButton("Audio", safeArea, "Ses Açık", new Vector2(1, 1), Vector2.one, new Vector2(-218, -53), new Vector2(-132, -9),
+                () => { Feedback.AudioEnabled = !Feedback.AudioEnabled; preferredAudio = Feedback.AudioEnabled; audioText.text = Feedback.AudioEnabled ? "Ses Açık" : "Sessiz"; }, out audioText);
+            audioText.fontSize = 16; audioText.text = Feedback.AudioEnabled ? "Ses Açık" : "Sessiz";
             statsText = UiText("Stats", safeArea, "", 22, new Vector2(0, 1), Vector2.one, new Vector2(16, -88), new Vector2(-16, -52));
             var bar = UiImage("Energy background", safeArea, new Color(.12f, .17f, .23f), new Vector2(0, 1), Vector2.one, new Vector2(24, -133), new Vector2(-24, -97));
             energyFill = UiImage("Energy fill", bar.transform, new Color(.04f, .6f, .57f), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero).rectTransform;
@@ -335,12 +407,16 @@ namespace TetherRush
             hintText = UiText("Section instruction", safeArea, "", 25, new Vector2(0, 1), Vector2.one, new Vector2(16, -181), new Vector2(-16, -138));
             var progress = UiImage("Progress background", safeArea, new Color(.1f, .16f, .22f), Vector2.zero, new Vector2(1, 0), new Vector2(20, 22), new Vector2(-20, 30));
             progressFill = UiImage("Progress", progress.transform, new Color(.1f, .85f, .8f), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero).rectTransform;
-            UiText("Control reminder", safeArea, "BASILI TUT: AÇIL   •   BIRAK: DARAL / PULSE", 19, Vector2.zero, new Vector2(1, 0), new Vector2(16, 38), new Vector2(-16, 88));
+            UiText("Control reminder", safeArea, advancedCourse ? "BASILI TUT: AÇIL   •   BIRAK: DARAL" : "BASILI TUT: AÇIL   •   BIRAK: DARAL / PULSE", 19, Vector2.zero, new Vector2(1, 0), new Vector2(16, 38), new Vector2(-16, 88));
             var panel = UiImage("Run overlay", safeArea, new Color(.015f, .025f, .055f, .95f), new Vector2(.05f, .23f), new Vector2(.95f, .77f), Vector2.zero, Vector2.zero);
             overlay = panel.gameObject; panel.raycastTarget = true;
-            overlayText = UiText("Run information", panel.transform, "", 24, new Vector2(0, .27f), Vector2.one, new Vector2(24, 10), new Vector2(-24, -20));
-            UiButton("Start retry resume", panel.transform, "Başla", new Vector2(.12f, .06f), new Vector2(.88f, .24f), Vector2.zero, Vector2.zero,
+            overlayText = UiText("Run information", panel.transform, "", 23, new Vector2(0, .42f), Vector2.one, new Vector2(24, 10), new Vector2(-24, -20));
+            UiButton("Start retry resume", panel.transform, "Başla", new Vector2(.12f, .06f), new Vector2(.88f, .22f), Vector2.zero, Vector2.zero,
                 () => { if (Model.Phase == RunPhase.Paused) ResumeRun(); else StartRun(); }, out actionText);
+            courseButton = UiButton("Other course", panel.transform, advancedCourse ? "Temel parkur" : "Zamanlama parkuru",
+                new Vector2(.12f, .24f), new Vector2(.88f, .37f), Vector2.zero, Vector2.zero,
+                () => SceneManager.LoadScene(advancedCourse ? "Prototype" : "Challenge"), out var courseText);
+            courseText.fontSize = 22;
             if (EventSystem.current == null)
             {
                 var events = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule)); events.transform.SetParent(transform);
@@ -351,6 +427,7 @@ namespace TetherRush
         private int Section()
         {
             float z = Model.Distance;
+            if (advancedCourse) return z < 24 ? 0 : z < 54 ? 10 : z < 79 ? 11 : z < 110 ? 12 : 13;
             if (z < 24) return 0;
             if (z < 47) return 1;
             if (z < 83) return 2;
@@ -366,9 +443,19 @@ namespace TetherRush
                 case 0: return "DAR GEÇİT • Bırak, dar kal";
                 case 1: return "ORTA BARİYER • Şimdi basılı tut";
                 case 2: return "ENERJİ • Açık bağla 5 parçayı topla";
-                case 3: return Model.Distance >= 94.65f && Model.Distance <= 99 ? "MENZİLDE • Şimdi BIRAK!" : "PULSE KAPISI • Tam enerjiyle yaklaş";
+                case 3:
+                    if (ActivatedTargetCount >= 1) return "KAPI AÇILDI • Geçiş hazır";
+                    if (Model.Energy < tuning.EnergyCapacity) return "ENERJİ EKSİK • Kapı Pulse ister";
+                    return Model.Distance >= 94.65f && Model.Distance <= 99 ? "MENZİLDE • Şimdi BIRAK!" : "PULSE KAPISI • Tam enerjiyle yaklaş";
                 case 4: return "YENİ ENERJİ • Tekrar basılı tut";
-                case 5: return Model.Distance >= 147.65f && Model.Distance <= 152 ? "MENZİLDE • Şimdi BIRAK!" : "İŞARETLİ HEDEF • Tam enerjiyle yaklaş";
+                case 5:
+                    if (ActivatedTargetCount >= 2) return "HEDEF AÇILDI • Bitişe ilerle";
+                    if (Model.Energy < tuning.EnergyCapacity) return "ENERJİ EKSİK • Hedef Pulse ister";
+                    return Model.Distance >= 147.65f && Model.Distance <= 152 ? "MENZİLDE • Şimdi BIRAK!" : "İŞARETLİ HEDEF • Tam enerjiyle yaklaş";
+                case 10: return "HAREKETLİ DUVAR • Basılı tut, geniş geç";
+                case 11: return "DUVAR YANA KAYIYOR • Bırak, dar geç";
+                case 12: return "DÖNEN KOL • Basılı tut, uçlardan geç";
+                case 13: return "BİTİŞ • İki küreyi de koru";
                 default: return "BİTİŞ • Altın bonuslar kürelerle toplanır";
             }
         }
@@ -376,45 +463,56 @@ namespace TetherRush
         {
             float z = Model.Distance, half = Model.HalfSeparation;
             LeftCore.position = new Vector3(-half, .55f, z); RightCore.position = new Vector3(half, .55f, z);
-            tether.position = new Vector3(0, .55f, z); tether.localScale = new Vector3(half * 2, .065f, .065f);
+            tetherLine.SetPosition(0, LeftCore.position); tetherLine.SetPosition(1, RightCore.position);
+            float runTime = z / tuning.ForwardSpeed;
+            for (int i = 0; i < timedHazards.Length; i++)
+            {
+                var position = timedHazards[i].PositionAt(runTime);
+                timedViews[i].SetPositionAndRotation(new Vector3(position.x, .65f, position.y),
+                    Quaternion.Euler(0, -timedHazards[i].AngleAt(runTime) * Mathf.Rad2Deg, 0));
+            }
             gameCamera.transform.position = new Vector3(0, 10, z - 11);
             gameCamera.transform.rotation = Quaternion.LookRotation(new Vector3(0, .1f, z + 8) - gameCamera.transform.position);
-            pulseLife = Mathf.Max(0, pulseLife - dt); pulseRing.enabled = pulseLife > 0;
-            // The displayed ring always uses the same fixed five-unit target radius as the simulation.
-            if (pulseRing.enabled) pulseRing.widthMultiplier = .04f + pulseLife * .18f;
             if (Screen.safeArea != lastSafeArea)
             {
                 lastSafeArea = Screen.safeArea;
                 if (Screen.width > 0 && Screen.height > 0)
                 { safeArea.anchorMin = new Vector2(lastSafeArea.xMin / Screen.width, lastSafeArea.yMin / Screen.height); safeArea.anchorMax = new Vector2(lastSafeArea.xMax / Screen.width, lastSafeArea.yMax / Screen.height); }
             }
-            progressFill.anchorMax = new Vector2(Mathf.Clamp01(z / FinishDistance), 1);
+            progressFill.anchorMax = new Vector2(Mathf.Clamp01(z / CourseFinishDistance), 1);
             if (lastEnergy != Model.Energy)
             {
                 lastEnergy = Model.Energy; energyFill.anchorMax = new Vector2((float)Model.Energy / tuning.EnergyCapacity, 1);
-                energyText.text = Model.Energy == tuning.EnergyCapacity ? "ENERJİ TAM • Menzilde bırak = Pulse" : "ENERJİ  " + Model.Energy + " / " + tuning.EnergyCapacity;
+                energyText.text = advancedCourse ? "ZAMANLAMA • Daral / genişle" : Model.Energy == tuning.EnergyCapacity ? "ENERJİ TAM • Menzilde bırak = Pulse" : "ENERJİ  " + Model.Energy + " / " + tuning.EnergyCapacity;
                 energyFill.GetComponent<Image>().color = Model.Energy == tuning.EnergyCapacity ? new Color(.45f, .48f, .08f) : new Color(.04f, .6f, .57f);
             }
             int meter = Mathf.FloorToInt(z), section = Section();
             if (lastBonus != Model.Bonus || lastMeter != meter)
-            { lastBonus = Model.Bonus; lastMeter = meter; statsText.text = meter + " / 180 m     •     BONUS " + Model.Bonus; }
+            { lastBonus = Model.Bonus; lastMeter = meter; statsText.text = meter + " / " + CourseFinishDistance + " m     •     BONUS " + Model.Bonus; }
             // Meter changes include the short in-range cue before each mandatory Pulse target.
             if (lastSection != section || Model.Phase == RunPhase.Running) { lastSection = section; hintText.text = SectionHint(section); }
+            Feedback.Tick(Model.Phase == RunPhase.Paused ? 0 : dt, Model.IsHeld, Model.Energy == tuning.EnergyCapacity, Model.Phase);
             if (lastPhase == Model.Phase) return;
             lastPhase = Model.Phase; overlay.SetActive(Model.Phase != RunPhase.Running); pauseButton.SetActive(Model.Phase == RunPhase.Running);
+            courseButton.SetActive((Model.Phase == RunPhase.Ready || Model.Phase == RunPhase.Completed || Model.Phase == RunPhase.Failed) &&
+                Application.CanStreamedLevelBeLoaded(advancedCourse ? "Prototype" : "Challenge"));
             switch (Model.Phase)
             {
                 case RunPhase.Ready:
-                    overlayText.text = "İKİ KÜRE, TEK BAĞ\n\nBasılı tut: simetrik açıl.\nBırak: daral.\n\nBağ enerji toplar. Küreler bonus toplar.\nTam enerjiyle hedefe yakın bırak: Pulse!\nKırmızı engeller ölümcüldür.";
+                    overlayText.text = advancedCourse ? "ZAMANLAMA PARKURU\n\nBasılı tut: açıl. Bırak: daral.\n\nHareketli duvarları ve\ndönen kolu dikkatle oku.\nİki küreyi de bitişe ulaştır." :
+                        "İKİ KÜRE, TEK BAĞ\n\nBasılı tut: açıl. Bırak: daral.\n\nBağ enerji, küreler bonus toplar.\nTam enerjiyle hedefe yakın\nbırak: Pulse!\nKırmızı engeller ölümcüldür.";
                     actionText.text = "Başla"; break;
                 case RunPhase.Paused:
                     overlayText.text = "DURAKLATILDI\n\nDevam ettikten sonra\nyeniden basılı tut.";
                     actionText.text = "Devam et"; break;
                 case RunPhase.Failed:
+                    Feedback.Failed();
                     overlayText.text = "DENEME BİTTİ\n\n" + Model.FailureReason + "\n\n" + meter + " m   •   Bonus " + Model.Bonus;
                     actionText.text = "Hemen tekrar dene"; break;
                 case RunPhase.Completed:
-                    overlayText.text = "BÖLÜM TAMAMLANDI\n\n180 m   •   Bonus " + Model.Bonus + "\n\nAçılan Pulse hedefi: " + ActivatedTargetCount + " / 2";
+                    Feedback.Completed();
+                    overlayText.text = "BÖLÜM TAMAMLANDI\n\n" + CourseFinishDistance + " m   •   Bonus " + Model.Bonus +
+                        (advancedCourse ? "\n\nHareketli engelleri geçtin!" : "\n\nAçılan Pulse hedefi: " + ActivatedTargetCount + " / 2");
                     actionText.text = "Yeniden oyna"; break;
             }
         }

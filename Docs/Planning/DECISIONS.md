@@ -21,6 +21,9 @@ Tarih: 31.10.2026. `ONAYLI` kullanıcı isteğini/onayını, `ÖNERİ` henüz on
 | D-015 | PROTOTİP AYARI | Simülasyon en fazla 1/120 saniyelik alt adımlara ayrılır. Girdi ilk alt adımda çözülür: hareket/temas, sonra gerçek bırakma; fatal temas önceliklidir. Böylece yavaş bir karenin sonuna kadar bırakma geciktirilmez. Pulse ortak merkezden hedef collider'ının en yakın noktasına olan yatay mesafeyi kullanır, sınır dahildir. | Onaylı kapsam içinde tutarlı ve test edilebilir ilk uygulama seçimi; oynanış incelemesinde ayarlanabilir. |
 | D-016 | PROTOTİP AYARI | Başlangıçta dar konum, boş enerji ve sıfır bonus; sistem iptali Pulse üretmez. Duraklamadan dönüşte yeni basış gerekir. Her toplanabilir yalnız bir kez tüketilir. | Onaylı kapsam içindeki giriş/yeniden deneme sağlamlık kuralları. |
 | D-017 | ONAYLI | Kullanıcının şu an Android telefonu yok; fiziksel cihaz testi son aşamaya ertelendi. Şimdilik kullanıcı Unity Editor üzerinden oynanışı inceleyecek. | Kullanıcının 31.10.2026 tarihli yanıtı. |
+| D-018 | ONAYLI | Kullanıcı M1 tesliminden sonra çalışmaya devam edilmesini onayladı; M2 Blender varlıkları, animasyon/VFX ve zamanlama engelleri üretimi başlatıldı. Bu, ayrı ayrı manuel test senaryolarının yürütüldüğünün kanıtı değildir. | Kullanıcı: “tamamdır güzel gidiyor devam edebilirsin”. |
+| D-019 | UYGULAMA KAPSAMI | M1 temel parkuru korunur. Hareketli duvar ve dönen kol ikinci kısa alıştırma parkurunda öğretilir; aynı tek dokunma kontrolü kullanılır. | D-010/018 kapsamındaki içerik sıralaması; temel mekanik değişmez. |
+| D-020 | GÖRSEL ÖRNEK | GDD'deki koyu tesis, turkuaz/mor çekirdekler, kırmızı tehlike ve altın Pulse hedefleriyle ilk Blender kiti üretilir. Kesin sanat kabulü gerçek Unity görüntüleri üzerinden yapılacak. | Yeni tema eklenmez; kaynak görsel yönü içinde üretim örneği hazırlanır. |
 
 ## M1 onay paketi
 

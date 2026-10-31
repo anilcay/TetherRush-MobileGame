@@ -1,0 +1,371 @@
+{
+  "blender_version": "5.2.3 LTS",
+  "profile": {
+    "use_selection": true,
+    "object_types": [
+      "EMPTY",
+      "MESH"
+    ],
+    "axis_forward": "-Z",
+    "axis_up": "Y",
+    "global_scale": 1.0,
+    "apply_unit_scale": true,
+    "apply_scale_options": "FBX_SCALE_UNITS",
+    "use_space_transform": true,
+    "bake_space_transform": false,
+    "bake_anim": false,
+    "use_mesh_modifiers": true,
+    "mesh_smooth_type": "FACE",
+    "add_leaf_bones": false,
+    "path_mode": "AUTO"
+  },
+  "assets": [
+    {
+      "id": "Core",
+      "triangles": 480,
+      "mesh_count": 3,
+      "bounds_source_xyz": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "children": [
+        "CoreShell",
+        "EquatorBand",
+        "MeridianBand"
+      ],
+      "bytes": 34428
+    },
+    {
+      "id": "TrackTile",
+      "triangles": 220,
+      "mesh_count": 5,
+      "bounds_source_xyz": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "children": [
+        "Deck",
+        "EdgeRail",
+        "EdgeRail.001",
+        "CrossSeam",
+        "CrossSeam.001"
+      ],
+      "bytes": 33692
+    },
+    {
+      "id": "Barrier",
+      "triangles": 176,
+      "mesh_count": 4,
+      "bounds_source_xyz": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "children": [
+        "ArmoredMass",
+        "RecessPanel",
+        "RecessPanel.001",
+        "WarningStrip"
+      ],
+      "bytes": 29916
+    },
+    {
+      "id": "MovingWall",
+      "triangles": 220,
+      "mesh_count": 5,
+      "bounds_source_xyz": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "children": [
+        "SlidingPanel",
+        "PanelInset",
+        "DirectionSlash",
+        "DirectionSlash.001",
+        "DirectionSlash.002"
+      ],
+      "bytes": 34348
+    },
+    {
+      "id": "RotatingArm",
+      "triangles": 176,
+      "mesh_count": 4,
+      "bounds_source_xyz": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "children": [
+        "Sweeper",
+        "EndGuard",
+        "EndGuard.001",
+        "Axle"
+      ],
+      "bytes": 29932
+    },
+    {
+      "id": "EnergyGate",
+      "triangles": 440,
+      "mesh_count": 3,
+      "bounds_source_xyz": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "children": [
+        "DoorLeft",
+        "DoorRight",
+        "Frame"
+      ],
+      "bytes": 33996
+    },
+    {
+      "id": "BreakableBlock",
+      "triangles": 528,
+      "mesh_count": 4,
+      "bounds_source_xyz": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "children": [
+        "Shard1",
+        "Shard2",
+        "Shard3",
+        "Shard4"
+      ],
+      "bytes": 39052
+    },
+    {
+      "id": "EnergyPickup",
+      "triangles": 172,
+      "mesh_count": 2,
+      "bounds_source_xyz": [
+        1.0,
+        0.9999999403953552,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body"
+      ],
+      "children": [
+        "EnergySocket",
+        "ChargeCell"
+      ],
+      "bytes": 24012
+    },
+    {
+      "id": "BonusCrystal",
+      "triangles": 64,
+      "mesh_count": 2,
+      "bounds_source_xyz": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Body",
+        "Dark"
+      ],
+      "children": [
+        "FacetedCrystal",
+        "CrystalCollar"
+      ],
+      "bytes": 21356
+    },
+    {
+      "id": "PulseBadge",
+      "triangles": 216,
+      "mesh_count": 3,
+      "bounds_source_xyz": [
+        1.0,
+        0.9999998807907104,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body"
+      ],
+      "children": [
+        "TargetRing",
+        "PulseBolt",
+        "PulseBolt.001"
+      ],
+      "bytes": 27884
+    },
+    {
+      "id": "FinishMarker",
+      "triangles": 308,
+      "mesh_count": 7,
+      "bounds_source_xyz": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "children": [
+        "FinishPylon",
+        "FinishPylon.001",
+        "FinishHeader",
+        "FinishStripe",
+        "FinishStripe.001",
+        "FinishStripe.002",
+        "FinishStripe.003"
+      ],
+      "bytes": 40956
+    }
+  ]
+}

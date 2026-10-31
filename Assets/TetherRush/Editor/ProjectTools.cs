@@ -10,10 +10,11 @@ using UnityEngine.Rendering.Universal;
 
 namespace TetherRush.Editor
 {
-    /// <summary>Reproducible M1 scene and local test builds. No signing secrets or publishing.</summary>
+    /// <summary>Reproducible scenes and local test builds. No signing secrets or publishing.</summary>
     public static class ProjectTools
     {
         public const string ScenePath = "Assets/TetherRush/Scenes/Prototype.unity";
+        public const string ChallengeScenePath = "Assets/TetherRush/Scenes/Challenge.unity";
         private const string MobilePipelinePath = "Assets/Settings/Mobile_RPAsset.asset";
 
         [MenuItem("Tether Rush/Prepare Project")]
@@ -21,7 +22,7 @@ namespace TetherRush.Editor
         {
             PlayerSettings.companyName = "Anil Cay";
             PlayerSettings.productName = "Tether Rush";
-            PlayerSettings.bundleVersion = "0.1.0";
+            PlayerSettings.bundleVersion = "0.2.0";
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.anilcay.tetherrush");
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToPortrait = true;
@@ -37,7 +38,7 @@ namespace TetherRush.Editor
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
-            PlayerSettings.Android.bundleVersionCode = 1;
+            PlayerSettings.Android.bundleVersionCode = 2;
             PlayerSettings.Android.useCustomKeystore = false;
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             EditorSettings.serializationMode = SerializationMode.ForceText;
@@ -61,9 +62,20 @@ namespace TetherRush.Editor
             EditorUtility.SetDirty(pipeline);
             KeepRuntimeShaders();
             if (!File.Exists(ScenePath)) CreatePrototypeScene();
-            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
+            if (!File.Exists(ChallengeScenePath)) CreateChallengeScene();
+            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true), new EditorBuildSettingsScene(ChallengeScenePath, true) };
             AssetDatabase.SaveAssets();
             Debug.Log("TETHER_RUSH_PREPARED Unity=" + Application.unityVersion + " Android ARM64 / Portrait / URP17.3");
+        }
+
+        [MenuItem("Tether Rush/Create Timing Course Scene")]
+        public static void CreateChallengeScene()
+        {
+            Directory.CreateDirectory("Assets/TetherRush/Scenes");
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            new GameObject("Tether Rush — Timing").AddComponent<TetherRushGame>().ConfigureCourse(true);
+            EditorSceneManager.SaveScene(scene, ChallengeScenePath);
+            AssetDatabase.Refresh();
         }
 
         [MenuItem("Tether Rush/Recreate Prototype Scene")]
@@ -89,14 +101,14 @@ namespace TetherRush.Editor
         {
             PrepareProject();
             EditorUserBuildSettings.buildAppBundle = false;
-            Build(BuildTarget.Android, "output/android/TetherRush-M1.apk");
+            Build(BuildTarget.Android, "output/android/TetherRush-M2.apk");
         }
 
         [MenuItem("Tether Rush/Build Windows Preview")]
         public static void BuildWindows()
         {
             PrepareProject();
-            Build(BuildTarget.StandaloneWindows64, "output/windows/TetherRush.exe");
+            Build(BuildTarget.StandaloneWindows64, "output/windows-m2/TetherRush.exe");
         }
 
         private static void Build(BuildTarget target, string path)
@@ -104,7 +116,7 @@ namespace TetherRush.Editor
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
-                scenes = new[] { ScenePath },
+                scenes = new[] { ScenePath, ChallengeScenePath },
                 locationPathName = path,
                 target = target,
                 options = BuildOptions.Development | BuildOptions.StrictMode
@@ -118,7 +130,7 @@ namespace TetherRush.Editor
         {
             var settings = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/GraphicsSettings.asset")[0]);
             var shaders = settings.FindProperty("m_AlwaysIncludedShaders");
-            foreach (var shaderName in new[] { "Universal Render Pipeline/Unlit", "Sprites/Default", "UI/Default" })
+            foreach (var shaderName in new[] { "Universal Render Pipeline/Unlit", "Sprites/Default", "UI/Default", "Tether Rush/NeonSurface", "Tether Rush/NeonEffect" })
             {
                 var shader = Shader.Find(shaderName);
                 if (shader == null) throw new BuildFailedException("Missing shader: " + shaderName);
