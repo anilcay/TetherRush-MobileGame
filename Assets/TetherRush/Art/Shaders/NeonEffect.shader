@@ -17,14 +17,25 @@ Shader "Tether Rush/NeonEffect"
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseColor;
             CBUFFER_END
+            float _TRFogStart, _TRFogEnd;
             struct Attributes { float4 positionOS : POSITION; half4 color : COLOR; };
-            struct Varyings { float4 positionCS : SV_POSITION; half4 color : COLOR; };
+            struct Varyings { float4 positionCS : SV_POSITION; half4 color : COLOR; float distance : TEXCOORD0; };
             Varyings Vert(Attributes input)
             {
-                Varyings output; output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
-                output.color = input.color; return output;
+                Varyings output;
+                float3 world = TransformObjectToWorld(input.positionOS.xyz);
+                output.positionCS = TransformWorldToHClip(world);
+                output.distance = distance(_WorldSpaceCameraPos,world);
+                output.color = input.color;
+                return output;
             }
-            half4 Frag(Varyings input) : SV_Target { return _BaseColor * input.color; }
+            half4 Frag(Varyings input) : SV_Target
+            {
+                half4 color = _BaseColor * input.color;
+                float fog = _TRFogEnd > _TRFogStart ? saturate((input.distance-_TRFogStart)/max(.001,_TRFogEnd-_TRFogStart)) : 0;
+                color.a *= 1-fog;
+                return color;
+            }
             ENDHLSL
         }
     }

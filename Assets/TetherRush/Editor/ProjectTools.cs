@@ -22,7 +22,7 @@ namespace TetherRush.Editor
         {
             PlayerSettings.companyName = "Anil Cay";
             PlayerSettings.productName = "Tether Rush";
-            PlayerSettings.bundleVersion = "0.2.0";
+            PlayerSettings.bundleVersion = "0.2.1";
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.anilcay.tetherrush");
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToPortrait = true;
@@ -38,7 +38,7 @@ namespace TetherRush.Editor
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
-            PlayerSettings.Android.bundleVersionCode = 2;
+            PlayerSettings.Android.bundleVersionCode = 3;
             PlayerSettings.Android.useCustomKeystore = false;
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             EditorSettings.serializationMode = SerializationMode.ForceText;
@@ -101,14 +101,14 @@ namespace TetherRush.Editor
         {
             PrepareProject();
             EditorUserBuildSettings.buildAppBundle = false;
-            Build(BuildTarget.Android, "output/android/TetherRush-M2.apk");
+            Build(BuildTarget.Android, "output/android/TetherRush-Polish.apk");
         }
 
         [MenuItem("Tether Rush/Build Windows Preview")]
         public static void BuildWindows()
         {
             PrepareProject();
-            Build(BuildTarget.StandaloneWindows64, "output/windows-m2/TetherRush.exe");
+            Build(BuildTarget.StandaloneWindows64, "output/windows-polish/TetherRush.exe");
         }
 
         private static void Build(BuildTarget target, string path)
@@ -130,7 +130,7 @@ namespace TetherRush.Editor
         {
             var settings = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/GraphicsSettings.asset")[0]);
             var shaders = settings.FindProperty("m_AlwaysIncludedShaders");
-            foreach (var shaderName in new[] { "Universal Render Pipeline/Unlit", "Sprites/Default", "UI/Default", "Tether Rush/NeonSurface", "Tether Rush/NeonEffect" })
+            foreach (var shaderName in new[] { "Universal Render Pipeline/Unlit", "Sprites/Default", "UI/Default", "Tether Rush/NeonSurface", "Tether Rush/NeonEffect", "Tether Rush/NeonGlow", "Tether Rush/FacilitySky", "Tether Rush/SoftShadow" })
             {
                 var shader = Shader.Find(shaderName);
                 if (shader == null) throw new BuildFailedException("Missing shader: " + shaderName);

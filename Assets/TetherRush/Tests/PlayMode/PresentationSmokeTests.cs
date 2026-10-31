@@ -39,10 +39,10 @@ namespace TetherRush.Tests
         }
 
         [Test]
-        public void AllElevenBlenderModelsHaveCenteredUnitBoundsAndSupportedShaders()
+        public void AllFourteenBlenderModelsHaveCenteredUnitBoundsAndSupportedShaders()
         {
             var kinds = (VisualKind[])System.Enum.GetValues(typeof(VisualKind));
-            Assert.That(kinds.Length, Is.EqualTo(11));
+            Assert.That(kinds.Length, Is.EqualTo(14));
             foreach (var kind in kinds)
             {
                 var prefab = Resources.Load<GameObject>("ArtModels/" + kind);
@@ -68,11 +68,39 @@ namespace TetherRush.Tests
                 }
                 finally { Object.DestroyImmediate(instance); }
             }
-            foreach (string label in new[] { "Tether Rush/NeonSurface", "Tether Rush/NeonEffect" })
+            foreach (string label in new[] { "Tether Rush/NeonSurface", "Tether Rush/NeonEffect", "Tether Rush/NeonGlow", "Tether Rush/FacilitySky", "Tether Rush/SoftShadow" })
             {
                 var shader = Shader.Find(label);
                 Assert.That(shader, Is.Not.Null, label);
                 Assert.That(shader.isSupported, Is.True, label + " is unsupported by this graphics device");
+            }
+        }
+
+        [Test]
+        public void CoreColorsRemainDistinctFromBeamInNormalAndFullEnergyStates()
+        {
+            CreateGame();
+            var beam = FindTether().GetComponent<LineRenderer>();
+            foreach (bool ready in new[] { false, true })
+            {
+                game.Feedback.Tick(.1f, true, ready, RunPhase.Ready);
+                var properties = new MaterialPropertyBlock(); beam.GetPropertyBlock(properties);
+                Color beamColor = properties.GetColor("_BaseColor");
+                Assert.That(beamColor.g, Is.GreaterThan(beamColor.r), "Beam stays in the cool cyan family");
+                foreach (Transform core in new[] { game.LeftCore, game.RightCore })
+                {
+                    bool found = false;
+                    foreach (var renderer in core.GetComponentsInChildren<MeshRenderer>())
+                        foreach (var material in renderer.sharedMaterials)
+                            if (material.name == "Core A" || material.name == "Core B")
+                            {
+                                Color color = material.GetColor("_BaseColor");
+                                float separation = new Vector3(color.r - beamColor.r, color.g - beamColor.g, color.b - beamColor.b).magnitude;
+                                Assert.That(separation, Is.GreaterThan(.3f), "Core body must remain visually separate from tether");
+                                found = true;
+                            }
+                    Assert.That(found, Is.True, "Actual Blender core has a body material");
+                }
             }
         }
 
@@ -128,6 +156,13 @@ namespace TetherRush.Tests
             foreach (var renderer in root.GetComponentsInChildren<MeshRenderer>(true))
                 if (renderer.name == "Target mesh echo") Assert.That(renderer.enabled, Is.False, "Retry clears mesh echoes");
             AssertGameplayPositions();
+            foreach (var wake in root.GetComponentsInChildren<LineRenderer>(true))
+                if (wake.name == "Core wake")
+                {
+                    Vector3 start = wake.GetPosition(0);
+                    Assert.That(Mathf.Abs(start.z - game.Model.Distance), Is.LessThan(.001f), "Retry wake starts at the new core pose");
+                    for (int i = 1; i < wake.positionCount; i++) AssertVector(wake.GetPosition(i), start, "Retry clears the old wake path");
+                }
         }
 
         [UnityTest]
@@ -140,15 +175,15 @@ namespace TetherRush.Tests
                 Is.True, "Initialize and validate the actual render pipeline before offscreen requests");
             Assert.That(RenderPipelineManager.currentPipeline, Is.InstanceOf<UniversalRenderPipeline>());
             game.SimulateStep(Step);
-            yield return Capture("M2_Ready.png");
+            yield return Capture("Polish_Ready.png");
             game.StartRun(); ReachCharge(); AdvanceTo(90);
             Assert.That(game.Model.Energy, Is.EqualTo(game.Model.Tuning.EnergyCapacity));
-            yield return Capture("M2_Foundation.png");
+            yield return Capture("Polish_Foundation.png");
             AdvanceTo(96); game.SimulateStep(Step, release: true); game.SimulateStep(.12f);
             Assert.That(game.Model.PulseCount, Is.EqualTo(1));
             Assert.That(game.ActivatedTargetCount, Is.EqualTo(1));
             Assert.That(FindVisibleRing(), Is.Not.Null);
-            yield return Capture("M2_Pulse.png");
+            yield return Capture("Polish_Pulse.png");
 
             CreateGame(true); yield return null;
             game.StartRun(); AdvanceTo(25); game.SimulateStep(Step, press: true);
@@ -156,7 +191,12 @@ namespace TetherRush.Tests
             AdvanceTo(85); game.SimulateStep(Step, press: true); AdvanceTo(88);
             Assert.That(game.TimedHazardCount, Is.EqualTo(3));
             Assert.That(game.Model.Phase, Is.EqualTo(RunPhase.Running));
-            yield return Capture("M2_Challenge.png");
+            yield return Capture("Polish_Challenge.png");
+            CreateGame(); yield return null;
+            game.StartRun(); game.SimulateStep(Step, press: true);
+            for (int i = 0; i < 600 && game.Model.Phase == RunPhase.Running; i++) game.SimulateStep(Step);
+            Assert.That(game.Model.Phase, Is.EqualTo(RunPhase.Failed));
+            yield return Capture("Polish_Failed.png");
         }
 
         private IEnumerator Capture(string fileName)
@@ -171,7 +211,7 @@ namespace TetherRush.Tests
             float previousPlane = canvas.planeDistance, previousScale = canvas.scaleFactor;
             Rect previousRect = camera.rect;
             bool previousScalerEnabled = scaler != null && scaler.enabled;
-            var target = new RenderTexture(540, 960, 24, RenderTextureFormat.ARGB32) { name = "M2 actual game preview" };
+            var target = new RenderTexture(540, 960, 24, RenderTextureFormat.ARGB32) { name = "Polish actual game preview" };
             Texture2D texture = null;
             try
             {

@@ -22,8 +22,8 @@
   "assets": [
     {
       "id": "Core",
-      "triangles": 480,
-      "mesh_count": 3,
+      "triangles": 920,
+      "mesh_count": 1,
       "bounds_source_xyz": [
         1.0,
         1.0,
@@ -45,16 +45,14 @@
         "Dark"
       ],
       "children": [
-        "CoreShell",
-        "EquatorBand",
-        "MeridianBand"
+        "CoreMesh"
       ],
-      "bytes": 34428
+      "bytes": 42108
     },
     {
       "id": "TrackTile",
-      "triangles": 220,
-      "mesh_count": 5,
+      "triangles": 444,
+      "mesh_count": 2,
       "bounds_source_xyz": [
         1.0,
         1.0,
@@ -77,17 +75,15 @@
       ],
       "children": [
         "Deck",
-        "EdgeRail",
-        "EdgeRail.001",
-        "CrossSeam",
-        "CrossSeam.001"
+        "TrackTrims"
       ],
-      "bytes": 33692
+      "bytes": 30412,
+      "deck_top_normalized_unity_y": 0.25757575757575757
     },
     {
       "id": "Barrier",
-      "triangles": 176,
-      "mesh_count": 4,
+      "triangles": 396,
+      "mesh_count": 1,
       "bounds_source_xyz": [
         1.0,
         1.0,
@@ -109,17 +105,14 @@
         "Dark"
       ],
       "children": [
-        "ArmoredMass",
-        "RecessPanel",
-        "RecessPanel.001",
-        "WarningStrip"
+        "BarrierMesh"
       ],
-      "bytes": 29916
+      "bytes": 27420
     },
     {
       "id": "MovingWall",
-      "triangles": 220,
-      "mesh_count": 5,
+      "triangles": 396,
+      "mesh_count": 1,
       "bounds_source_xyz": [
         1.0,
         1.0,
@@ -141,18 +134,14 @@
         "Dark"
       ],
       "children": [
-        "SlidingPanel",
-        "PanelInset",
-        "DirectionSlash",
-        "DirectionSlash.001",
-        "DirectionSlash.002"
+        "MovingWallMesh"
       ],
-      "bytes": 34348
+      "bytes": 27644
     },
     {
       "id": "RotatingArm",
-      "triangles": 176,
-      "mesh_count": 4,
+      "triangles": 352,
+      "mesh_count": 1,
       "bounds_source_xyz": [
         1.0,
         1.0,
@@ -174,16 +163,13 @@
         "Dark"
       ],
       "children": [
-        "Sweeper",
-        "EndGuard",
-        "EndGuard.001",
-        "Axle"
+        "RotatingArmMesh"
       ],
-      "bytes": 29932
+      "bytes": 26428
     },
     {
       "id": "EnergyGate",
-      "triangles": 440,
+      "triangles": 616,
       "mesh_count": 3,
       "bounds_source_xyz": [
         1.0,
@@ -210,11 +196,11 @@
         "DoorRight",
         "Frame"
       ],
-      "bytes": 33996
+      "bytes": 38204
     },
     {
       "id": "BreakableBlock",
-      "triangles": 528,
+      "triangles": 704,
       "mesh_count": 4,
       "bounds_source_xyz": [
         1.0,
@@ -242,12 +228,70 @@
         "Shard3",
         "Shard4"
       ],
-      "bytes": 39052
+      "bytes": 43532
     },
     {
       "id": "EnergyPickup",
-      "triangles": 172,
-      "mesh_count": 2,
+      "triangles": 560,
+      "mesh_count": 1,
+      "bounds_source_xyz": [
+        1.0,
+        0.9999995231628418,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "children": [
+        "EnergyPickupMesh"
+      ],
+      "bytes": 33052
+    },
+    {
+      "id": "BonusCrystal",
+      "triangles": 104,
+      "mesh_count": 1,
+      "bounds_source_xyz": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "children": [
+        "BonusCrystalMesh"
+      ],
+      "bytes": 20924
+    },
+    {
+      "id": "PulseBadge",
+      "triangles": 472,
+      "mesh_count": 1,
       "bounds_source_xyz": [
         1.0,
         0.9999999403953552,
@@ -265,77 +309,17 @@
       ],
       "material_slots": [
         "Accent",
-        "Body"
-      ],
-      "children": [
-        "EnergySocket",
-        "ChargeCell"
-      ],
-      "bytes": 24012
-    },
-    {
-      "id": "BonusCrystal",
-      "triangles": 64,
-      "mesh_count": 2,
-      "bounds_source_xyz": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "pivot": [
-        0,
-        0,
-        0
-      ],
-      "root_scale": [
-        1,
-        1,
-        1
-      ],
-      "material_slots": [
-        "Body",
         "Dark"
       ],
       "children": [
-        "FacetedCrystal",
-        "CrystalCollar"
+        "PulseBadgeMesh"
       ],
-      "bytes": 21356
-    },
-    {
-      "id": "PulseBadge",
-      "triangles": 216,
-      "mesh_count": 3,
-      "bounds_source_xyz": [
-        1.0,
-        0.9999998807907104,
-        1.0
-      ],
-      "pivot": [
-        0,
-        0,
-        0
-      ],
-      "root_scale": [
-        1,
-        1,
-        1
-      ],
-      "material_slots": [
-        "Accent",
-        "Body"
-      ],
-      "children": [
-        "TargetRing",
-        "PulseBolt",
-        "PulseBolt.001"
-      ],
-      "bytes": 27884
+      "bytes": 29996
     },
     {
       "id": "FinishMarker",
-      "triangles": 308,
-      "mesh_count": 7,
+      "triangles": 396,
+      "mesh_count": 1,
       "bounds_source_xyz": [
         1.0,
         1.0,
@@ -357,15 +341,96 @@
         "Dark"
       ],
       "children": [
-        "FinishPylon",
-        "FinishPylon.001",
-        "FinishHeader",
-        "FinishStripe",
-        "FinishStripe.001",
-        "FinishStripe.002",
-        "FinishStripe.003"
+        "FinishMarkerMesh"
       ],
-      "bytes": 40956
+      "bytes": 26908
+    },
+    {
+      "id": "SplitPylon",
+      "triangles": 484,
+      "mesh_count": 1,
+      "bounds_source_xyz": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "children": [
+        "SplitPylonMesh"
+      ],
+      "bytes": 29116
+    },
+    {
+      "id": "ChevronBarrier",
+      "triangles": 352,
+      "mesh_count": 1,
+      "bounds_source_xyz": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "children": [
+        "ChevronBarrierMesh"
+      ],
+      "bytes": 26812
+    },
+    {
+      "id": "RelayPylon",
+      "triangles": 352,
+      "mesh_count": 1,
+      "bounds_source_xyz": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "material_slots": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "children": [
+        "RelayPylonMesh"
+      ],
+      "bytes": 26540
     }
   ]
 }

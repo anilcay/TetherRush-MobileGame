@@ -25,6 +25,15 @@ for asset in manifest['assets']:
     assert roots[0].location.length<.0001
     assert tri==asset['triangles'],(tri,asset['triangles'])
     assert set(names)<= {'Body','Dark','Accent'},names
+    children={o.name for o in meshes}
+    if asset['id']=='EnergyGate': assert children=={'DoorLeft','DoorRight','Frame'},children
+    if asset['id']=='BreakableBlock': assert children=={'Shard1','Shard2','Shard3','Shard4'},children
+    if asset['id']=='TrackTile':
+        assert children=={'Deck','TrackTrims'},children
+        deck=next(o for o in meshes if o.name=='Deck')
+        # Blender's imported FBX world remains Z-up; Unity maps that vertical to Y.
+        top=max((deck.matrix_world @ Vector(c)).z for c in deck.bound_box)
+        assert abs(top-asset['deck_top_normalized_unity_y'])<.0001,top
     assert not bpy.data.actions and not any(o.type=='ARMATURE' for o in objects)
     report['checks'].append({'id':asset['id'],'imported_bounds_xyz':bounds,'bounds_center':center,'triangles':tri,'mesh_count':len(meshes),'root':roots[0].name,'materials':names,'result':'PASS'})
 (source/'fbx_validation.json').write_text(json.dumps(report,indent=2),encoding='utf-8')

@@ -4,7 +4,7 @@ Unity ile geliştirilecek, ortak bir enerji bağıyla bağlı iki küreyi tek pa
 
 ## Durum
 
-M2 sürümü hazır: Blender modelleri, animasyon/VFX, procedural sesler ve ikinci alıştırma parkuru eklendi. **60/60 Unity testi geçti**; gerçek Unity görüntüleri, Windows M2 build'i ve imzası doğrulanan Android 0.2.0 test paketi hazır. Ayrıntılar [doğrulama kaydında](Docs/QA/M2_VALIDATION.md). Son sanat/oynanış ve fiziksel cihaz kabulü ayrıca bekliyor.
+Görsel cila sürümü **0.2.1 (3)**: şeftali/lavanta küreler, camgöbeği bağ, yenilenmiş 14 Blender modeli, efektler, tesis atmosferi ve kompakt HUD. 180 m temel + 130 m zamanlama parkuru var. **61/61 Unity testi**, Windows build ve imzası doğrulanan Android test build geçti. Son doğrulama ve paket durumu [cila kaydında](Docs/QA/POLISH_VALIDATION.md); fiziksel Android cihaz testi son aşamaya ertelendi.
 
 - Hedef: **Android telefon, dikey ekran** (kullanıcı onayı: 31.10.2026).
 - Tasarım kaynağı: [GDD v2.0](Docs/Source/Tether_Rush_GDD_v2.pdf), 31.10.2026.
@@ -22,7 +22,9 @@ M2 sürümü hazır: Blender modelleri, animasyon/VFX, procedural sesler ve ikin
 - [Kabul testleri](Docs/QA/ACCEPTANCE_TESTS.md)
 - [M2 doğrulama ve test sonuçları](Docs/QA/M2_VALIDATION.md)
 - [Blender varlık manifesti](Docs/Art/M2_ASSET_MANIFEST.md)
-- [Gerçek Unity görüntüleri](Docs/Art/Previews/M2_Foundation.png)
+- [Görsel cila doğrulaması](Docs/QA/POLISH_VALIDATION.md)
+- [Güncel Blender kiti](Docs/Art/POLISH_ASSETS.md)
+- [Gerçek Unity görüntüleri](Docs/Art/Previews/Polish_Foundation.png)
 
 ## Unity'de aç ve oyna
 
@@ -32,9 +34,9 @@ M2 sürümü hazır: Blender modelleri, animasyon/VFX, procedural sesler ve ikin
 4. Game görünümünü **9:16** yap, Play'e bas, ardından oyun içindeki **Başla** düğmesine tıkla.
 5. Oyun alanında **sol fareyi veya Space'i basılı tut: açıl; bırak: daral**. Enerji doluysa bırakmak aynı zamanda bir Pulse üretir. Space yalnız Editor kolaylığıdır; mobilde tek dokunma vardır.
 
-Dar geçitte dar kal; orta bariyerden önce açıl. Enerjiyi geniş bağla, altın bonusları kürelerle topla. Sarı Pulse hedefine yaklaşınca **MENZİLDE** ipucunda bırak. Erken Pulse sonrası kapalı hedefe çarpma denemeyi bitirir; **Hemen tekrar dene** ile baştan başla. Kırmızı engeller Pulse ile açılmaz.
+Dar geçitte dar kal; orta bariyerden önce açıl. Enerjiyi geniş bağla, altın bonusları kürelerle topla. Sarı Pulse hedefine yaklaşınca **MENZİLDE** ipucunda bırak. Erken Pulse sonrası kapalı hedefe çarpma denemeyi bitirir; **Yeniden dene** ile baştan başla. Kırmızı engeller Pulse ile açılmaz.
 
-Başlangıç veya sonuç ekranındaki **Zamanlama parkuru** düğmesi ikinci 130 m alıştırmayı açar. Burada ilk hareketli duvarı geniş, yana kayan ikinci duvarı dar, dönen kolu geniş geç. **Temel parkur** düğmesi ilk bölüme döner. `Challenge.unity` doğrudan da açılabilir. Ses düğmesi seçimi iki parkur arasında korunur; uygulama yeniden açılınca ses açık başlar.
+Başlangıç veya sonuç ekranındaki **Zamanlama** düğmesi ikinci 130 m alıştırmayı açar. Burada ilk hareketli duvarı geniş, yana kayan ikinci duvarı dar, dönen kolu geniş geç. **Temel parkur** düğmesi ilk bölüme döner. `Challenge.unity` doğrudan da açılabilir. Ses düğmesi seçimi iki parkur arasında korunur; uygulama yeniden açılınca ses açık başlar.
 
 Sahne oyun dünyasını Play sırasında kurar; Edit görünümünde boş görünmesi beklenir. Sayısal parkur yerleşimi `PrototypeLayout.cs` içindedir. Hareket/enerji ayarları Play'e girmeden önce sahnedeki **Tether Rush — M1 → Tuning** alanından düzenlenir; yeni nesnelerin varsayılanları `RunTuning.cs` içindedir. Bu M1 yaklaşımı son bölüm tasarım aracı değildir.
 
@@ -49,7 +51,7 @@ Unity Editor'ü kapattıktan sonra proje kökünde PowerShell ile:
 ./Tools/Unity.ps1 -Action Android
 ```
 
-`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-M2.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-m2/TetherRush.exe` altında üretir. Eski M1 çıktıları karşılaştırma için ayrı klasörlerde korunur.
+`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-Polish.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-polish/TetherRush.exe` altında üretir. Eski M1/M2 çıktıları karşılaştırma için ayrı klasörlerde korunur.
 
 Android araçları Türkçe karakter içeren proje yollarını kabul etmez. Bu klasör için `-Action Android` aynı depoya işaret eden geçici bir ASCII junction yolunu otomatik kullanır; kaynaklar taşınmaz veya kopyalanmaz. Bağlantı TEMP altında kalır ve tekrar kullanılır. Editor'dan doğrudan Android build almak için de ASCII bir proje yolu gerekir; mevcut klasörde Editor oynanışı etkilenmez.
 

@@ -10,8 +10,8 @@ namespace TetherRush.Presentation
         private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
         private static readonly int ColorId = Shader.PropertyToID("_Color");
         private static readonly int Emission = Shader.PropertyToID("_EmissionColor");
-        private static readonly Color Teal = new Color(.08f, .95f, .9f);
-        private static readonly Color Gold = new Color(1f, .72f, .18f);
+        private static Color Teal => VisualTheme.Tether;
+        private static Color Gold => VisualTheme.PulseAccent;
         private MaterialPropertyBlock block;
         private readonly Spark[] sparks = new Spark[SparkCount];
         private readonly Ghost[] ghosts = new Ghost[GhostCount];
@@ -21,6 +21,13 @@ namespace TetherRush.Presentation
         private Transform leftMesh, rightMesh;
         private Quaternion leftRotation, rightRotation;
         private Material effectMaterial;
+        private Material glowMaterial;
+        private LineRenderer beamGlow;
+        private readonly LineRenderer[] coreHalos = new LineRenderer[2];
+        private readonly LineRenderer[] coreTrails = new LineRenderer[2];
+        private readonly Vector3[][] trailPoints = new Vector3[2][];
+        private Renderer[][] coreRenderers;
+        private float pickupFlash, pulseFlash;
         private AudioSource audioSource;
         private AudioClip collectClip, bonusClip, readyClip, pulseClip, failClip, successClip;
         private float clock, radius, terminalTime;
@@ -76,6 +83,18 @@ namespace TetherRush.Presentation
             Shader shader = Shader.Find("Tether Rush/NeonEffect") ?? Shader.Find("Sprites/Default");
             effectMaterial = new Material(shader) { name = "Feedback transparent (owned)" };
             effectMaterial.SetColor(BaseColor, Color.white);
+            glowMaterial = new Material(Shader.Find("Tether Rush/NeonGlow") ?? shader) { name = "Feedback glow (owned)" };
+            glowMaterial.SetColor(BaseColor, Color.white);
+            coreRenderers = new[] { left != null ? left.GetComponentsInChildren<MeshRenderer>() : new Renderer[0],
+                right != null ? right.GetComponentsInChildren<MeshRenderer>() : new Renderer[0] };
+            beamGlow = MakeLine("Tether soft aura", 2, false, .16f);
+            for (int i = 0; i < 2; i++)
+            {
+                coreHalos[i] = MakeLine("Core orbital halo", 48, true, .028f);
+                coreTrails[i] = MakeLine("Core wake", 12, false, .11f);
+                coreTrails[i].startWidth = .11f; coreTrails[i].endWidth = .005f;
+                trailPoints[i] = new Vector3[12];
+            }
             for (int i = 0; i < SparkCount; i++) sparks[i] = new Spark { View = MakeLine("Pickup spark", 2, false, .035f) };
             for (int i = 0; i < RingCount; i++) rings[i] = new Ring { View = MakeLine("Pulse / feedback ring", 64, true, .045f) };
             for (int i = 0; i < GhostCount; i++)
@@ -124,20 +143,25 @@ namespace TetherRush.Presentation
                 if (rightMesh != null) rightMesh.localRotation = rightRotation * Quaternion.Euler(-clock * speed, -clock * 28, 0);
             }
             terminalTime = Mathf.Max(0, terminalTime - dt);
-            Color tint = ready ? Color.Lerp(Teal, Gold, .5f + .12f * Mathf.Sin(clock * 13)) : Teal;
-            if (terminalTime > 0) tint = Color.Lerp(tint, terminalColor, Mathf.Clamp01(terminalTime * 3));
+            Color tint = ready ? VisualTheme.TetherReady : Teal;
             // The ready vibration is an emission shimmer, not displacement of the tether/core roots.
             float glow = ready ? 1.2f + .2f * Mathf.Sin(clock * 21) : .35f;
             foreach (var renderer in tetherRenderers) if (renderer != null) Tint(renderer, tint, glow);
+            pickupFlash = Mathf.Max(0, pickupFlash - dt * 3);
+            pulseFlash = Mathf.Max(0, pulseFlash - dt * 3.5f);
+            UpdateCoreVisuals(dt, active, ready, tint);
             TickSparks(dt); TickRings(dt); TickGhosts(dt);
         }
 
-        public void EnergyCollected(Vector3 position) { if (!initialized) return; Emit(position, Teal, true, 4); Play(collectClip); }
-        public void BonusCollected(Vector3 position) { if (!initialized) return; Emit(position, Gold, false, 5); Play(bonusClip); }
+        public void EnergyCollected(Vector3 position) { if (!initialized) return; pickupFlash = .65f; Emit(position, VisualTheme.Energy, true, 5); Play(collectClip); }
+        public void BonusCollected(Vector3 position) { if (!initialized) return; Emit(position, VisualTheme.Bonus, false, 7); SpawnRing(position, .3f, .22f, VisualTheme.Bonus); Play(bonusClip); }
         public void Pulse(Vector3 position)
         {
             if (!initialized) return;
-            SpawnRing(position, radius, .34f, Teal); Play(pulseClip);
+            pulseFlash = 1;
+            SpawnRing(position, radius, .38f, VisualTheme.TetherReady);
+            SpawnRing(position, radius * .87f, .28f, VisualTheme.PulseAccent);
+            Emit(position, VisualTheme.TetherReady, false, 8); Play(pulseClip);
         }
         public void TargetOpened(GameObject visual, bool isGate)
         {
@@ -167,30 +191,40 @@ namespace TetherRush.Presentation
                 ghost.Transform.SetPositionAndRotation(ghost.Origin, ghost.Rotation); ghost.Transform.localScale = ghost.Scale;
                 Tint(ghost.Renderer, Gold, 0); ghost.Renderer.enabled = true; emitted++;
             }
+            Emit(visual.transform.position, VisualTheme.PulseAccent, false, isGate ? 6 : 8);
             if (emitted == 0) SpawnRing(visual.transform.position, .65f, .22f, Gold);
         }
         public void Failed()
         {
             if (!initialized) return;
-            terminalTime = .25f; terminalColor = new Color(1, .12f, .2f);
-            Emit(Center, terminalColor, false, 6); Play(failClip);
+            terminalTime = .3f; terminalColor = VisualTheme.Danger;
+            Emit(left != null ? left.position : Center, terminalColor, false, 5);
+            Emit(right != null ? right.position : Center, terminalColor, false, 5);
+            SpawnRing(Center, .7f, .3f, terminalColor); Play(failClip);
         }
         public void Completed()
         {
             if (!initialized) return;
             terminalTime = .45f; terminalColor = Gold;
-            SpawnRing(Center, 1.25f, .5f, Gold); Emit(Center, Gold, false, 8); Play(successClip);
+            SpawnRing(Center, 1.25f, .5f, Gold); SpawnRing(Center, .9f, .38f, Teal);
+            Emit(Center, Gold, false, 10); Play(successClip);
         }
         public void ResetPresentation()
         {
             if (!initialized) return;
-            clock = terminalTime = 0; wasReady = false;
+            clock = terminalTime = pickupFlash = pulseFlash = 0; wasReady = false;
             if (leftMesh != null) leftMesh.localRotation = leftRotation;
             if (rightMesh != null) rightMesh.localRotation = rightRotation;
             foreach (var spark in sparks) { spark.Life = 0; spark.View.enabled = false; }
             foreach (var ring in rings) { ring.Life = 0; ring.View.enabled = false; }
             foreach (var ghost in ghosts) { ghost.Life = 0; ghost.Renderer.enabled = false; }
             foreach (var renderer in tetherRenderers) if (renderer != null) renderer.SetPropertyBlock(null);
+            for (int i = 0; i < 2; i++)
+            {
+                Vector3 position = i == 0 ? (left != null ? left.position : Center) : (right != null ? right.position : Center);
+                for (int p = 0; p < 12; p++) trailPoints[i][p] = position;
+            }
+            UpdateCoreVisuals(0, true, false, Teal);
             if (audioSource != null) audioSource.Stop();
         }
 
@@ -207,10 +241,48 @@ namespace TetherRush.Presentation
         private LineRenderer MakeLine(string label, int count, bool loop, float width)
         {
             var go = new GameObject(label); go.transform.SetParent(effects, false);
-            var line = go.AddComponent<LineRenderer>(); line.sharedMaterial = effectMaterial; line.useWorldSpace = true;
+            var line = go.AddComponent<LineRenderer>(); line.sharedMaterial = glowMaterial; line.useWorldSpace = true;
             line.positionCount = count; line.loop = loop; line.widthMultiplier = width; line.numCapVertices = 2;
             line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; line.receiveShadows = false; line.enabled = false;
             return line;
+        }
+        private void UpdateCoreVisuals(float dt, bool active, bool ready, Color tetherColor)
+        {
+            if (left == null || right == null) return;
+            beamGlow.enabled = active;
+            beamGlow.SetPosition(0, left.position); beamGlow.SetPosition(1, right.position);
+            Color beamColor = tetherColor; beamColor.a = ready ? .28f : .16f;
+            beamGlow.startColor = beamGlow.endColor = beamColor;
+            beamGlow.widthMultiplier = .14f + (ready ? .035f : 0) + pulseFlash * .1f;
+            for (int i = 0; i < 2; i++)
+            {
+                Color coreColor = i == 0 ? VisualTheme.CoreA : VisualTheme.CoreB;
+                // Identity is constant through ready, collect, failure and completion states.
+                foreach (var renderer in coreRenderers[i]) if (renderer != null)
+                {
+                    // Keep authored metal/inlay submesh colors; only the reflected glow responds.
+                    renderer.GetPropertyBlock(block);
+                    block.SetColor(Emission, coreColor * (.13f + pickupFlash * .2f + pulseFlash * .28f + (ready ? .06f : 0)));
+                    renderer.SetPropertyBlock(block); block.Clear();
+                }
+                Vector3 position = i == 0 ? left.position : right.position;
+                var halo = coreHalos[i]; halo.enabled = active;
+                float haloRadius = .35f + .012f * Mathf.Sin(clock * 3 + i * Mathf.PI) + pickupFlash * .025f;
+                for (int p = 0; p < 48; p++)
+                {
+                    float angle = p * Mathf.PI * 2 / 48;
+                    halo.SetPosition(p, position + new Vector3(Mathf.Cos(angle), .08f * Mathf.Sin(angle + clock * .7f), Mathf.Sin(angle)) * haloRadius);
+                }
+                Color haloColor = coreColor; haloColor.a = .7f;
+                halo.startColor = halo.endColor = haloColor;
+                var points = trailPoints[i];
+                float follow = 1 - Mathf.Exp(-dt * 24);
+                for (int p = 11; p > 0; p--) points[p] = Vector3.Lerp(points[p], points[p - 1], follow);
+                points[0] = position;
+                coreTrails[i].SetPositions(points); coreTrails[i].enabled = active;
+                Color trailColor = coreColor; trailColor.a = .34f;
+                coreTrails[i].startColor = trailColor; trailColor.a = 0; coreTrails[i].endColor = trailColor;
+            }
         }
         private void Tint(Renderer renderer, Color color, float glow)
         {
@@ -237,7 +309,8 @@ namespace TetherRush.Presentation
                 if (spark.Life <= 0) continue;
                 spark.Age += dt; float t = Mathf.Clamp01(spark.Age / spark.Life);
                 Vector3 position = spark.Flow ? Vector3.Lerp(spark.Origin, Center, t * t) : spark.Origin + spark.Velocity * spark.Age;
-                spark.View.SetPosition(0, position); spark.View.SetPosition(1, position + Vector3.up * .055f * (1 - t));
+                Vector3 direction = spark.Flow ? (Center - position).normalized : spark.Velocity.normalized;
+                spark.View.SetPosition(0, position); spark.View.SetPosition(1, position - direction * .16f * (1 - t));
                 Color color = spark.Color; color.a = 1 - t; spark.View.startColor = spark.View.endColor = color;
                 if (t >= 1) { spark.View.enabled = false; spark.Life = 0; }
             }
@@ -250,11 +323,12 @@ namespace TetherRush.Presentation
         private void UpdateRing(Ring ring, float t)
         {
             // Reach the exact gameplay radius at 65% lifetime, then retain that radius while fading.
-            float size = ring.Radius * Mathf.Clamp01(t / .65f);
+            float width = .025f + .035f * (1 - t);
+            float size = Mathf.Max(0, ring.Radius - width * .5f) * Mathf.Clamp01(t / .65f);
             Vector3 center = ring.View.transform.position;
             for (int i = 0; i < 64; i++) { float a = i * Mathf.PI * 2 / 64; ring.View.SetPosition(i, center + new Vector3(Mathf.Cos(a), 0, Mathf.Sin(a)) * size); }
             Color color = ring.Color; color.a = 1 - t; ring.View.startColor = ring.View.endColor = color;
-            ring.View.widthMultiplier = .035f + .035f * (1 - t);
+            ring.View.widthMultiplier = width;
         }
         private void TickRings(float dt)
         {
@@ -300,6 +374,7 @@ namespace TetherRush.Presentation
         {
             if (effects != null) Destroy(effects.gameObject);
             if (effectMaterial != null) Destroy(effectMaterial);
+            if (glowMaterial != null) Destroy(glowMaterial);
             if (ownsSource && audioSource != null) Destroy(audioSource);
             foreach (var clip in new[] { collectClip, bonusClip, readyClip, pulseClip, failClip, successClip }) if (clip != null) Destroy(clip);
         }

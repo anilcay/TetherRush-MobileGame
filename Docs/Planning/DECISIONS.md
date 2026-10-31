@@ -24,6 +24,9 @@ Tarih: 31.10.2026. `ONAYLI` kullanıcı isteğini/onayını, `ÖNERİ` henüz on
 | D-018 | ONAYLI | Kullanıcı M1 tesliminden sonra çalışmaya devam edilmesini onayladı; M2 Blender varlıkları, animasyon/VFX ve zamanlama engelleri üretimi başlatıldı. Bu, ayrı ayrı manuel test senaryolarının yürütüldüğünün kanıtı değildir. | Kullanıcı: “tamamdır güzel gidiyor devam edebilirsin”. |
 | D-019 | UYGULAMA KAPSAMI | M1 temel parkuru korunur. Hareketli duvar ve dönen kol ikinci kısa alıştırma parkurunda öğretilir; aynı tek dokunma kontrolü kullanılır. | D-010/018 kapsamındaki içerik sıralaması; temel mekanik değişmez. |
 | D-020 | GÖRSEL ÖRNEK | GDD'deki koyu tesis, turkuaz/mor çekirdekler, kırmızı tehlike ve altın Pulse hedefleriyle ilk Blender kiti üretilir. Kesin sanat kabulü gerçek Unity görüntüleri üzerinden yapılacak. | Yeni tema eklenmez; kaynak görsel yönü içinde üretim örneği hazırlanır. |
+| D-021 | ONAYLI | Öncelik güçlü görsel cila: renk uyumu, toplar ile enerji bağının farklı renklerde olması, mevcut model/engel/efektlerin iyileştirilmesi ve uygun engel çeşitleri. Bu tur bitmeden sonraki iş paketine geçilmez. | Kullanıcının son isteği. |
+| D-022 | CİLA ÜRETİM YÖNÜ | Sıcak şeftali ve mor çekirdekler; normal/hazır hâlinde soğuk camgöbeği bağ; lacivert tesis, kırmızı tehlike sinyalleri, amber Pulse hedefleri. Renkler tek VisualTheme kaynağından yönetilir. | D-021 içinde üretim seçimi; gerçek Unity görüntüleriyle değerlendirilecek. |
+| D-023 | CİLA KAPSAMI | Mevcut parkur kuralları ve kontrol korunur. Yeni pylon/chevron engel görselleri mevcut güvenilir hitboxlara uyar; dekoratif çevre parçaları çarpışma üretmez. | Görsel çeşitlilik, yeni bir kontrol veya oyun sistemi gerektirmez. |
 
 ## M1 onay paketi
 

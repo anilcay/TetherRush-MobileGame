@@ -1,6 +1,6 @@
 # Tether Rush — Sanat ve Animasyon Hazırlığı
 
-Güncel durum: M2'de Blender 5.2.3 LTS ile gerçek kaynak ve 11 FBX üretildi; Unity import/model kontrolleri geçti. Ayrıntılar [varlık manifestinde](M2_ASSET_MANIFEST.md), [efekt tesliminde](M2_FEEDBACK.md) ve [doğrulama kaydında](../QA/M2_VALIDATION.md). Aşağıdaki metin başlangıç üretim planını korur; tüm önerilerin kullanıcı tarafından ayrıca onaylandığı anlamına gelmez. İlk hedef Android telefon ve dikey ekrandır (D-006).
+Güncel durum: D-021 görsel cila turunda Blender 5.2.3 LTS ile 14 FBX / 6.548 üçgenlik kaynak kit üretildi. Üretim ve çocuk/pivot sözleşmeleri [cila varlık raporunda](POLISH_ASSETS.md), efektler [sunum raporunda](POLISH_FEEDBACK.md), gerçek Unity doğrulaması [cila kaydında](../QA/POLISH_VALIDATION.md). İlk M2 kayıtları tarihsel karşılaştırma için korunur. Aşağıdaki metin başlangıç üretim planıdır; bütün önerilerin ayrıca onaylandığı anlamına gelmez. Hedef Android telefon + dikey ekrandır (D-006).
 
 Kaynak: `Docs/Source/GDD-extracted.txt`, GDD V2.0, 31.10.2026. Aşağıdaki **ÖNERİ** maddeleri onaylanmış üretim kararları değildir; önemli kararlar ana yönetim sohbetinde kullanıcı onayına sunulur.
 

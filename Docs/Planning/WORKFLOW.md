@@ -56,3 +56,5 @@ GitHub'a gönderme kullanıcı tarafından baştan yetkilendirildi; her normal p
 Ana mekanik, görsel yön, platform, ücretli bağımlılık, kapsam büyümesi ve yayın kararları kullanıcıya somut öneriyle sunulur. Onaylı kapsam içindeki kod düzeni, hata düzeltmesi ve rutin testler ana yönetici sorumluluğundadır.
 
 Her kilometre taşı raporu: ne çalışıyor, nasıl doğrulandı, neler henüz doğrulanmadı, GitHub commit'i ve sıradaki tek önemli karar.
+
+Görsel cila turu (D-021): `polish_blender` kaynak/FBX/üretim scriptleri, `polish_vfx` GameFeedback ve shader'lar, `polish_hud` VisualTheme ve GameHud dosyaları üzerinde çalıştı. Üç ajan da GPT-6.1 Sol / medium kullandı. Ana yönetici FacilityStage, ana Game/VisualLibrary entegrasyonu, gerçek kamera incelemesi, renk ayrımı ve retry iz regresyonu testleri, build, karar/durum kayıtları ve GitHub senkronunu üstlendi. Kaynaklar tek dosya sahibiyle yönetildi; cila bitmeden yeni iş paketi başlatılmadı.

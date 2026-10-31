@@ -5,16 +5,16 @@
       "id": "Core",
       "imported_bounds_xyz": [
         1.0,
-        1.0,
-        1.0
+        1.0000001192092896,
+        1.0000001192092896
       ],
       "bounds_center": [
         0.0,
         0.0,
         0.0
       ],
-      "triangles": 480,
-      "mesh_count": 3,
+      "triangles": 920,
+      "mesh_count": 1,
       "root": "Core",
       "materials": [
         "Accent",
@@ -35,8 +35,8 @@
         0.0,
         0.0
       ],
-      "triangles": 220,
-      "mesh_count": 5,
+      "triangles": 444,
+      "mesh_count": 2,
       "root": "TrackTile",
       "materials": [
         "Accent",
@@ -49,16 +49,16 @@
       "id": "Barrier",
       "imported_bounds_xyz": [
         1.0,
-        1.0,
+        1.0000001192092896,
         1.0000001192092896
       ],
       "bounds_center": [
         0.0,
-        5.960464477539063e-08,
+        0.0,
         0.0
       ],
-      "triangles": 176,
-      "mesh_count": 4,
+      "triangles": 396,
+      "mesh_count": 1,
       "root": "Barrier",
       "materials": [
         "Accent",
@@ -79,8 +79,8 @@
         0.0,
         0.0
       ],
-      "triangles": 220,
-      "mesh_count": 5,
+      "triangles": 396,
+      "mesh_count": 1,
       "root": "MovingWall",
       "materials": [
         "Accent",
@@ -101,8 +101,8 @@
         0.0,
         0.0
       ],
-      "triangles": 176,
-      "mesh_count": 4,
+      "triangles": 352,
+      "mesh_count": 1,
       "root": "RotatingArm",
       "materials": [
         "Accent",
@@ -123,7 +123,7 @@
         0.0,
         0.0
       ],
-      "triangles": 440,
+      "triangles": 616,
       "mesh_count": 3,
       "root": "EnergyGate",
       "materials": [
@@ -145,7 +145,7 @@
         0.0,
         0.0
       ],
-      "triangles": 528,
+      "triangles": 704,
       "mesh_count": 4,
       "root": "BreakableBlock",
       "materials": [
@@ -159,6 +159,28 @@
       "id": "EnergyPickup",
       "imported_bounds_xyz": [
         1.0,
+        0.9999997019767761,
+        1.0000001192092896
+      ],
+      "bounds_center": [
+        0.0,
+        -2.9802322387695312e-08,
+        0.0
+      ],
+      "triangles": 560,
+      "mesh_count": 1,
+      "root": "EnergyPickup",
+      "materials": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "BonusCrystal",
+      "imported_bounds_xyz": [
+        1.0,
         1.0000001192092896,
         1.0000001192092896
       ],
@@ -167,31 +189,11 @@
         0.0,
         0.0
       ],
-      "triangles": 172,
-      "mesh_count": 2,
-      "root": "EnergyPickup",
-      "materials": [
-        "Accent",
-        "Body"
-      ],
-      "result": "PASS"
-    },
-    {
-      "id": "BonusCrystal",
-      "imported_bounds_xyz": [
-        1.0,
-        1.0,
-        1.0000001192092896
-      ],
-      "bounds_center": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "triangles": 64,
-      "mesh_count": 2,
+      "triangles": 104,
+      "mesh_count": 1,
       "root": "BonusCrystal",
       "materials": [
+        "Accent",
         "Body",
         "Dark"
       ],
@@ -201,7 +203,7 @@
       "id": "PulseBadge",
       "imported_bounds_xyz": [
         1.0,
-        1.0,
+        1.0000001192092896,
         1.0000001192092896
       ],
       "bounds_center": [
@@ -209,12 +211,12 @@
         0.0,
         0.0
       ],
-      "triangles": 216,
-      "mesh_count": 3,
+      "triangles": 472,
+      "mesh_count": 1,
       "root": "PulseBadge",
       "materials": [
         "Accent",
-        "Body"
+        "Dark"
       ],
       "result": "PASS"
     },
@@ -222,17 +224,83 @@
       "id": "FinishMarker",
       "imported_bounds_xyz": [
         1.0,
-        1.0,
+        1.0000001192092896,
         1.0000001192092896
       ],
       "bounds_center": [
         0.0,
-        5.960464477539063e-08,
+        0.0,
         0.0
       ],
-      "triangles": 308,
-      "mesh_count": 7,
+      "triangles": 396,
+      "mesh_count": 1,
       "root": "FinishMarker",
+      "materials": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "SplitPylon",
+      "imported_bounds_xyz": [
+        1.0,
+        1.0000001192092896,
+        1.0000001192092896
+      ],
+      "bounds_center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triangles": 484,
+      "mesh_count": 1,
+      "root": "SplitPylon",
+      "materials": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "ChevronBarrier",
+      "imported_bounds_xyz": [
+        1.0,
+        1.0000001192092896,
+        1.0000001192092896
+      ],
+      "bounds_center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triangles": 352,
+      "mesh_count": 1,
+      "root": "ChevronBarrier",
+      "materials": [
+        "Accent",
+        "Body",
+        "Dark"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "RelayPylon",
+      "imported_bounds_xyz": [
+        1.0,
+        1.0000001192092896,
+        1.0000001192092896
+      ],
+      "bounds_center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "triangles": 352,
+      "mesh_count": 1,
+      "root": "RelayPylon",
       "materials": [
         "Accent",
         "Body",
