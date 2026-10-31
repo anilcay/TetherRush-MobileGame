@@ -1,8 +1,8 @@
 # Tether Rush — Teknik Hazırlık Planı
 
-Durum: Teknik öneri; uygulama başlangıcı ve önemli kararlar kullanıcı onayı bekliyor.
+Güncel durum: Kullanıcı D-008/009/010/014 ile Unity 6000.3.19f1 + URP, ilk prototip kapsamı ve kapalı kapıda başarısızlık davranışını onayladı; uygulama başladı. Android + dikey ekran onaylı. Bu belge ilk mimari değerlendirmeyi korur; güncel onay ve prototip ayarları için DECISIONS.md esas alınır. Alt bölümlerdeki eski 'onay bekliyor' notları bu kaydın yerine geçmez.
 Kaynak: `Docs/Source/GDD-extracted.txt`, Tether Rush GDD V2.0, 31.10.2026.
-Bu belge Unity projesi, paket kurulumu veya oyun kodu oluşturmaz. GDD'deki sabit kuralları değiştirmez. Aşağıda açıkça GDD kuralı olarak verilenlerin dışındaki mimari ve üretim seçimleri ÖNERİ'dir.
+Bu planın kendisi bir test sonucu değildir. GDD'deki sabit kuralları değiştirmez. Onay kaydında kesinleşmeyen mimari ve üretim seçimleri öneri olarak kalır. Çözümlenen temel sürümler: URP 17.3.0, Input System 1.19.0, Unity Test Framework 1.6.0. Yerel eski şablondaki Input System 1.12.0, bu Editor'de ReservedCFE derleme hatası verdiğinden Editor paket manifestinin önerdiği 1.19.0 kullanıldı.
 
 ## 1. Değiştirilmeyecek oynanış sözleşmesi
 

@@ -19,6 +19,8 @@ Tüm alt ajanlar: **GPT-6.1 Sol / medium**. İlk tur yalnız planlama; Unity pro
 
 ## Sonraki görevler için prompt şablonu
 
+M1 üretim turu da aynı model/eforla dağıtıldı: `m1_core` saf C# durum mantığı ve EditMode testlerine, `m1_gameplay` yalnız runtime klasörüne, `m1_playmode_qa` yalnız PlayMode testlerine sahipti. Ana yönetici proje/paket ayarlarını, Editor hazırlık/build araçlarını, entegrasyon düzeltmelerini ve doğrulamayı yürütür. Blender ve animasyon üretimi D-010 gereği oynanış incelemesinden sonraya bırakılmıştır.
+
 ```text
 Rol: [Unity gameplay / Blender modelleme / animasyon-VFX / QA].
 Model: gpt-6.1-sol, reasoning medium.

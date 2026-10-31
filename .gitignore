@@ -24,6 +24,7 @@ sysinfo.txt
 # Local outputs and temporary PDF inspection
 /tmp/
 /output/
+/Assets/Resources/PerformanceTestRun*.json*
 *.apk
 *.aab
 *.unitypackage

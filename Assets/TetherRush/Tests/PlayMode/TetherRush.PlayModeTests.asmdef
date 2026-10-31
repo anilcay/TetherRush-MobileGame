@@ -1,0 +1,10 @@
+{
+  "name": "TetherRush.PlayModeTests",
+  "rootNamespace": "TetherRush.Tests",
+  "references": [
+    "TetherRush.Core",
+    "TetherRush.Runtime"
+  ],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "autoReferenced": false
+}

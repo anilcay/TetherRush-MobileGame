@@ -1,8 +1,8 @@
 # Tether Rush — Kabul senaryoları
 
-Kaynak: `Docs/Source/GDD-extracted.txt`, GDD V2.0, 31.10.2026. Sayfa numaraları kaynak dosyadaki `SAYFA` ayraçlarına karşılık gelir. Bu belge test planıdır; oyun çalıştırılmamış, senaryolar yürütülmemiştir. **Tüm yürütüm durumları: BEKLİYOR.**
+Kaynak: `Docs/Source/GDD-extracted.txt`, GDD V2.0, 31.10.2026. Sayfa numaraları kaynak dosyadaki `SAYFA` ayraçlarına karşılık gelir. Bu belge ilk tasarım kabul planını korur; tablolardaki BEKLİYOR durumları manuel GDD kabulünü belirtir. Gerçek otomatik test sonuçları ve kanıtları `Docs/QA/M1_VALIDATION.md` içinde ayrı kaydedilir; otomatik testler tüm görsel/cihaz senaryolarını geçmiş saydırmaz.
 
-GDD kuralı olarak belirtilmeyen davranışlar aşağıda **ÖNERİ / KARAR BEKLİYOR** etiketi taşır. Özellikle ilk milestone kapsamı, sayısal ayarlar, giriş iptali, yeniden başlatma ve aynı karede gerçekleşen olayların önceliği yönetim sohbetinde kullanıcı onayına sunulmalıdır. Öneriler onaylanmadan bağlayıcı GDD şartı veya geçmiş test sonucu sayılmaz.
+GDD kuralı olarak belirtilmeyen davranışlar ilk değerlendirmede **ÖNERİ / KARAR BEKLİYOR** etiketi taşır. Güncel kararlar DECISIONS.md'de: M1 kapsamı ve kapı başarısızlığı kullanıcı tarafından onaylandı; olay sırası, menzil ve giriş/reset ayrıntıları D-015/016 prototip ayarlarıyla uygulanıyor. D-017 ile gerçek cihaz testi son aşamaya ertelendi. Bu seçimler GDD'ye sonradan eklenmiş özgün şartlar olarak gösterilmez.
 
 ## Kapsam ve hazırlık
 

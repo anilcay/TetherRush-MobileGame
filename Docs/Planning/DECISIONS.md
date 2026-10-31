@@ -11,24 +11,27 @@ Tarih: 31.10.2026. `ONAYLI` kullanıcı isteğini/onayını, `ÖNERİ` henüz on
 | D-005 | ONAYLI | Çalışmalar belirtilen GitHub deposuna normal commit/push ile senkronize edilecek. | Kullanıcının ilk isteği. |
 | D-006 | ONAYLI | İlk hedef Android telefon, dikey ekran. | Kullanıcının platform sorusuna yanıtı. |
 | D-007 | TASARIM TEMELİ | GDD v2.0 oyun kuralları; Pulse ve çarpışma ayrımları korunacak. Yeni öneriler ayrı etiketlenecek. | Sağlanan 8 sayfalık belge. |
-| D-008 | ÖNERİ | Yerelde kurulu Unity 6000.3.19f1 ve URP ile başlamak; sürümü ProjectVersion.txt ve paket kilidiyle sabitlemek. | .19f1 kurulumu ve AndroidPlayer klasörü doğrulandı; henüz proje oluşturulmadı. |
-| D-009 | ÖNERİ | M1: tek kısa prototip bölümünde dar geçit, orta bariyer, bağla enerji, küreyle bonus, Pulse kapısı, işaretli kırılabilir hedef ve bitiş/retry. | Ana mekaniği en küçük uçtan uca akışta değerlendirmek. |
-| D-010 | ÖNERİ | M1 geçici geometrilerle; oynanış onayından sonra Blender varlıkları, animasyon/VFX ve hareketli engeller. | Sanat işini oynanış ölçülerine göre üretmek. |
+| D-008 | ONAYLI | Unity 6000.3.19f1 ve URP ile başlamak; sürümü ProjectVersion.txt ve paket kilidiyle sabitlemek. | Kullanıcı iki maddelik başlangıç önerisini 31.10.2026 tarihinde onayladı. |
+| D-009 | ONAYLI | M1: tek kısa prototip bölümünde dar geçit, orta bariyer, bağla enerji, küreyle bonus, Pulse kapısı, işaretli kırılabilir hedef ve bitiş/retry. | Kullanıcı başlangıç kapsamını onayladı. |
+| D-010 | ONAYLI | M1 geçici geometrilerle; oynanış onayından sonra Blender varlıkları, animasyon/VFX ve hareketli engeller. | Kullanıcı başlangıç kapsamını onayladı. |
 | D-011 | ÖNERİ | İlk görsel hedef GDD'deki koyu parkur, turkuaz/mor çekirdekler ve ölçülü neon. Sayısal palet ve üretim bütçeleri sanat incelemesinde kesinleşecek. | GDD sayfa 7 görseli ve açıklaması. |
 | D-012 | SONRA | Test telefonu/modeli, asgari Android sürümü, kesin kare hızı ve performans bütçesi. | Fiziksel cihaz bilgisi henüz verilmedi; 60 FPS yalnızca önerilen hedeftir. |
 | D-013 | SONRA | Reklam/IAP, hesap, analitik, mağaza yayını, iOS ve çevrimiçi servisler. | GDD bu özellikleri istemiyor; ilk prototip kapsamına eklenmedi. |
+| D-014 | ONAYLI | Kapalı enerji kapısına küre teması denemeyi bitirir; hızlı yeniden deneme sunulur. Erken Pulse kaynaklı enerjisizlik süresiz beklemeye yol açmaz. | Kullanıcı ikinci öneriyi onayladı. |
+| D-015 | PROTOTİP AYARI | Simülasyon en fazla 1/120 saniyelik alt adımlara ayrılır. Girdi ilk alt adımda çözülür: hareket/temas, sonra gerçek bırakma; fatal temas önceliklidir. Böylece yavaş bir karenin sonuna kadar bırakma geciktirilmez. Pulse ortak merkezden hedef collider'ının en yakın noktasına olan yatay mesafeyi kullanır, sınır dahildir. | Onaylı kapsam içinde tutarlı ve test edilebilir ilk uygulama seçimi; oynanış incelemesinde ayarlanabilir. |
+| D-016 | PROTOTİP AYARI | Başlangıçta dar konum, boş enerji ve sıfır bonus; sistem iptali Pulse üretmez. Duraklamadan dönüşte yeni basış gerekir. Her toplanabilir yalnız bir kez tüketilir. | Onaylı kapsam içindeki giriş/yeniden deneme sağlamlık kuralları. |
+| D-017 | ONAYLI | Kullanıcının şu an Android telefonu yok; fiziksel cihaz testi son aşamaya ertelendi. Şimdilik kullanıcı Unity Editor üzerinden oynanışı inceleyecek. | Kullanıcının 31.10.2026 tarihli yanıtı. |
 
 ## M1 onay paketi
 
-Öneri: D-008, D-009 ve D-010 birlikte ilk üretim kapsamını oluşturur. İlk teslim Android dikey ekranda çalışan bir test sürümü ve aynı akışı Editor'da çalıştırma talimatı olacaktır. APK üretimi ve cihaz testi yapılmadan bu teslim tamamlandı sayılmaz.
+Kullanıcı D-008, D-009, D-010 ve D-014 kararlarını onayladı; M1 üretimi başlatıldı. İlk teslim Editor'da oynanabilir prototip, otomatik doğrulama ve Android test build'idir. D-017 ile fiziksel cihaz testi son aşamaya ertelendi; Editor prototipi kabulünü engellemez. Mobil performans ve gerçek dokunma kabulü cihaz testi yapılana kadar açık kalır.
 
 Süre, küre mesafeleri, ileri hız, Pulse yarıçapı ve enerji miktarları GDD'de sayısal olarak sabit değil. Bunlar ayarlanabilir prototip parametreleri olacak; test sonucu ile kesinleşecek. Rutin parametre ayarları ana yönetici tarafından yürütülür; ana mekaniği veya deneyimi değiştiren seçimler kullanıcıya sunulur. Alt planlardaki sayısal ayar onayları her sabit için ayrı kullanıcı izni anlamına gelmez.
 
 ## Tasarım incelemesinde çözülecek ayrıntılar
 
-- Zorunlu Pulse kapısında erken enerji harcayan oyuncu nasıl yeniden dener? Enerjisiz kapıda süresiz bekleme olmamalı.
-- Aynı fizik adımında enerji dolması ve bırakma gerçekleşirse değerlendirme sırası ne olmalı?
-- Pulse hedefleri menzile hangi ölçütle girer? Kod ve görsel halka aynı ölçütü kullanmalı.
-- Uygulama odağı kaybolması veya duraklatma, oyuncu bırakışı sayılmamalı; geri dönüşte giriş durumu temizlenmeli.
+- Kapıdaki başarısızlık D-014 ile çözüldü; okunabilirlik ilk oyuncu incelemesinde değerlendirilecek.
+- Aynı fizik adımı ve Pulse menzili D-015 ile ilk uygulama için belirlendi; kod ve görsel halka aynı ölçütü kullanmalı.
+- Odak kaybı/yeniden başlatma ve tek tüketim D-016 ile ilk uygulama için belirlendi.
 
 Teknik ayrıntılar için teknik plan ve kabul senaryoları; oyun davranışını değiştiren seçimler için ana sohbette karar kaydı kullanılır.

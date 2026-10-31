@@ -1,0 +1,9 @@
+{
+  "name": "TetherRush.EditModeTests",
+  "rootNamespace": "TetherRush.Tests",
+  "references": ["TetherRush.Core"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "autoReferenced": false,
+  "noEngineReferences": true
+}

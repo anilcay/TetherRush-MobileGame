@@ -1,0 +1,7 @@
+{
+  "name": "TetherRush.Core",
+  "rootNamespace": "TetherRush.Core",
+  "references": [],
+  "autoReferenced": true,
+  "noEngineReferences": true
+}
