@@ -4,7 +4,7 @@ Unity ile geliştirilecek, ortak bir enerji bağıyla bağlı iki küreyi tek pa
 
 ## Durum
 
-M1 oynanabilir prototipi geliştiriliyor. Unity projesi ve test kaynakları eklendi; geçici geometriler kullanılıyor. Blender üretimi, oynanış incelemesinden sonra başlayacak.
+İlk M1 prototipi hazır: 40 Unity testi geçti, Windows önizlemesi ve Android ARM64 test APK'sı üretildi. Geçici geometriler kullanılıyor; kullanıcı oynanış incelemesi bekleniyor. Blender üretimi bu incelemeden sonra başlayacak.
 
 - Hedef: **Android telefon, dikey ekran** (kullanıcı onayı: 31.10.2026).
 - Tasarım kaynağı: [GDD v2.0](Docs/Source/Tether_Rush_GDD_v2.pdf), 31.10.2026.
@@ -31,7 +31,7 @@ M1 oynanabilir prototipi geliştiriliyor. Unity projesi ve test kaynakları ekle
 
 Dar geçitte dar kal; orta bariyerden önce açıl. Enerjiyi geniş bağla, altın bonusları kürelerle topla. Sarı Pulse hedefine yaklaşınca **MENZİLDE** ipucunda bırak. Erken Pulse sonrası kapalı hedefe çarpma denemeyi bitirir; **Hemen tekrar dene** ile baştan başla. Kırmızı engeller Pulse ile açılmaz.
 
-Sahne oyun dünyasını Play sırasında kurar; Edit görünümünde boş görünmesi beklenir. Sayısal parkur yerleşimi `PrototypeLayout.cs`, ayarlar `RunTuning.cs` içindedir. Bu M1 yaklaşımı son bölüm tasarım aracı değildir.
+Sahne oyun dünyasını Play sırasında kurar; Edit görünümünde boş görünmesi beklenir. Sayısal parkur yerleşimi `PrototypeLayout.cs` içindedir. Hareket/enerji ayarları Play'e girmeden önce sahnedeki **Tether Rush — M1 → Tuning** alanından düzenlenir; yeni nesnelerin varsayılanları `RunTuning.cs` içindedir. Bu M1 yaklaşımı son bölüm tasarım aracı değildir.
 
 ## Tekrarlanabilir kontroller
 

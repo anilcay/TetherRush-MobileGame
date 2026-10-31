@@ -15,17 +15,18 @@ Son güncelleme: 31.10.2026.
 | Araç | Gözlenen durum |
 | --- | --- |
 | Unity | Proje 6000.3.19f1 (7689f4515d75) ile açıldı, C# derlendi ve prototip sahnesi kaydedildi. URP 17.3.0, Input System 1.19.0 kilitlendi. |
-| Android desteği | 6000.3.19f1 altında SDK, NDK, OpenJDK mevcut; test APK üretimi hazırlanıyor. |
+| Android desteği | APK build exit 0. 37.533.184 bayt; ARM64, min API 25, target API 36, portrait. APK Signature v2 doğrulandı. Türkçe yol için aynı projeye işaret eden geçici ASCII junction kullanıldı. |
 | Blender | `C:/Program Files (x86)/Steam/steamapps/common/Blender/blender.exe` mevcut; dosya sürüm bilgisi 5.2. Uygulama çalıştırma/export henüz doğrulanmadı. |
-| Git | İlk hazırlık commit'i f7eb21b GitHub ile doğrulandı. M1 kaynaklarının normal commit/push senkronizasyonu teslimde ayrıca doğrulanır. |
+| Git | İlk hazırlık f7eb21b, M1 kaynakları 5870e2e ile GitHub main dalına gönderildi. Nihai teslim kaydının uzak hash eşleşmesi teslimde doğrulanır. |
 | Unity testleri | EditMode 29/29 ve PlayMode 11/11 geçti. Kanıt özeti Docs/QA/M1_VALIDATION.md içinde. |
+| Windows önizleme | Build exit 0; uygulama açıldı, başlangıç logunda exception/error bulunmadı. Manuel görsel inceleme kullanıcı değerlendirmesinde açık. |
 
 ## Kilometre taşları
 
 | Aşama | Kapsam | Durum / çıkış koşulu |
 | --- | --- | --- |
 | M0 – Hazırlık | GDD analizi, planlar, ajan iş dağılımı, GitHub başlangıç kaydı. | Tamamlandı; başlangıç paketi kullanıcı tarafından onaylandı. |
-| M1 – Oynanabilir prototip | Daral/genişle, tether enerji, bonus, Pulse kapısı/kırılabilir hedef, ölüm, bitiş/retry, temel HUD. | Editor prototipi ve 40 otomatik test hazır. Build/görsel doğrulama sürüyor; kullanıcı oynanış incelemesi bekliyor. Cihaz testi D-017 ile sonraya ertelendi. |
+| M1 – Oynanabilir prototip | Daral/genişle, tether enerji, bonus, Pulse kapısı/kırılabilir hedef, ölüm, bitiş/retry, temel HUD. | İlk teknik teslim hazır: 40/40 test, Windows build ve imzası doğrulanan Android APK. Kullanıcı oynanış/görsel incelemesi bekliyor. Cihaz testi D-017 ile sonraya ertelendi. |
 | M2 – Görsel ve içerik | Onaylı Blender varlıkları, animasyon/VFX, hareketli duvar/dönen kol, öğretici ritmi. | M1 oynanışı değerlendirilince kapsam kesinleşecek. |
 | M3 – Mobil doğrulama | Fiziksel cihaz, performans, ekran oranları, pause/resume, ses ve titreşim. | Cihaz ve hedef bütçeler belirlenecek. |
 | M4 – Yayına hazırlık | Mağaza gereksinimleri ve dağıtım. | Kullanıcı ayrıca kapsam/onay verecek. |
