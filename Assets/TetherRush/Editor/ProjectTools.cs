@@ -13,6 +13,7 @@ namespace TetherRush.Editor
     /// <summary>Reproducible scenes and local test builds. No signing secrets or publishing.</summary>
     public static class ProjectTools
     {
+        public const string MenuScenePath = "Assets/TetherRush/Scenes/MainMenu.unity";
         public const string ScenePath = "Assets/TetherRush/Scenes/Prototype.unity";
         public const string ChallengeScenePath = "Assets/TetherRush/Scenes/Challenge.unity";
         private const string MobilePipelinePath = "Assets/Settings/Mobile_RPAsset.asset";
@@ -22,7 +23,7 @@ namespace TetherRush.Editor
         {
             PlayerSettings.companyName = "Anil Cay";
             PlayerSettings.productName = "Tether Rush";
-            PlayerSettings.bundleVersion = "0.2.1";
+            PlayerSettings.bundleVersion = "0.3.0";
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.anilcay.tetherrush");
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToPortrait = true;
@@ -38,7 +39,7 @@ namespace TetherRush.Editor
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
-            PlayerSettings.Android.bundleVersionCode = 3;
+            PlayerSettings.Android.bundleVersionCode = 4;
             PlayerSettings.Android.useCustomKeystore = false;
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             EditorSettings.serializationMode = SerializationMode.ForceText;
@@ -61,11 +62,22 @@ namespace TetherRush.Editor
             QualitySettings.SetQualityLevel(0, false);
             EditorUtility.SetDirty(pipeline);
             KeepRuntimeShaders();
+            if (!File.Exists(MenuScenePath)) CreateMenuScene();
             if (!File.Exists(ScenePath)) CreatePrototypeScene();
             if (!File.Exists(ChallengeScenePath)) CreateChallengeScene();
-            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true), new EditorBuildSettingsScene(ChallengeScenePath, true) };
+            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(MenuScenePath, true), new EditorBuildSettingsScene(ScenePath, true), new EditorBuildSettingsScene(ChallengeScenePath, true) };
             AssetDatabase.SaveAssets();
             Debug.Log("TETHER_RUSH_PREPARED Unity=" + Application.unityVersion + " Android ARM64 / Portrait / URP17.3");
+        }
+
+        [MenuItem("Tether Rush/Create Main Menu Scene")]
+        public static void CreateMenuScene()
+        {
+            Directory.CreateDirectory("Assets/TetherRush/Scenes");
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            new GameObject("Tether Rush / App").AddComponent<TetherRushApp>();
+            EditorSceneManager.SaveScene(scene, MenuScenePath);
+            AssetDatabase.Refresh();
         }
 
         [MenuItem("Tether Rush/Create Timing Course Scene")]
@@ -101,14 +113,14 @@ namespace TetherRush.Editor
         {
             PrepareProject();
             EditorUserBuildSettings.buildAppBundle = false;
-            Build(BuildTarget.Android, "output/android/TetherRush-Polish.apk");
+            Build(BuildTarget.Android, "output/android/TetherRush-MenuLevels.apk");
         }
 
         [MenuItem("Tether Rush/Build Windows Preview")]
         public static void BuildWindows()
         {
             PrepareProject();
-            Build(BuildTarget.StandaloneWindows64, "output/windows-polish/TetherRush.exe");
+            Build(BuildTarget.StandaloneWindows64, "output/windows-menu-levels/TetherRush.exe");
         }
 
         private static void Build(BuildTarget target, string path)
@@ -116,7 +128,7 @@ namespace TetherRush.Editor
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
-                scenes = new[] { ScenePath, ChallengeScenePath },
+                scenes = new[] { MenuScenePath, ScenePath, ChallengeScenePath },
                 locationPathName = path,
                 target = target,
                 options = BuildOptions.Development | BuildOptions.StrictMode

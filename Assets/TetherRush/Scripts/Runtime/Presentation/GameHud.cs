@@ -14,6 +14,9 @@ namespace TetherRush.Presentation
         public float Distance, FinishDistance;
         public int Energy, EnergyCapacity, Bonus, ActivatedTargets;
         public string Hint, FailureReason;
+        public string CourseTitle;
+        public bool Endless, CanGoHome, CanAdvance;
+        public int Score, BestScore;
     }
 
     /// <summary>Presentation only. All gameplay changes are delegated to supplied callbacks.</summary>
@@ -21,8 +24,10 @@ namespace TetherRush.Presentation
     {
         public Canvas Canvas { get; private set; }
         private RectTransform safeArea, progressFill, energyContainer, primaryRect;
-        private Text subtitle, distance, bonus, energyLabel, hint, audioLabel, cardTitle, cardBody, primaryLabel;
-        private Button pauseButton, secondaryButton;
+        private Text subtitle, distance, bonus, energyLabel, hint, audioLabel, cardTitle, cardBody, primaryLabel, secondaryLabel;
+        private Button pauseButton, secondaryButton, homeButton;
+        private Action goHome, nextLevel;
+        private bool nextAction;
         private GameObject card;
         private Image[] energySegments;
         private Image cardAccent;
@@ -100,8 +105,13 @@ namespace TetherRush.Presentation
                 Vector2.zero, new Vector2(.5f, 0), new Vector2(20, 20), new Vector2(-5, 68), startOrResume, out primaryLabel);
             primaryRect = (RectTransform)primary.transform;
             secondaryButton = Control("Other course", card.transform, advanced ? "Temel parkur" : "Zamanlama",
-                VisualTheme.Track, VisualTheme.UIText, new Vector2(.5f, 0), new Vector2(1, 0), new Vector2(5, 20), new Vector2(-20, 68), otherCourse, out var secondaryLabel);
+                VisualTheme.Track, VisualTheme.UIText, new Vector2(.5f, 0), new Vector2(1, 0), new Vector2(5, 20), new Vector2(-20, 68),
+                () => { if (nextAction) nextLevel?.Invoke(); else otherCourse?.Invoke(); }, out secondaryLabel);
             secondaryLabel.fontSize = 16;
+            homeButton = Control("Main menu", card.transform, "Ana menü", VisualTheme.Inlay, VisualTheme.Silver,
+                Vector2.zero, new Vector2(1, 0), new Vector2(20, 16), new Vector2(-20, 60), () => goHome?.Invoke(), out var homeLabel);
+            homeLabel.fontSize = 15;
+            homeButton.gameObject.SetActive(false);
 
             if (EventSystem.current == null)
             {
@@ -112,13 +122,16 @@ namespace TetherRush.Presentation
             ApplySafeArea();
         }
 
+        public void SetNavigation(Action home, Action next) { goHome = home; nextLevel = next; }
+
         public void Present(HudState state, float dt)
         {
             if (!initialized) return;
             ApplySafeArea();
-            subtitle.text = state.AdvancedCourse ? "02  /  ZAMANLAMA" : "01  /  TEMEL PARKUR";
-            distance.text = Mathf.FloorToInt(state.Distance) + " / " + Mathf.RoundToInt(state.FinishDistance) + " m";
-            bonus.text = "BONUS  " + state.Bonus + "   /   HEDEF  " + state.ActivatedTargets;
+            subtitle.text = state.Endless ? "SONSUZ AKIŞ" : !string.IsNullOrEmpty(state.CourseTitle) ? state.CourseTitle : state.AdvancedCourse ? "02  /  ZAMANLAMA" : "01  /  TEMEL PARKUR";
+            distance.text = state.Endless ? "SKOR  " + state.Score.ToString("N0") : Mathf.FloorToInt(state.Distance) + " / " + Mathf.RoundToInt(state.FinishDistance) + " m";
+            bonus.text = state.Endless ? "EN İYİ  " + state.BestScore.ToString("N0") : "BONUS  " + state.Bonus + "   /   HEDEF  " + state.ActivatedTargets;
+            progressFill.parent.gameObject.SetActive(!state.Endless);
             audioLabel.text = state.AudioEnabled ? "Ses açık" : "Sessiz";
             pauseButton.gameObject.SetActive(state.Phase == RunPhase.Running);
             float progress = state.FinishDistance > 0 ? Mathf.Clamp01(state.Distance / state.FinishDistance) : 0;
@@ -128,16 +141,26 @@ namespace TetherRush.Presentation
             energyLabel.text = state.AdvancedCourse ? "RİTMİ YAKALA" : charged ? "PULSE HAZIR" : "ENERJİ  " + state.Energy + " / " + state.EnergyCapacity;
             energyLabel.color = charged ? VisualTheme.TetherReady : VisualTheme.UIMuted;
             UpdateEnergy(state);
-            hint.text = state.Hint ?? string.Empty;
+            hint.text = state.Endless ? Mathf.FloorToInt(state.Distance) + " m   ·   BONUS " + state.Bonus + "   /   " + (state.Hint ?? string.Empty) : state.Hint ?? string.Empty;
             hint.color = charged ? VisualTheme.TetherReady : VisualTheme.UIText;
             bool showCard = state.Phase != RunPhase.Running;
             card.SetActive(showCard);
             if (!showCard) return;
             bool canSwitch = state.CanSwitchCourse && (state.Phase == RunPhase.Ready || state.Phase == RunPhase.Failed || state.Phase == RunPhase.Completed);
-            secondaryButton.gameObject.SetActive(canSwitch);
+            nextAction = state.CanAdvance && state.Phase == RunPhase.Completed;
+            bool canSecondary = canSwitch || nextAction;
+            bool canHome = state.CanGoHome && (state.Phase == RunPhase.Ready || state.Phase == RunPhase.Paused || state.Phase == RunPhase.Failed || state.Phase == RunPhase.Completed);
+            secondaryButton.gameObject.SetActive(canSecondary);
+            secondaryLabel.text = nextAction ? "Sonraki bölüm →" : state.AdvancedCourse ? "Temel parkur" : "Zamanlama";
+            homeButton.gameObject.SetActive(canHome);
+            ((RectTransform)card.transform).offsetMax = new Vector2(-24, canHome ? 325 : 265);
             // One primary action expands to the full card width when switching is unavailable.
-            primaryRect.anchorMax = new Vector2(canSwitch ? .5f : 1, 0);
-            primaryRect.offsetMax = new Vector2(canSwitch ? -5 : -20, 68);
+            primaryRect.anchorMax = new Vector2(canSecondary ? .5f : 1, 0);
+            primaryRect.offsetMin = new Vector2(20, canHome ? 76 : 20);
+            primaryRect.offsetMax = new Vector2(canSecondary ? -5 : -20, canHome ? 124 : 68);
+            var secondaryRect = (RectTransform)secondaryButton.transform;
+            secondaryRect.offsetMin = new Vector2(5, canHome ? 76 : 20);
+            secondaryRect.offsetMax = new Vector2(-20, canHome ? 124 : 68);
             switch (state.Phase)
             {
                 case RunPhase.Paused:
@@ -147,14 +170,14 @@ namespace TetherRush.Presentation
                     cardAccent.color = VisualTheme.CoreB;
                     break;
                 case RunPhase.Failed:
-                    cardTitle.text = "Bir kez daha.";
-                    cardBody.text = string.IsNullOrEmpty(state.FailureReason) ? "İki küreyi de koru.\nYeni denemede ritmi yakala." : state.FailureReason;
+                    cardTitle.text = state.Endless ? "Akış tamamlandı." : "Bir kez daha.";
+                    cardBody.text = state.Endless ? "SKOR  " + state.Score.ToString("N0") + "   ·   EN İYİ  " + state.BestScore.ToString("N0") + "\n" + (state.FailureReason ?? "Yeniden akışa katıl.") : string.IsNullOrEmpty(state.FailureReason) ? "İki küreyi de koru.\nYeni denemede ritmi yakala." : state.FailureReason;
                     primaryLabel.text = "Yeniden dene";
                     cardAccent.color = VisualTheme.Danger;
                     break;
                 case RunPhase.Completed:
                     cardTitle.text = "Bağ tamamlandı.";
-                    cardBody.text = state.Bonus + " bonus topladın.  " + state.ActivatedTargets + " hedef açıldı.\nBir tur daha?";
+                    cardBody.text = state.Bonus + " bonus topladın.  " + state.ActivatedTargets + " hedef açıldı.\n" + (nextAction ? "Sıradaki ritme hazır mısın?" : "Bir tur daha?");
                     primaryLabel.text = "Tekrar oyna";
                     cardAccent.color = VisualTheme.Bonus;
                     break;

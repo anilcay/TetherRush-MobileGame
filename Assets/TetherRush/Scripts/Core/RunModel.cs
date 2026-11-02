@@ -101,6 +101,13 @@ namespace TetherRush.Core
             return true;
         }
 
+        /// <summary>Retire a streamed object only after it has permanently left the course window.</summary>
+        public void RetireCollectible(int collectibleId)
+        {
+            energyCollectibles.Remove(collectibleId); bonusCollectibles.Remove(collectibleId);
+        }
+        public int TrackedCollectibleCount => energyCollectibles.Count + bonusCollectibles.Count;
+
         public void Fail(string reason)
         {
             if (Phase != RunPhase.Running) return;

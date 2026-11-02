@@ -8,6 +8,7 @@ namespace TetherRush.Presentation
         private Transform left, right, leftShadow, rightShadow;
         private Material sky, shadow, previousSky;
         private Vector4 previousFog;
+        private bool environmentOwned;
         private float previousStart, previousEnd, deckY = -.11f;
 
         public void Initialize(Transform world, Transform leftCore, Transform rightCore, Camera camera)
@@ -21,7 +22,7 @@ namespace TetherRush.Presentation
             sky.SetColor("_BaseColor", Color.white);
             sky.SetColor("_HorizonColor", VisualTheme.Atmosphere);
             sky.SetColor("_ZenithColor", VisualTheme.Void);
-            RenderSettings.skybox = sky;
+            RenderSettings.skybox = sky; environmentOwned = true;
             camera.clearFlags = CameraClearFlags.Skybox;
             camera.gameObject.AddComponent<Skybox>().material = sky;
             Shader.SetGlobalColor("_TRFogColor", VisualTheme.Atmosphere);
@@ -56,12 +57,20 @@ namespace TetherRush.Presentation
             rightShadow.position = new Vector3(right.position.x, deckY, right.position.z);
         }
 
-        private void OnDestroy()
+        private void OnDisable() { ReleaseEnvironment(); }
+        private void ReleaseEnvironment()
         {
-            if (RenderSettings.skybox == sky) RenderSettings.skybox = previousSky;
+            if (!environmentOwned) return;
+            environmentOwned = false;
+            if (RenderSettings.skybox != sky) return;
+            RenderSettings.skybox = previousSky;
             Shader.SetGlobalVector("_TRFogColor", previousFog);
             Shader.SetGlobalFloat("_TRFogStart", previousStart);
             Shader.SetGlobalFloat("_TRFogEnd", previousEnd);
+        }
+        private void OnDestroy()
+        {
+            ReleaseEnvironment();
             if (sky != null) Destroy(sky);
             if (shadow != null) Destroy(shadow);
         }

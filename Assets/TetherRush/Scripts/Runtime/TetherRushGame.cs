@@ -18,7 +18,35 @@ namespace TetherRush
         [SerializeField] private RunTuning tuning = new RunTuning();
         [SerializeField] private bool advancedCourse;
         public bool IsAdvancedCourse => advancedCourse;
-        public float CourseFinishDistance => advancedCourse ? TimedCourseLayout.FinishDistance : FinishDistance;
+        public float CourseFinishDistance => IsEndless ? float.PositiveInfinity : definition != null ? definition.Length : advancedCourse ? TimedCourseLayout.FinishDistance : FinishDistance;
+        public bool IsEndless { get; private set; }
+        public int SelectedLevelIndex { get; private set; } = -1;
+        public bool NavigationEnabled { get; set; }
+        public int BestScore { get; set; }
+        public int Score => Model == null ? 0 : PlayerSaveStore.CalculateScore(Model.Distance, Model.Bonus);
+        public int ActiveChunkCount => chunks.Count;
+        public int ActivePickupCount => pickups.Count;
+        public event System.Action<RunPhase> PhaseChanged;
+        public event System.Action HomeRequested, NextRequested;
+        private CourseDefinition definition;
+        private int endlessSeed = 1, nextChunkIndex, nextPickupId;
+        private Transform spawnParent;
+        private sealed class StreamChunk
+        {
+            public int Index; public Transform Root; public CourseDefinition Data;
+            public readonly List<Transform> TimedViews = new List<Transform>();
+        }
+        private readonly List<StreamChunk> chunks = new List<StreamChunk>();
+        public void ConfigureLevel(int index)
+        {
+            if (Model != null) throw new System.InvalidOperationException("Configure before Awake.");
+            definition = LevelCatalog.Get(index); SelectedLevelIndex = index;
+        }
+        public void ConfigureEndless(int seed = 1)
+        {
+            if (Model != null) throw new System.InvalidOperationException("Configure before Awake.");
+            IsEndless = true; endlessSeed = seed;
+        }
         public int TimedHazardCount => timedHazards.Length;
         public GameFeedback Feedback { get; private set; }
         public void ConfigureCourse(bool advanced)
@@ -69,6 +97,7 @@ namespace TetherRush
         {
             ClearPointer();
             Model.StartRun();
+            if (IsEndless) ResetStream();
             ActivatedTargetCount = 0;
             foreach (var h in hazards) { h.Open = false; h.View.SetActive(true); if (h.OpenFrame != null) h.OpenFrame.SetActive(false); }
             foreach (var c in pickups) c.View.SetActive(true);
@@ -103,6 +132,7 @@ namespace TetherRush
                 float step = Mathf.Min(remaining, 1f / 120f);
                 float oldZ = Model.Distance, oldHalf = Model.HalfSeparation;
                 Model.Tick(step);
+                if (IsEndless) MaintainStream();
                 ResolveContacts(oldZ, oldHalf);
                 // Resolve the input in the first simulation step, not after an entire slow frame.
                 // Contacts in that step still precede release, and fatal contact has priority.
@@ -112,7 +142,7 @@ namespace TetherRush
                     releasePending = false;
                 }
                 remaining -= step;
-                if (Model.Phase == RunPhase.Running && Model.Distance >= CourseFinishDistance) Model.Complete();
+                if (!IsEndless && Model.Phase == RunPhase.Running && Model.Distance >= CourseFinishDistance) Model.Complete();
             }
             if (releasePending && Model.Release()) ActivatePulse();
             RefreshVisuals(dt);
@@ -272,7 +302,7 @@ namespace TetherRush
                 kind == VisualKind.Barrier || kind == VisualKind.SplitPylon || kind == VisualKind.ChevronBarrier ||
                 kind == VisualKind.MovingWall || kind == VisualKind.RotatingArm ? dangerAccentMat :
                 kind == VisualKind.EnergyGate || kind == VisualKind.BreakableBlock || kind == VisualKind.PulseBadge ? pulseAccentMat : null;
-            return visuals.Create(kind, label, world, pos, size, material, edge);
+            return visuals.Create(kind, label, spawnParent != null ? spawnParent : world, pos, size, material, edge);
         }
         private void AddHazard(string label, Vector3 pos, Vector3 size, bool marked, string reason, bool gate = false, VisualKind variant = VisualKind.Barrier)
         {
@@ -288,7 +318,7 @@ namespace TetherRush
                     var filter = renderer.GetComponent<MeshFilter>();
                     if (filter == null) continue;
                     var frame = new GameObject("Opened gate frame", typeof(MeshFilter), typeof(MeshRenderer));
-                    frame.transform.SetParent(world, false);
+                    frame.transform.SetParent(spawnParent != null ? spawnParent : world, false);
                     frame.transform.SetPositionAndRotation(renderer.transform.position, renderer.transform.rotation);
                     frame.transform.localScale = renderer.transform.lossyScale;
                     frame.GetComponent<MeshFilter>().sharedMesh = filter.sharedMesh;
@@ -317,34 +347,50 @@ namespace TetherRush
             dangerAccentMat = MakeMaterial("Fatal warning lights", VisualTheme.Danger);
             pulseAccentMat = MakeMaterial("Pulse target lights", VisualTheme.PulseAccent);
             visuals = new VisualLibrary(darkMat, accentMat);
-            for (int z = -10; z <= CourseFinishDistance + 10; z += 10)
-                ModelVisual(VisualKind.TrackTile, "Track tile", new Vector3(0, -.22f, z + 5), new Vector3(7.2f, .4f, 10), trackMat);
-            AddHazard("Narrow gate left", new Vector3(-2.425f, .65f, 20), new Vector3(2.35f, 1.3f, 1), false, "Dar geçit: bırak ve daral.", variant: VisualKind.SplitPylon);
-            AddHazard("Narrow gate right", new Vector3(2.425f, .65f, 20), new Vector3(2.35f, 1.3f, 1), false, "Dar geçit: bırak ve daral.", variant: VisualKind.SplitPylon);
-            if (advancedCourse)
+            if (IsEndless)
             {
-                timedHazards = TimedCourseLayout.Create(); timedViews = new Transform[timedHazards.Length];
-                for (int i = 0; i < timedHazards.Length; i++)
-                {
-                    var h = timedHazards[i];
-                    timedViews[i] = ModelVisual(h.Kind == TimedHazardKind.RotatingArm ? VisualKind.RotatingArm : VisualKind.MovingWall,
-                        "Timed hazard " + i, new Vector3(h.Center.x, .65f, h.Center.y),
-                        new Vector3(h.HalfExtents.x * 2, 1.3f, h.HalfExtents.y * 2), redMat).transform;
-                }
-                foreach (var point in new[] { new Vector2(2.2f, 52), new Vector2(.65f, 82), new Vector2(2.2f, 110) })
-                { AddPickup(new Vector3(-point.x, .55f, point.y), true, pickups.Count); AddPickup(new Vector3(point.x, .55f, point.y), true, pickups.Count); }
+                for (int z = -16; z < 0; z += 8) AddTrack(z, 8);
+                ResetStream();
+            }
+            else if (definition != null)
+            {
+                for (int z = -10; z <= CourseFinishDistance + 10; z += 10) AddTrack(z, 10);
+                var views = new List<Transform>();
+                BuildContent(definition, views);
+                timedHazards = definition.TimedHazards; timedViews = views.ToArray();
+                ModelVisual(VisualKind.FinishMarker, "Finish arch", new Vector3(0, 1.6f, CourseFinishDistance), new Vector3(7.2f, 3.2f, .45f), tealMat);
             }
             else
             {
-                AddHazard("Center barrier", new Vector3(0, .65f, 42), new Vector3(2.5f, 1.3f, 1.2f), false, "Orta bariyer: basılı tut ve açıl.", variant: VisualKind.ChevronBarrier);
-                AddHazard("Energy gate", new Vector3(0, .65f, 100), new Vector3(7.2f, 1.3f, .7f), true, "Kapalı enerji kapısı! Tam enerjiyle menzilde bırak.", true);
-                AddHazard("Marked breakable", new Vector3(0, .65f, 153), new Vector3(7.2f, 1.3f, .7f), true, "İşaretli hedef kapalı! Tam enerjiyle menzilde bırak.");
-                for (int i = 0; i < PrototypeLayout.EnergyDistances.Length; i++)
-                    AddPickup(new Vector3(PrototypeLayout.EnergyOffsets[i], .55f, PrototypeLayout.EnergyDistances[i]), false, i);
-                foreach (float z in new[] { 49f, 85f, 141f, 167f })
-                { AddPickup(new Vector3(-2.2f, .55f, z), true, pickups.Count); AddPickup(new Vector3(2.2f, .55f, z), true, pickups.Count); }
+                for (int z = -10; z <= CourseFinishDistance + 10; z += 10)
+                    ModelVisual(VisualKind.TrackTile, "Track tile", new Vector3(0, -.22f, z + 5), new Vector3(7.2f, .4f, 10), trackMat);
+                AddHazard("Narrow gate left", new Vector3(-2.425f, .65f, 20), new Vector3(2.35f, 1.3f, 1), false, "Dar geçit: bırak ve daral.", variant: VisualKind.SplitPylon);
+                AddHazard("Narrow gate right", new Vector3(2.425f, .65f, 20), new Vector3(2.35f, 1.3f, 1), false, "Dar geçit: bırak ve daral.", variant: VisualKind.SplitPylon);
+                if (advancedCourse)
+                {
+                    timedHazards = TimedCourseLayout.Create(); timedViews = new Transform[timedHazards.Length];
+                    for (int i = 0; i < timedHazards.Length; i++)
+                    {
+                        var h = timedHazards[i];
+                        timedViews[i] = ModelVisual(h.Kind == TimedHazardKind.RotatingArm ? VisualKind.RotatingArm : VisualKind.MovingWall,
+                            "Timed hazard " + i, new Vector3(h.Center.x, .65f, h.Center.y),
+                            new Vector3(h.HalfExtents.x * 2, 1.3f, h.HalfExtents.y * 2), redMat).transform;
+                    }
+                    foreach (var point in new[] { new Vector2(2.2f, 52), new Vector2(.65f, 82), new Vector2(2.2f, 110) })
+                    { AddPickup(new Vector3(-point.x, .55f, point.y), true, pickups.Count); AddPickup(new Vector3(point.x, .55f, point.y), true, pickups.Count); }
+                }
+                else
+                {
+                    AddHazard("Center barrier", new Vector3(0, .65f, 42), new Vector3(2.5f, 1.3f, 1.2f), false, "Orta bariyer: basılı tut ve açıl.", variant: VisualKind.ChevronBarrier);
+                    AddHazard("Energy gate", new Vector3(0, .65f, 100), new Vector3(7.2f, 1.3f, .7f), true, "Kapalı enerji kapısı! Tam enerjiyle menzilde bırak.", true);
+                    AddHazard("Marked breakable", new Vector3(0, .65f, 153), new Vector3(7.2f, 1.3f, .7f), true, "İşaretli hedef kapalı! Tam enerjiyle menzilde bırak.");
+                    for (int i = 0; i < PrototypeLayout.EnergyDistances.Length; i++)
+                        AddPickup(new Vector3(PrototypeLayout.EnergyOffsets[i], .55f, PrototypeLayout.EnergyDistances[i]), false, i);
+                    foreach (float z in new[] { 49f, 85f, 141f, 167f })
+                    { AddPickup(new Vector3(-2.2f, .55f, z), true, pickups.Count); AddPickup(new Vector3(2.2f, .55f, z), true, pickups.Count); }
+                }
+                ModelVisual(VisualKind.FinishMarker, "Finish arch", new Vector3(0, 1.6f, CourseFinishDistance), new Vector3(7.2f, 3.2f, .45f), tealMat);
             }
-            ModelVisual(VisualKind.FinishMarker, "Finish arch", new Vector3(0, 1.6f, CourseFinishDistance), new Vector3(7.2f, 3.2f, .45f), tealMat);
             LeftCore = ModelVisual(VisualKind.Core, "Left core", Vector3.zero, Vector3.one * tuning.SphereRadius * 2, peachMat).transform;
             RightCore = ModelVisual(VisualKind.Core, "Right core", Vector3.zero, Vector3.one * tuning.SphereRadius * 2, purpleMat).transform;
             tether = new GameObject("Energy tether").transform; tether.SetParent(world, false);
@@ -356,12 +402,78 @@ namespace TetherRush
             gameCamera = cameraObj.AddComponent<Camera>(); gameCamera.clearFlags = CameraClearFlags.SolidColor; gameCamera.backgroundColor = VisualTheme.Void;
             gameCamera.fieldOfView = 62; gameCamera.nearClipPlane = .1f; gameCamera.farClipPlane = 90;
             cameraObj.AddComponent<AudioListener>();
-            for (int z = 0; z <= CourseFinishDistance + 12; z += 14)
+            for (int z = 0; !IsEndless && z <= CourseFinishDistance + 12; z += 14)
                 for (int side = -1; side <= 1; side += 2)
                     ModelVisual(VisualKind.RelayPylon, "Facility relay", new Vector3(side * 4.8f, .65f, z), new Vector3(.45f, 1.7f, .65f), trackMat);
             stage = gameObject.AddComponent<FacilityStage>();
             stage.Initialize(world, LeftCore, RightCore, gameCamera);
 
+        }
+        public event System.Action<bool> AudioPreferenceChanged;
+        private void AddTrack(float start, float length)
+        {
+            ModelVisual(VisualKind.TrackTile, "Track tile", new Vector3(0, -.22f, start + length * .5f), new Vector3(7.2f, .4f, length), trackMat);
+        }
+        private void BuildContent(CourseDefinition course, List<Transform> movingViews)
+        {
+            foreach (var h in course.Hazards) AddHazard(h.Label, h.Position, h.Size, h.Marked, h.Reason, h.Gate, h.Visual);
+            foreach (var p in course.Pickups) AddPickup(p.Position, p.Bonus, nextPickupId++);
+            foreach (var h in course.TimedHazards)
+                movingViews.Add(ModelVisual(h.Kind == TimedHazardKind.RotatingArm ? VisualKind.RotatingArm : VisualKind.MovingWall,
+                    "Timed hazard", new Vector3(h.Center.x, .65f, h.Center.y),
+                    new Vector3(h.HalfExtents.x * 2, 1.3f, h.HalfExtents.y * 2), redMat).transform);
+        }
+        private void ResetStream()
+        {
+            foreach (var chunk in chunks) { chunk.Root.gameObject.SetActive(false); Destroy(chunk.Root.gameObject); }
+            chunks.Clear(); hazards.Clear(); pickups.Clear(); nextChunkIndex = nextPickupId = 0;
+            MaintainStream();
+        }
+        private void MaintainStream()
+        {
+            bool changed = false;
+            while (chunks.Count > 0 && (chunks[0].Index + 1) * EndlessCourse.ChunkLength < Model.Distance - 35)
+            {
+                var retired = chunks[0];
+                hazards.RemoveAll(h => h.View.transform.IsChildOf(retired.Root));
+                for (int i = pickups.Count - 1; i >= 0; i--)
+                    if (pickups[i].View.transform.IsChildOf(retired.Root))
+                    { Model.RetireCollectible(pickups[i].Id); pickups.RemoveAt(i); }
+                retired.Root.gameObject.SetActive(false); Destroy(retired.Root.gameObject); chunks.RemoveAt(0); changed = true;
+            }
+            while (nextChunkIndex * EndlessCourse.ChunkLength < Model.Distance + 180)
+            {
+                var chunk = new StreamChunk { Index = nextChunkIndex, Data = EndlessCourse.CreateChunk(nextChunkIndex, endlessSeed) };
+                chunk.Root = new GameObject("Akış / " + nextChunkIndex).transform; chunk.Root.SetParent(world, false);
+                spawnParent = chunk.Root;
+                float start = nextChunkIndex * EndlessCourse.ChunkLength;
+                for (int z = 0; z < EndlessCourse.ChunkLength; z += 8) AddTrack(start + z, 8);
+                for (int z = 0; z < EndlessCourse.ChunkLength; z += 16)
+                    for (int side = -1; side <= 1; side += 2)
+                        ModelVisual(VisualKind.RelayPylon, "Facility relay", new Vector3(side * 4.8f, .65f, start + z), new Vector3(.45f, 1.7f, .65f), trackMat);
+                BuildContent(chunk.Data, chunk.TimedViews); chunks.Add(chunk); nextChunkIndex++; spawnParent = null; changed = true;
+            }
+            if (changed)
+            {
+                var moving = new List<TimedHazard>(); var views = new List<Transform>();
+                foreach (var chunk in chunks) { moving.AddRange(chunk.Data.TimedHazards); views.AddRange(chunk.TimedViews); }
+                timedHazards = moving.ToArray(); timedViews = views.ToArray();
+            }
+        }
+        private string AuthoredHint()
+        {
+            CourseDefinition course = definition;
+            if (IsEndless)
+                foreach (var chunk in chunks) if (Model.Distance >= chunk.Index * EndlessCourse.ChunkLength && Model.Distance < (chunk.Index + 1) * EndlessCourse.ChunkLength) { course = chunk.Data; break; }
+            foreach (var h in hazards)
+                if (h.Marked && Mathf.Abs(h.Bounds.center.z - Model.Distance) < 8)
+                {
+                    if (h.Open) return "HEDEF AÇILDI • Geçiş hazır";
+                    if (Model.Energy == tuning.EnergyCapacity && h.Bounds.min.z - Model.Distance <= tuning.PulseRadius) return "MENZİLDE • Şimdi BIRAK!";
+                }
+            string hint = "İki küreyi de koru.";
+            if (course != null) foreach (var cue in course.Hints) if (Model.Distance >= cue.Distance) hint = cue.Text;
+            return hint;
         }
         private void AddPickup(Vector3 pos, bool bonus, int id)
         {
@@ -375,8 +487,9 @@ namespace TetherRush
             hud.Initialize(advancedCourse,
                 () => { if (Model.Phase == RunPhase.Paused) ResumeRun(); else StartRun(); },
                 PauseRun,
-                () => { Feedback.AudioEnabled = !Feedback.AudioEnabled; preferredAudio = Feedback.AudioEnabled; RefreshVisuals(0); },
+                () => { Feedback.AudioEnabled = !Feedback.AudioEnabled; preferredAudio = Feedback.AudioEnabled; AudioPreferenceChanged?.Invoke(Feedback.AudioEnabled); RefreshVisuals(0); },
                 () => SceneManager.LoadScene(advancedCourse ? "Prototype" : "Challenge"));
+            hud.SetNavigation(() => HomeRequested?.Invoke(), () => NextRequested?.Invoke());
         }
 
         private int Section()
@@ -431,17 +544,21 @@ namespace TetherRush
             stage.Tick();
             hud.Present(new HudState
             {
-                Phase = Model.Phase, AdvancedCourse = advancedCourse, AudioEnabled = Feedback.AudioEnabled,
-                CanSwitchCourse = Application.CanStreamedLevelBeLoaded(advancedCourse ? "Prototype" : "Challenge"),
+                Phase = Model.Phase, AdvancedCourse = definition != null ? !definition.UsesEnergy : advancedCourse, AudioEnabled = Feedback.AudioEnabled,
+                CanSwitchCourse = definition == null && !IsEndless && Application.CanStreamedLevelBeLoaded(advancedCourse ? "Prototype" : "Challenge"),
                 Distance = z, FinishDistance = CourseFinishDistance, Energy = Model.Energy,
                 EnergyCapacity = tuning.EnergyCapacity, Bonus = Model.Bonus, ActivatedTargets = ActivatedTargetCount,
-                Hint = SectionHint(Section()), FailureReason = Model.FailureReason
+                Hint = definition != null || IsEndless ? AuthoredHint() : SectionHint(Section()), FailureReason = Model.FailureReason,
+                CourseTitle = IsEndless ? "SONSUZ AKIŞ" : definition != null ? (SelectedLevelIndex + 1).ToString("00") + " / " + definition.Title.ToUpperInvariant() : null,
+                Endless = IsEndless, Score = Score, BestScore = BestScore,
+                CanGoHome = NavigationEnabled, CanAdvance = NavigationEnabled && SelectedLevelIndex >= 0 && SelectedLevelIndex + 1 < LevelCatalog.Count
             }, Model.Phase == RunPhase.Paused ? 0 : dt);
             Feedback.Tick(Model.Phase == RunPhase.Paused ? 0 : dt, Model.IsHeld, Model.Energy == tuning.EnergyCapacity, Model.Phase);
             if (lastPhase == Model.Phase) return;
             lastPhase = Model.Phase;
             if (Model.Phase == RunPhase.Failed) Feedback.Failed();
             else if (Model.Phase == RunPhase.Completed) Feedback.Completed();
+            PhaseChanged?.Invoke(Model.Phase);
         }
         private void OnDestroy()
         {

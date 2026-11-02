@@ -28,6 +28,12 @@ Tarih: 31.10.2026. `ONAYLI` kullanıcı isteğini/onayını, `ÖNERİ` henüz on
 | D-022 | CİLA ÜRETİM YÖNÜ | Sıcak şeftali ve mor çekirdekler; normal/hazır hâlinde soğuk camgöbeği bağ; lacivert tesis, kırmızı tehlike sinyalleri, amber Pulse hedefleri. Renkler tek VisualTheme kaynağından yönetilir. | D-021 içinde üretim seçimi; gerçek Unity görüntüleriyle değerlendirilecek. |
 | D-023 | CİLA KAPSAMI | Mevcut parkur kuralları ve kontrol korunur. Yeni pylon/chevron engel görselleri mevcut güvenilir hitboxlara uyar; dekoratif çevre parçaları çarpışma üretmez. | Görsel çeşitlilik, yeni bir kontrol veya oyun sistemi gerektirmez. |
 
+| D-024 | ONAYLI | Ana menü Leveller, Sonsuz Akış ve Ayarlar içerir; skor modu küre çarpışmasına kadar sürer. | Kullanıcı 02.11.2026 isteği ve isim sorusuna yanıtı. |
+| D-025 | ONAYLI | İlk paket beş kısa bölüm: Daral ve Açıl, Bağı Keşfet, İlk Pulse, Zamanlama, Karma Parkur. | Kullanıcı 02.11.2026 beş bölüm önerisini seçti. |
+| D-026 | İLK UYGULAMA | İlk bölüm seçkisinde beş bölüm inceleme için erişilebilir; tamamlanma ve en iyi bonus cihazda saklanır. Yıldız, para, reklam veya bölüm kilidi eklenmez. | İstenen menü/bölüm kapsamını somutlaştıran geri alınabilir üretim seçimi. |
+| D-027 | İLK UYGULAMA | Sonsuz Akış skoru tam metre + bonus başına 100; ileri hız değişmez, sıralama güvenli kalıplarla çeşitlenir. En iyi skor deneme çarpışmayla bittiğinde kaydedilir. | Kullanıcının skor modu isteği; sabit hız oyun kuralı korunur. |
+| D-028 | İLK UYGULAMA | Ayarlar ses açık/kapalı ve ses düzeyini kalıcı saklar; kontrol açıklaması gösterir. Fiziksel cihaz testi D-017 gereği son aşamada kalır. | Yeni kontrol veya doğrulanmamış donanım seçeneği eklenmez. |
+
 ## M1 onay paketi
 
 Kullanıcı D-008, D-009, D-010 ve D-014 kararlarını onayladı; M1 üretimi başlatıldı. İlk teslim Editor'da oynanabilir prototip, otomatik doğrulama ve Android test build'idir. D-017 ile fiziksel cihaz testi son aşamaya ertelendi; Editor prototipi kabulünü engellemez. Mobil performans ve gerçek dokunma kabulü cihaz testi yapılana kadar açık kalır.

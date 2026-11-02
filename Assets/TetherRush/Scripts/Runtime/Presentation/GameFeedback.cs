@@ -60,6 +60,13 @@ namespace TetherRush.Presentation
             public Color Color;
         }
 
+        private float volume = .55f;
+        public float Volume
+        {
+            get => volume;
+            set { volume = float.IsNaN(value) || float.IsInfinity(value) ? .55f : Mathf.Clamp01(value); if (audioSource != null) audioSource.volume = volume; }
+        }
+
         public bool AudioEnabled
         {
             get => audioEnabled;
@@ -110,7 +117,7 @@ namespace TetherRush.Presentation
             {
                 audioSource = camera.GetComponent<AudioSource>();
                 if (audioSource == null) { audioSource = camera.gameObject.AddComponent<AudioSource>(); ownsSource = true; }
-                audioSource.playOnAwake = false; audioSource.loop = false; audioSource.spatialBlend = 0; audioSource.volume = .55f;
+                audioSource.playOnAwake = false; audioSource.loop = false; audioSource.spatialBlend = 0; audioSource.volume = volume;
                 audioSource.mute = !audioEnabled;
             }
             // Procedural mono cues are allocated once; no runtime loading or per-frame clip generation.
