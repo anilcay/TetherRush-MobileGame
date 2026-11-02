@@ -4,7 +4,7 @@ Unity ile geliştirilecek, ortak bir enerji bağıyla bağlı iki küreyi tek pa
 
 ## Durum
 
-Menü ve ilk bölüm paketi **0.3.0 (4)**: Leveller, **Sonsuz Akış** ve Ayarlar. Beş kısa bölüm hareket, bağla enerji, Pulse ve zamanlamayı sırayla öğretir. Sonsuz Akış çarpışmaya kadar devam eder; skor tam metre + bonus × 100, en iyi skor yerelde tutulur. **124/124 Unity testi**, Windows ve imzası doğrulanan Android test build geçti. Yürütüm sonuçları [doğrulama kaydında](Docs/QA/MENU_LEVELS_VALIDATION.md). Fiziksel cihaz testi son aşamaya ertelendi.
+Güncel paket **0.4.0 (5)**: enerji tesisi temasında kaydırılabilir **25 bölümlük harita**. Bölümler yalnız numarayla gösterilir; başarı bir sonrakini açar, tamamlananlar tekrar oynanır. İlk beş parkur korunur, 20 yeni parkur eklenir. Önceki kayıtlar/bonuslar/Sonsuz Akış rekoru/ses ayarları korunarak v2 profile taşınır. **182/182 Unity testi**, Windows ve imzası doğrulanan Android test build geçti. Yürütüm sonuçları [doğrulama kaydında](Docs/QA/LEVEL_MAP_25_VALIDATION.md). Fiziksel cihaz testi son aşamadadır.
 
 - Hedef: **Android telefon, dikey ekran** (kullanıcı onayı: 31.10.2026).
 - Tasarım kaynağı: [GDD v2.0](Docs/Source/Tether_Rush_GDD_v2.pdf), 31.10.2026.
@@ -14,7 +14,10 @@ Menü ve ilk bölüm paketi **0.3.0 (4)**: Leveller, **Sonsuz Akış** ve Ayarla
 
 ## Proje kayıtları
 
-- [Menü/bölüm doğrulaması](Docs/QA/MENU_LEVELS_VALIDATION.md)
+- [25 bölüm haritası doğrulaması](Docs/QA/LEVEL_MAP_25_VALIDATION.md)
+- [25 bölüm içeriği](Docs/Design/LEVELS_25.md)
+- [Harita görsel tasarımı](Docs/Art/LEVEL_MAP_DESIGN.md)
+- [Önceki menü/bölüm doğrulaması](Docs/QA/MENU_LEVELS_VALIDATION.md)
 - [İlk beş bölüm ve Sonsuz Akış tasarımı](Docs/Design/FIRST_LEVELS.md)
 - [Menü tasarımı](Docs/Art/MENU_DESIGN.md)
 - [Durum ve iş listesi](Docs/Planning/PROJECT_STATUS.md)
@@ -27,17 +30,19 @@ Menü ve ilk bölüm paketi **0.3.0 (4)**: Leveller, **Sonsuz Akış** ve Ayarla
 - [Blender varlık manifesti](Docs/Art/M2_ASSET_MANIFEST.md)
 - [Görsel cila doğrulaması](Docs/QA/POLISH_VALIDATION.md)
 - [Güncel Blender kiti](Docs/Art/POLISH_ASSETS.md)
-- [Gerçek Unity görüntüleri](Docs/Art/Previews/Menu_Home.png)
+- [Gerçek Unity harita görüntüsü](Docs/Art/Previews/Map25_Progress.png)
 
 ## Unity'de aç ve oyna
 
 1. Unity Hub → Projects → Add ile bu deponun kök klasörünü seç. Editor: **6000.3.19f1**.
 2. İlk açılışta paket çözümleme ve import işlemlerinin bitmesini bekle. URP **17.3.0**, Input System **1.19.0**; çözümlenen sürümler `Packages/packages-lock.json` içinde.
 3. `Assets/TetherRush/Scenes/MainMenu.unity` sahnesini aç. Sahne yoksa **Tether Rush → Prepare Project** menüsünü kullan.
-4. Game görünümünü **9:16** yap ve Play'e bas. **Leveller** düğmesinden beş bölümden birini seç; koşu başlar.
+4. Game görünümünü **9:16** yap ve Play'e bas. **Leveller** düğmesinden haritayı aç. Açık bir numaraya dokununca koşu başlar; haritayı sürükleyebilir veya fare tekeriyle kaydırabilirsin.
 5. Oyun alanında **sol fareyi veya Space'i basılı tut: açıl; bırak: daral**. Enerji doluysa bırakmak aynı zamanda tek Pulse üretir. Space yalnız Editor kolaylığıdır; mobilde tek dokunma vardır.
 
-İlk bölümler: **Daral ve Açıl** (56 m), **Bağı Keşfet** (64 m), **İlk Pulse** (76 m), **Zamanlama** (96 m), **Karma Parkur** (124 m). Beş bölüm inceleme için açıktır. Başarı ve en iyi bonus cihazda saklanır. Başarı ekranında sonraki bölüm; duraklatma/sonuç ekranında ana menüye dönüş bulunur.
+Haritada **1–25** numaraları vardır. Yeni profilde yalnız 1 açıktır. Bir bölümü iki küreyle bitirmek sonraki düğümü açar; tamamlananlar tekrar oynanabilir. Başarı ve en iyi bonus cihazda saklanır. Sonuç ekranında **Sonraki bölüm**, duraklatma/sonuç ekranında **Haritaya dön** bulunur. Harita dönüşte son oynanan veya yeni açılan düğüme odaklanır. Tamamlanan, sıradaki ve kilitli durumlar renk/işaret/metinle ayrılır.
+
+İlk beşin oynanış yerleşimleri korunur. 20 yeni parkur; dar/geniş ritmi, hareketli duvar, dönen kol ve birden fazla bağımsız Pulse dizisini birleştirir. En uzun bölüm 280 m'dir. Ayrı bölüm isimleri kullanılmaz. Önceki beş bölümlük v1 kayıt, 25 bölümlük v2 yapıya kayıpsız genişler; eski ilerleme geri alınmaz.
 
 **Sonsuz Akış** ekranından **Akışa başla**: sabit hızda devam eden, beş kalıpla çeşitlenen parkurda çarpışana kadar skor topla. Her tam metre 1, her bonus kristal 100 puandır. En iyi skor deneme sonunda saklanır. Tekrar deneme skoru/parkuru sıfırlar, rekoru korur.
 
@@ -58,7 +63,7 @@ Unity Editor'ü kapattıktan sonra proje kökünde PowerShell ile:
 ./Tools/Unity.ps1 -Action Android
 ```
 
-`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-MenuLevels.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-menu-levels/TetherRush.exe` altında üretir. Eski M1/M2/cila çıktıları karşılaştırma için ayrı klasörlerde korunur.
+`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-LevelMap25.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-level-map/TetherRush.exe` altında üretir. Eski M1/M2/cila/ilk menü çıktıları karşılaştırma için ayrı klasörlerde korunur.
 
 Android araçları Türkçe karakter içeren proje yollarını kabul etmez. Bu klasör için `-Action Android` aynı depoya işaret eden geçici bir ASCII junction yolunu otomatik kullanır; kaynaklar taşınmaz veya kopyalanmaz. Bağlantı TEMP altında kalır ve tekrar kullanılır. Editor'dan doğrudan Android build almak için de ASCII bir proje yolu gerekir; mevcut klasörde Editor oynanışı etkilenmez.
 

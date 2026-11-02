@@ -8,10 +8,10 @@ namespace TetherRush.Tests
     public sealed class PlayerProgressTests
     {
         [Test]
-        public void NewProgressHasFiveEmptyLevelsAndAudibleDefaults()
+        public void NewProgressHasTwentyFiveEmptyLevelsAndAudibleDefaults()
         {
             AssertDefaults(new PlayerProgress());
-            Assert.That(PlayerProgress.LevelCount, Is.EqualTo(5));
+            Assert.That(PlayerProgress.LevelCount, Is.EqualTo(25));
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace TetherRush.Tests
         }
 
         [TestCase(-1)]
-        [TestCase(5)]
+        [TestCase(25)]
         [TestCase(int.MaxValue)]
         public void EveryLevelApiRejectsInvalidIndex(int index)
         {
@@ -48,6 +48,7 @@ namespace TetherRush.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => data.IsCompleted(index));
             Assert.Throws<ArgumentOutOfRangeException>(() => data.BestBonus(index));
             Assert.Throws<ArgumentOutOfRangeException>(() => data.CompleteLevel(index, 0));
+            Assert.Throws<ArgumentOutOfRangeException>(() => data.IsUnlocked(index));
         }
 
         [Test]
@@ -120,19 +121,19 @@ namespace TetherRush.Tests
             AssertDefaults(PlayerProgress.FromJson(json));
         }
 
-        [TestCase("\"version\":1", "\"version\":2")]
-        [TestCase("\"version\":1", "\"version\":0")]
-        [TestCase("\"version\":1", "\"version\":1,\"version\":1")]
-        [TestCase("\"version\":1", "\"unknown\":1")]
+        [TestCase("\"version\":2", "\"version\":3")]
+        [TestCase("\"version\":2", "\"version\":0")]
+        [TestCase("\"version\":2", "\"version\":2,\"version\":2")]
+        [TestCase("\"version\":2", "\"unknown\":1")]
         [TestCase("\"bestEndlessScore\":42", "\"bestEndlessScore\":-1")]
         [TestCase("\"bestEndlessScore\":42", "\"bestEndlessScore\":2147483648")]
         [TestCase("\"volume\":0.55", "\"volume\":NaN")]
         [TestCase("\"volume\":0.55", "\"volume\":1e999")]
         [TestCase("\"volume\":0.55", "\"volume\":00.5")]
-        [TestCase("[false,false,false,false,false]", "[false,false]")]
-        [TestCase("[0,0,0,0,0]", "[0,0,0,0,-1]")]
-        [TestCase("[0,0,0,0,0]", "[0,0,0,0,1]")]
-        [TestCase("[0,0,0,0,0]", "[0,0,0,0,0,0]")]
+        [TestCase("\"completed\":[false,", "\"completed\":[")]
+        [TestCase("\"bestBonus\":[0,", "\"bestBonus\":[-1,")]
+        [TestCase("\"bestBonus\":[0,", "\"bestBonus\":[1,")]
+        [TestCase("\"bestBonus\":[0,", "\"bestBonus\":[0,0,")]
         public void UnsupportedOrInvalidSaveIsRejectedAtomically(string from, string to)
         {
             var data = new PlayerProgress { AudioEnabled = false };

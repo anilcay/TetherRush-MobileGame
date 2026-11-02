@@ -29,13 +29,15 @@ namespace TetherRush.Tests
             { press = course.SafeRoute[cue].Press; release = !press; cue++; }
             game.SimulateStep(step, press, release);
         }
-        [TestCase(0)] [TestCase(1)] [TestCase(2)] [TestCase(3)] [TestCase(4)]
+        private static System.Collections.Generic.IEnumerable<int> LevelIndices()
+        { for (int i = 0; i < LevelCatalog.Count; i++) yield return i; }
+        [TestCaseSource(nameof(LevelIndices))]
         public void AuthoredLevelCanCompleteAndPersistsOnlyRealCompletion(int index)
         {
-            CreateApp(); app.PlayLevel(index); var game = app.Game; game.AutoSimulate = false;
+            CreateApp(); for (int i = 0; i < index; i++) app.Progress.CompleteLevel(i, 0); app.PlayLevel(index); var game = app.Game; game.AutoSimulate = false;
             Assert.That(app.Progress.IsCompleted(index), Is.False);
             var course = LevelCatalog.Get(index); int cue = 0;
-            for (int i = 0; i < 2200 && game.Model.Phase == RunPhase.Running; i++) StepRoute(game, course, ref cue);
+            for (int i = 0; i < 4000 && game.Model.Phase == RunPhase.Running; i++) StepRoute(game, course, ref cue);
             Assert.That(game.Model.Phase, Is.EqualTo(RunPhase.Completed), game.Model.FailureReason + " at " + game.Model.Distance);
             Assert.That(app.Progress.IsCompleted(index), Is.True);
             Assert.That(app.Progress.BestBonus(index), Is.EqualTo(game.Model.Bonus));
@@ -55,11 +57,12 @@ namespace TetherRush.Tests
         {
             CreateApp(); Assert.That(app.Page, Is.EqualTo(MenuPage.Home));
             FindButton("Levels").onClick.Invoke(); Assert.That(app.Page, Is.EqualTo(MenuPage.Levels));
+            app.Progress.CompleteLevel(0, 0); app.Progress.CompleteLevel(1, 0); app.ShowLevels();
             FindButton("Level 3").onClick.Invoke(); Assert.That(app.Game.SelectedLevelIndex, Is.EqualTo(2));
             var game = app.Game; game.AutoSimulate = false; game.SimulateStep(.1f, press: true);
             for (int i = 0; i < 5; i++) game.Model.CollectEnergy(1000 + i);
             game.PauseRun(); Assert.That(game.Model.PulseCount, Is.Zero);
-            FindButton("Main menu").onClick.Invoke(); Assert.That(app.Page, Is.EqualTo(MenuPage.Home));
+            FindButton("Main menu").onClick.Invoke(); Assert.That(app.Page, Is.EqualTo(MenuPage.Levels));
             Assert.That(game.Model.PulseCount, Is.Zero); Assert.That(app.Progress.IsCompleted(2), Is.False);
             app.ShowSettings();
             root.GetComponentInChildren<Toggle>().isOn = false;
@@ -107,21 +110,22 @@ namespace TetherRush.Tests
         public IEnumerator CaptureActualMenuLevelsSettingsAndNewCourses()
         {
             CreateApp(); yield return null;
-            yield return Capture("Menu_Home.png");
-            app.ShowLevels(); yield return Capture("Menu_Levels.png");
-            app.ShowEndless(); yield return Capture("Menu_Endless.png");
-            app.ShowSettings(); yield return Capture("Menu_Settings.png");
-            app.ShowHome(); yield return Capture("Menu_HomeTall.png", 1170);
+            yield return Capture("Map25_Menu_Home.png");
+            app.ShowLevels(); yield return Capture("Map25_Menu_Levels.png");
+            app.ShowEndless(); yield return Capture("Map25_Menu_Endless.png");
+            app.ShowSettings(); yield return Capture("Map25_Menu_Settings.png");
+            app.ShowHome(); yield return Capture("Map25_Menu_HomeTall.png", 1170);
+            app.Progress.CompleteLevel(0, 0); app.Progress.CompleteLevel(1, 0);
             app.PlayLevel(2); app.Game.AutoSimulate = false; int cue = 0; var course = LevelCatalog.Get(2);
             while (app.Game.Model.Distance < 50 && app.Game.Model.Phase == RunPhase.Running) StepRoute(app.Game, course, ref cue);
             Assert.That(app.Game.Model.Phase, Is.EqualTo(RunPhase.Running));
-            yield return Capture("Menu_Level3.png");
-            app.Game.PauseRun(); yield return Capture("Menu_Paused.png");
+            yield return Capture("Map25_Menu_Level3.png");
+            app.Game.PauseRun(); yield return Capture("Map25_Menu_Paused.png");
             app.ShowHome(); yield return null; app.StartEndless(); app.Game.AutoSimulate = false;
             cue = 0; course = EndlessCourse.CreateChunk(0);
             while (app.Game.Model.Distance < 35 && app.Game.Model.Phase == RunPhase.Running) StepRoute(app.Game, course, ref cue);
             Assert.That(app.Game.Model.Phase, Is.EqualTo(RunPhase.Running));
-            yield return Capture("Menu_EndlessRun.png");
+            yield return Capture("Map25_Menu_EndlessRun.png");
         }
         private IEnumerator Capture(string file, int height = 960)
         {

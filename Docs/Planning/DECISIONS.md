@@ -34,6 +34,9 @@ Tarih: 31.10.2026. `ONAYLI` kullanıcı isteğini/onayını, `ÖNERİ` henüz on
 | D-027 | İLK UYGULAMA | Sonsuz Akış skoru tam metre + bonus başına 100; ileri hız değişmez, sıralama güvenli kalıplarla çeşitlenir. En iyi skor deneme çarpışmayla bittiğinde kaydedilir. | Kullanıcının skor modu isteği; sabit hız oyun kuralı korunur. |
 | D-028 | İLK UYGULAMA | Ayarlar ses açık/kapalı ve ses düzeyini kalıcı saklar; kontrol açıklaması gösterir. Fiziksel cihaz testi D-017 gereği son aşamada kalır. | Yeni kontrol veya doğrulanmamış donanım seçeneği eklenmez. |
 
+| D-029 | ONAYLI | Bölüm sayısı 25; kişisel bölüm isimleri yerine numaralı, enerji tesisi temasına uygun dikey kaydırılabilir bölüm haritası. | Kullanıcı 02.11.2026 yeni isteği. |
+| D-030 | ONAYLI | Bölümler sırayla açılır; tamamlanan bölümler yeniden oynanabilir. Önceki beş bölümlük profil tamamlanmaları, bonus/sonsuz rekor ve ayarlar korunur. | Kullanıcı sıralı açılma önerisini seçti; kayıt taşıma teknik gereklilik. |
+
 ## M1 onay paketi
 
 Kullanıcı D-008, D-009, D-010 ve D-014 kararlarını onayladı; M1 üretimi başlatıldı. İlk teslim Editor'da oynanabilir prototip, otomatik doğrulama ve Android test build'idir. D-017 ile fiziksel cihaz testi son aşamaya ertelendi; Editor prototipi kabulünü engellemez. Mobil performans ve gerçek dokunma kabulü cihaz testi yapılana kadar açık kalır.

@@ -27,6 +27,7 @@ namespace TetherRush.Presentation
         private Text subtitle, distance, bonus, energyLabel, hint, audioLabel, cardTitle, cardBody, primaryLabel, secondaryLabel;
         private Button pauseButton, secondaryButton, homeButton;
         private Action goHome, nextLevel;
+        private Text homeLabel;
         private bool nextAction;
         private GameObject card;
         private Image[] energySegments;
@@ -109,7 +110,7 @@ namespace TetherRush.Presentation
                 () => { if (nextAction) nextLevel?.Invoke(); else otherCourse?.Invoke(); }, out secondaryLabel);
             secondaryLabel.fontSize = 16;
             homeButton = Control("Main menu", card.transform, "Ana menü", VisualTheme.Inlay, VisualTheme.Silver,
-                Vector2.zero, new Vector2(1, 0), new Vector2(20, 16), new Vector2(-20, 60), () => goHome?.Invoke(), out var homeLabel);
+                Vector2.zero, new Vector2(1, 0), new Vector2(20, 16), new Vector2(-20, 60), () => goHome?.Invoke(), out homeLabel);
             homeLabel.fontSize = 15;
             homeButton.gameObject.SetActive(false);
 
@@ -153,6 +154,7 @@ namespace TetherRush.Presentation
             secondaryButton.gameObject.SetActive(canSecondary);
             secondaryLabel.text = nextAction ? "Sonraki bölüm →" : state.AdvancedCourse ? "Temel parkur" : "Zamanlama";
             homeButton.gameObject.SetActive(canHome);
+            homeLabel.text = state.Endless ? "Ana menü" : "Haritaya dön";
             ((RectTransform)card.transform).offsetMax = new Vector2(-24, canHome ? 325 : 265);
             // One primary action expands to the full card width when switching is unavailable.
             primaryRect.anchorMax = new Vector2(canSecondary ? .5f : 1, 0);

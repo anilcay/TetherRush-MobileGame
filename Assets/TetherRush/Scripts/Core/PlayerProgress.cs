@@ -6,7 +6,8 @@ namespace TetherRush.Core
 {
     public sealed class PlayerProgress
     {
-        public const int LevelCount = 5;
+        public const int LevelCount = 25;
+        private const int LegacyLevelCount = 5;
         private const float DefaultVolume = 0.55f;
         private readonly bool[] completed = new bool[LevelCount];
         private readonly int[] bestBonus = new int[LevelCount];
@@ -20,6 +21,22 @@ namespace TetherRush.Core
                 ? DefaultVolume : Math.Max(0f, Math.Min(1f, value));
         }
         public int BestEndlessScore { get; private set; }
+
+        public int HighestUnlockedLevel
+        {
+            get
+            {
+                for (int i = LevelCount - 1; i >= 0; i--)
+                    if (completed[i]) return Math.Min(LevelCount - 1, i + 1);
+                return 0;
+            }
+        }
+
+        public bool IsUnlocked(int index)
+        {
+            ValidateIndex(index);
+            return index <= HighestUnlockedLevel;
+        }
 
         public bool IsCompleted(int zeroBasedLevel)
         {
@@ -53,7 +70,7 @@ namespace TetherRush.Core
 
         public string ToJson()
         {
-            var json = new StringBuilder("{\"version\":1,\"audioEnabled\":");
+            var json = new StringBuilder("{\"version\":2,\"audioEnabled\":");
             json.Append(AudioEnabled ? "true" : "false");
             json.Append(",\"volume\":").Append(Volume.ToString("R", CultureInfo.InvariantCulture));
             json.Append(",\"bestEndlessScore\":").Append(BestEndlessScore.ToString(CultureInfo.InvariantCulture));
@@ -82,6 +99,9 @@ namespace TetherRush.Core
                 var reader = new SaveReader(json);
                 var result = new PlayerProgress();
                 int seen = 0;
+                int version = 0;
+                int completedCount = 0;
+                int bonusCount = 0;
                 reader.Expect('{');
                 while (true)
                 {
@@ -92,7 +112,8 @@ namespace TetherRush.Core
                     {
                         case "version":
                             flag = 1;
-                            if (reader.ReadInt() != 1) throw new FormatException();
+                            version = reader.ReadInt();
+                            if (version != 1 && version != 2) throw new FormatException();
                             break;
                         case "audioEnabled": flag = 2; result.AudioEnabled = reader.ReadBool(); break;
                         case "volume": flag = 4; result.Volume = reader.ReadFloat(); break;
@@ -100,22 +121,22 @@ namespace TetherRush.Core
                         case "completed":
                             flag = 16;
                             reader.Expect('[');
-                            for (int i = 0; i < LevelCount; i++)
+                            while (!reader.Take(']'))
                             {
-                                if (i > 0) reader.Expect(',');
-                                result.completed[i] = reader.ReadBool();
+                                if (completedCount >= LevelCount) throw new FormatException();
+                                if (completedCount > 0) reader.Expect(',');
+                                result.completed[completedCount++] = reader.ReadBool();
                             }
-                            reader.Expect(']');
                             break;
                         case "bestBonus":
                             flag = 32;
                             reader.Expect('[');
-                            for (int i = 0; i < LevelCount; i++)
+                            while (!reader.Take(']'))
                             {
-                                if (i > 0) reader.Expect(',');
-                                result.bestBonus[i] = reader.ReadInt();
+                                if (bonusCount >= LevelCount) throw new FormatException();
+                                if (bonusCount > 0) reader.Expect(',');
+                                result.bestBonus[bonusCount++] = reader.ReadInt();
                             }
-                            reader.Expect(']');
                             break;
                         default: throw new FormatException();
                     }
@@ -125,6 +146,8 @@ namespace TetherRush.Core
                     reader.Expect(',');
                 }
                 if (seen != 63 || !reader.AtEnd || result.BestEndlessScore < 0) throw new FormatException();
+                int expectedCount = version == 1 ? LegacyLevelCount : LevelCount;
+                if (completedCount != expectedCount || bonusCount != expectedCount) throw new FormatException();
                 for (int i = 0; i < LevelCount; i++)
                     if (result.bestBonus[i] < 0 || (!result.completed[i] && result.bestBonus[i] != 0))
                         throw new FormatException();

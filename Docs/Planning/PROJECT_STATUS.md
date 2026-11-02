@@ -2,6 +2,14 @@
 
 Son güncelleme: 02.11.2026.
 
+## 25 bölümlük harita — 0.4.0 (5)
+
+D-029/030 ile 25 bölüm, yalnız numaralı enerji tesisi haritası ve sıralı açılma onaylandı. İçerik, harita UI ve kayıt göçü GPT-6.1 Sol medium ajanlarına ayrı dosya sahiplikleriyle verildi; ana yönetici uygulama erişimi, haritaya dönüş/odak, gerçek rota/etkileşim/render testleri, build ve GitHub teslimini birleştirdi.
+
+İlk beş parkur ve kimlikleri korunur; sonraki 20 parkur bağımsız ritimler ve geç bölümlerde 2–3 Pulse dizisi içerir. 25 düğümlük dikey haritada tamamlanan/sıradaki/kilitli durumlar ayrılır. Başarı sonraki bölümü açar, tamamlananlar tekrar oynanır. Eski v1/5 kayıt v2/25'e mevcut tamamlanma/bonus/sonsuz rekor/ses ayarlarıyla genişler; eski ilerleme geri alınmaz.
+
+**96 EditMode  + 86 PlayMode = 182/182** test geçti. 25 gerçek bölüm tamamlandı; kilitli erişim, uGUI kaydırma/tıkla ayrımı, sonraki açılma, doğrudan haritaya dönüş, v1 göçü ve viewport değişiminde odak doğrulandı. Gerçek 540×960 /540×1170 harita kareleri incelendi. Windows strict build exit 0; Android strict build ve APK v2 imzası doğrulandı. Kalıcı kayıt Docs/QA/LEVEL_MAP_25_VALIDATION.md ve Results/LevelMap25_test_results.json; tasarım Docs/Design/LEVELS_25.md /Docs/Art/LEVEL_MAP_DESIGN.md.
+
 ## Menü ve ilk bölümler — 0.3.0 (4)
 
 Kullanıcı D-024/025 ile Leveller / Sonsuz Akış / Ayarlar menüsünü ve beş kısa bölümü onayladı. Menü/HUD, bölüm/sonsuz parça verisi ve kayıt/ayar işleri GPT-6.1 Sol medium ajanlarına ayrı sahipliklerle verildi; ana yönetici uygulama akışı, stream temizliği, gerçek Unity testi/görüntüsü ve teslimi birleştirdi.
@@ -31,11 +39,11 @@ Cila tesliminden sonra kullanıcı 02.11.2026 tarihinde menü ve ilk bölümleri
 | Araç | Gözlenen durum |
 | --- | --- |
 | Unity | Proje 6000.3.19f1 (7689f4515d75) ile açıldı, C# derlendi ve prototip sahnesi kaydedildi. URP 17.3.0, Input System 1.19.0 kilitlendi. |
-| Android desteği | Menü/bölüm APK build exit 0: 37.996.006 bayt, 0.3.0 (4), ARM64, min API25 / target36, portrait; APK v2 imzası doğrulandı. output/android/TetherRush-MenuLevels.apk. ASCII junction ve sınırlandırılmış generated-cache callback kullanılır. |
+| Android desteği | Harita 25 APK build exit 0: 38.005.586 bayt, 0.4.0 (5), ARM64, min API 25 / target 36, portrait; v2 imzası doğrulandı. output/android/TetherRush-LevelMap25.apk. ASCII junction ve generated-cache callback kullanılır. |
 | Blender | 5.2.3 LTS ile 14 FBX, düzenlenebilir kaynak ve pafta. Bağımsız re-import 14/14 ve Unity model kontrolü geçti. Kit 6.548 üçgen, 20 mesh; kaynak ArtSource/Blender içinde. |
 | Git | origin GitHub TetherRush-MobileGame, dal main. Kod, Blender kaynak/FBX, gerçek Unity kareleri ve doğrulama özetleri sürüm kontrolüne alınır; build/cache çıktıları dışarıda tutulur. Son teslim hash'i git log ve yönetim sohbetindeki teslim raporundan izlenir. |
-| Unity testleri | Menü/bölüm: EditMode 66/66 + PlayMode 58/58 = 124/124. Docs/QA/Results/MenuLevels_test_results.json. Önceki cila 61/61 kaydı korunur. |
-| Windows önizleme | Menü/bölüm build exit 0, output/windows-menu-levels/TetherRush.exe. Gerçek UI/oyun kareleri Docs/Art/Previews/Menu_*.png; kullanıcı değerlendirmesi açık. |
+| Unity testleri | Harita25: EditMode 96/96 +PlayMode 86/86 = 182/182. Docs/QA/Results/LevelMap25_test_results.json; eski124/61 kayıtları korunur. |
+| Windows önizleme | Harita25 build exit 0, output/windows-level-map/TetherRush.exe. Gerçek kareler Docs/Art/Previews/Map25_*.png; kullanıcı değerlendirmesi açık. |
 
 ## Kilometre taşları
 
@@ -45,13 +53,14 @@ Cila tesliminden sonra kullanıcı 02.11.2026 tarihinde menü ve ilk bölümleri
 | M1 – Oynanabilir prototip | Daral/genişle, tether enerji, bonus, Pulse kapısı/kırılabilir hedef, ölüm, bitiş/retry, temel HUD. | İlk teslim tamamlandı; kullanıcı devam onayıyla M2'ye geçildi. Bu onay tüm manuel testlerin yürütüldüğü anlamına gelmez. |
 | M2 – Görsel ve içerik | Blender kiti, animasyon/VFX/ses ilk seti, hareketli duvar/dönen kol ve ikinci alıştırma. | M2 ilk tesliminden sonra D-021 görsel cila uygulandı. Cila: 61 test, Windows ve imzası doğrulanan Android 0.2.1 build geçti. Son görsel/oynanış kabulü kullanıcıda. |
 | Menü ve ilk bölüm paketi | Ana menü, beş öğretici bölüm, Sonsuz Akış, yerel skor/ayarlar. | Kullanıcı kapsamı onayladı; 124 test ve Windows build geçti. Android 0.3.0 (4) ve imzası doğrulandı. |
+| 25 bölüm haritası | Numaralı tematik yol, sıralı açılma,20 yeni bölüm, eski kayıt göçü. | 182 test ve Windows build geçti; Android 0.4.0 (5) ve imzası doğrulandı. |
 | M3 – Mobil doğrulama | Fiziksel cihaz, performans, ekran oranları, pause/resume, ses ve titreşim. | Cihaz ve hedef bütçeler belirlenecek. |
 | M4 – Yayına hazırlık | Mağaza gereksinimleri ve dağıtım. | Kullanıcı ayrıca kapsam/onay verecek. |
 
 ## Şu anki sınır
 
-Yeni başlangıç MainMenu'dür. Beş kısa bölüm ve 112 m'lik beş kalıpla devam eden Sonsuz Akış oynanır. Önceki 180 m temel /130 m zamanlama sahneleri korunur. Hareket ve Pulse kuralları değişmez. Runtime sahne inşası kullanılır; görsel bölüm editörü, yıldız ekonomisi, reklam veya mağaza yayını kapsamda değildir. Fiziksel Android dokunma/performans, uygulama kapat/aç kayıt kabulü, insan tarafından ses duyumu ve son tasarım beğenisi açık kalır.
+Başlangıç MainMenu; Leveller numaralı 25 düğümlük haritayı açar. Yeni profilde yalnız 1 açık, başarı sıradakini açar. Bölüm oyunu ve Sonsuz Akış tek kontrol/sabit hız/Pulse kurallarını korur. Önceki prototip/menü build ve kayıtları tarihsel karşılaştırma için korunur. Görsel bölüm editörü, yıldız ekonomisi, reklam veya mağaza yayını eklenmedi. Fiziksel Android performans/dokunma/çentik, uygulama kapat-aç ve ses duyumu kabulü bekler.
 
 ## Sıradaki yönetim kararı
 
-Kullanıcı menü görünümünü, beş bölümün süre/zorluk ritmini ve Sonsuz Akış skor dengesini bu somut sürümde inceleyecek. Yeni bölüm/kalıp sayısı ve kilit/yıldız sistemi eklenmeden önce kapsam tartışılacak. Android telefon testi D-017 ile son aşamada; tekrar cihaz talep edilmeyecek. Oynama adımları README.md, güncel kareler Docs/Art/Previews/Menu_*.png altında.
+Kullanıcı harita görünümünü, dokunma/kaydırma hissini ve 25 bölümün insan tarafından zorluk ritmini bu sürümde inceleyecek. Yeni oyun sistemi veya ekonomi eklenmeden kapsam tartışılacak. Android telefon testi D-017 gereği sonda; tekrar cihaz talep edilmeyecek. Oynama README.md, güncel gerçek kareler Docs/Art/Previews/Map25_*.png altında.

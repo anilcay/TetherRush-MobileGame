@@ -10,15 +10,14 @@ namespace TetherRush.Tests
     public sealed class CourseDefinitionTests
     {
         [Test]
-        public void FiveFreshShortLevelsFollowTheApprovedProgression()
+        public void TwentyFiveNumberedLevelsRetainTheIntroProgression()
         {
-            string[] titles = { "Daral ve Açıl", "Bağı Keşfet", "İlk Pulse", "Zamanlama", "Karma Parkur" };
-            Assert.That(LevelCatalog.Count, Is.EqualTo(5));
+            Assert.That(LevelCatalog.Count, Is.EqualTo(25));
             for (int i = 0; i < LevelCatalog.Count; i++)
             {
                 var course = LevelCatalog.Get(i);
-                Assert.That(course.Title, Is.EqualTo(titles[i]));
-                Assert.That(course.Length, Is.InRange(55, 125));
+                Assert.That(course.Title, Is.EqualTo("Bölüm " + (i + 1)));
+                Assert.That(course.Length, Is.InRange(55, 300));
                 Validate(course, 0);
                 Assert.That(LevelCatalog.Get(i), Is.Not.SameAs(course));
                 course.Hazards[0].Reason = "mutated";
@@ -36,7 +35,7 @@ namespace TetherRush.Tests
         public void InvalidIndicesFailExplicitly()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => LevelCatalog.Get(-1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => LevelCatalog.Get(5));
+            Assert.Throws<ArgumentOutOfRangeException>(() => LevelCatalog.Get(25));
             Assert.Throws<ArgumentOutOfRangeException>(() => EndlessCourse.CreateChunk(-1));
         }
 

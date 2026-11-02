@@ -549,7 +549,7 @@ namespace TetherRush
                 Distance = z, FinishDistance = CourseFinishDistance, Energy = Model.Energy,
                 EnergyCapacity = tuning.EnergyCapacity, Bonus = Model.Bonus, ActivatedTargets = ActivatedTargetCount,
                 Hint = definition != null || IsEndless ? AuthoredHint() : SectionHint(Section()), FailureReason = Model.FailureReason,
-                CourseTitle = IsEndless ? "SONSUZ AKIŞ" : definition != null ? (SelectedLevelIndex + 1).ToString("00") + " / " + definition.Title.ToUpperInvariant() : null,
+                CourseTitle = IsEndless ? "SONSUZ AKIŞ" : definition != null ? "BÖLÜM " + (SelectedLevelIndex + 1).ToString("00") : null,
                 Endless = IsEndless, Score = Score, BestScore = BestScore,
                 CanGoHome = NavigationEnabled, CanAdvance = NavigationEnabled && SelectedLevelIndex >= 0 && SelectedLevelIndex + 1 < LevelCatalog.Count
             }, Model.Phase == RunPhase.Paused ? 0 : dt);

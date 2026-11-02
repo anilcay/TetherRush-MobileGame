@@ -18,7 +18,11 @@ namespace TetherRush.Presentation
         private RectTransform safeArea;
         private GameObject home, levels, endless, settings;
         private Text homeRecord, endlessRecord, volumeCaption, audioCaption;
-        private readonly Text[] levelTitles = new Text[5], levelLessons = new Text[5], levelResults = new Text[5];
+        private LevelMapView levelMap;
+        public bool SequentialLevels { get; set; }
+        public float MapScrollPosition => levelMap != null ? levelMap.ScrollPosition : 0f;
+        public int MapNodeCount => levelMap != null ? levelMap.NodeCount : 0;
+        public void FocusLevel(int index) { if (levelMap != null) levelMap.FocusLevel(index); }
         private Toggle audioToggle;
         private Slider volumeSlider;
         private Font font;
@@ -65,17 +69,11 @@ namespace TetherRush.Presentation
         public void ShowLevels(string[] titles, string[] descriptions, float[] lengths, bool[] completed, int[] bestBonus)
         {
             if (Canvas == null) return;
-            for (int i = 0; i < 5; i++)
-            {
-                levelTitles[i].text = At(titles, i, "Bölüm " + (i + 1));
-                levelLessons[i].text = At(descriptions, i, "Bağın ritmini keşfet.");
-                int seconds = Mathf.RoundToInt(At(lengths, i, 0f));
-                levelResults[i].text = (At(completed, i, false) ? "TAMAMLANDI" : "KEŞFET") + "   ·   " + seconds + " sn   ·   EN İYİ BONUS " + At(bestBonus, i, 0);
-                levelResults[i].color = At(completed, i, false) ? VisualTheme.Tether : VisualTheme.UIMuted;
-            }
+            int count = Mathf.Max(titles != null ? titles.Length : 0, completed != null ? completed.Length : 0);
+            if (count == 0) count = Mathf.Max(descriptions != null ? descriptions.Length : 0, lengths != null ? lengths.Length : 0);
             Show(levels);
+            levelMap.SetLevels(count, completed, bestBonus, SequentialLevels);
         }
-
         public void ShowEndless(int bestScore)
         {
             if (Canvas == null) return;
@@ -103,7 +101,7 @@ namespace TetherRush.Presentation
             Core(hero.transform, "Lavender", 347, 77, VisualTheme.CoreB);
             Label(hero.transform, "Basılı tut, açıl. Bırak, daral.", 16, VisualTheme.Silver, 22, 178, 436, 25, FontStyle.Normal, TextAnchor.MiddleCenter);
             Button("Levels", home.transform, "Leveller                         →", 30, 517, 480, 86, VisualTheme.Tether, VisualTheme.Void, () => RequestedLevels?.Invoke(), 27);
-            Label(home.transform, "Beş kısa parkurla bağın ustası ol.", 15, VisualTheme.UIMuted, 33, 612, 470, 27);
+            Label(home.transform, "25 parkur boyunca enerjinin izini sür.", 15, VisualTheme.UIMuted, 33, 612, 470, 27);
             var endlessButton = Button("Endless", home.transform, "", 30, 665, 480, 117, VisualTheme.UIBackground, VisualTheme.UIText, () => RequestedEndless?.Invoke());
             Label(endlessButton.transform, "Sonsuz Akış", 25, VisualTheme.UIText, 22, 18, 375, 32, FontStyle.Bold);
             homeRecord = Label(endlessButton.transform, "EN İYİ  0", 14, VisualTheme.CoreB, 22, 65, 380, 24);
@@ -113,20 +111,9 @@ namespace TetherRush.Presentation
 
         private void BuildLevels()
         {
-            Header(levels.transform, "Leveller", "Kısa parkurlar. Her turda yeni bir ritim.");
-            for (int i = 0; i < 5; i++)
-            {
-                int index = i;
-                var button = Button("Level " + (i + 1), levels.transform, "", 30, 177 + i * 132, 480, 116, VisualTheme.UIBackground, VisualTheme.UIText, () => playLevel?.Invoke(index));
-                Label(button.transform, (i + 1).ToString("00"), 19, i % 2 == 0 ? VisualTheme.CoreA : VisualTheme.CoreB, 18, 18, 42, 30, FontStyle.Bold);
-                levelTitles[i] = Label(button.transform, "", 23, VisualTheme.UIText, 71, 15, 353, 32, FontStyle.Bold);
-                levelLessons[i] = Label(button.transform, "", 14, VisualTheme.Silver, 71, 49, 382, 32);
-                levelResults[i] = Label(button.transform, "", 11, VisualTheme.UIMuted, 71, 83, 384, 20);
-                Label(button.transform, "›", 25, VisualTheme.Tether, 438, 16, 25, 30);
-            }
-            Label(levels.transform, "Tüm parkurlar keşfine açık.", 13, VisualTheme.UIMuted, 30, 858, 480, 28, FontStyle.Normal, TextAnchor.MiddleCenter);
+            levelMap = levels.AddComponent<LevelMapView>();
+            levelMap.Initialize(font, coreSprite, haloSprite, () => RequestedHome?.Invoke(), index => playLevel?.Invoke(index));
         }
-
         private void BuildEndless()
         {
             Header(endless.transform, "Sonsuz Akış", "Ritmi koru. Kendi rekorunu aş.");

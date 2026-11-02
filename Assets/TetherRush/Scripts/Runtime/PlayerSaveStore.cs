@@ -6,6 +6,7 @@ namespace TetherRush
 {
     public static class PlayerSaveStore
     {
+        // Keep the installed v1 storage key: the payload version handles migration to 25 levels.
         private const string SaveKey = "TetherRush.Progress.v1";
 
         public static PlayerProgress Load()

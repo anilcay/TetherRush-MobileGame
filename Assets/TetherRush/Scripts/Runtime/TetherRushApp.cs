@@ -17,6 +17,7 @@ namespace TetherRush
         private Camera menuCamera;
         private PlayerProgress suppliedProgress;
         private bool persist = true;
+        private int mapFocusLevel = -1;
 
         public void ConfigureSession(PlayerProgress progress, bool persistToDisk = false)
         {
@@ -36,6 +37,7 @@ namespace TetherRush
             menuCamera.backgroundColor = VisualTheme.Void; menuCamera.depth = -10;
             Menu = gameObject.AddComponent<MainMenuView>();
             Menu.Initialize(PlayLevel, StartEndless, SetAudio, SetVolume);
+            Menu.SequentialLevels = true;
             Menu.RequestedHome = ShowHome; Menu.RequestedLevels = ShowLevels;
             Menu.RequestedEndless = ShowEndless; Menu.RequestedSettings = ShowSettings;
             ShowHome();
@@ -57,6 +59,7 @@ namespace TetherRush
                 lengths[i] = level.Length / 7f; completed[i] = Progress.IsCompleted(i); bonuses[i] = Progress.BestBonus(i);
             }
             Menu.ShowLevels(titles, descriptions, lengths, completed, bonuses);
+            Menu.FocusLevel(mapFocusLevel >= 0 ? mapFocusLevel : Progress.HighestUnlockedLevel);
         }
         public void ShowEndless()
         {
@@ -81,6 +84,7 @@ namespace TetherRush
         public void PlayLevel(int index)
         {
             LevelCatalog.Get(index); // Validate before ending an existing session.
+            if (!Progress.IsUnlocked(index)) return;
             BeginRun(index, false);
         }
         public void StartEndless() { BeginRun(-1, true); }
@@ -90,14 +94,15 @@ namespace TetherRush
             var run = new GameObject(endless ? "Sonsuz Akış" : "Bölüm " + (index + 1));
             run.transform.SetParent(transform, false); run.SetActive(false);
             Game = run.AddComponent<TetherRushGame>(); Game.NavigationEnabled = true;
-            if (endless) Game.ConfigureEndless(); else Game.ConfigureLevel(index);
+            if (endless) Game.ConfigureEndless();
+            else { Game.ConfigureLevel(index); mapFocusLevel = index; }
             Game.BestScore = Progress.BestEndlessScore;
             run.SetActive(true);
             Game.Feedback.AudioEnabled = Progress.AudioEnabled && !Application.isBatchMode;
             Game.Feedback.Volume = Progress.Volume;
             Game.PhaseChanged += RecordResult;
             Game.AudioPreferenceChanged += SetAudio;
-            Game.HomeRequested += ShowHome;
+            Game.HomeRequested += endless ? (System.Action)ShowHome : ShowLevels;
             Game.NextRequested += NextLevel;
             Game.StartRun();
         }
@@ -111,7 +116,11 @@ namespace TetherRush
             if (Game == null) return;
             bool changed = false;
             if (Game.IsEndless && phase == RunPhase.Failed) changed = Progress.RecordEndless(Game.Score);
-            else if (!Game.IsEndless && phase == RunPhase.Completed) changed = Progress.CompleteLevel(Game.SelectedLevelIndex, Game.Model.Bonus);
+            else if (!Game.IsEndless && phase == RunPhase.Completed)
+            {
+                changed = Progress.CompleteLevel(Game.SelectedLevelIndex, Game.Model.Bonus);
+                mapFocusLevel = Mathf.Min(Game.SelectedLevelIndex + 1, LevelCatalog.Count - 1);
+            }
             Game.BestScore = Progress.BestEndlessScore;
             if (changed) Save();
         }
@@ -120,7 +129,7 @@ namespace TetherRush
             if (Game != null)
             {
                 Game.PhaseChanged -= RecordResult; Game.AudioPreferenceChanged -= SetAudio;
-                Game.HomeRequested -= ShowHome; Game.NextRequested -= NextLevel;
+                Game.HomeRequested -= ShowHome; Game.HomeRequested -= ShowLevels; Game.NextRequested -= NextLevel;
                 Game.gameObject.SetActive(false); Destroy(Game.gameObject); Game = null;
             }
             if (menuCamera != null) menuCamera.gameObject.SetActive(true);
