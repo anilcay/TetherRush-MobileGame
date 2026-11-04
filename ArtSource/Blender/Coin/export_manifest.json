@@ -1,0 +1,54 @@
+{
+  "blender_version": "5.2.3 LTS",
+  "id": "Coin",
+  "triangles": 624,
+  "materials": [
+    "Body",
+    "Dark",
+    "Accent"
+  ],
+  "bounds_source_xyz": [
+    1,
+    1,
+    1
+  ],
+  "root_scale": [
+    1,
+    1,
+    1
+  ],
+  "center": [
+    0,
+    0,
+    0
+  ],
+  "source_face_normal": "-Y",
+  "unity_face_normal": "-Z",
+  "source_yaw_degrees": 25,
+  "runtime_unity_size": [
+    0.5,
+    0.5,
+    0.18
+  ],
+  "old_fbx_sha256": {
+    "Barrier.fbx": "29b21afe76ec21e25cb0726c700843bfbf1c8c334dd49e4450a493f25360a565",
+    "BonusCrystal.fbx": "de3e10b23e8cc1deb2e84406c4eff318dd8baabf42d535ad4b9ccfad0dcd82ae",
+    "BreakableBlock.fbx": "8fadbb00ebe5ea6a624f260c6b4fe5f9121a61c57ec967e34bd97fb9c642d72f",
+    "CapacitorBank.fbx": "2c033dbffac6edff5e020a009f6892ebfbe3489362ec0f46e1750e77acb8af1b",
+    "ChevronBarrier.fbx": "7112682322ca217192fff1223e1b4c3638f5d99ae6e65445bd74b1b43e7e2a73",
+    "ClampBarrier.fbx": "bb83f27af6ab7411a60593ae1dab00b1117eab12281bd025033c0eb51b2ebfe9",
+    "Core.fbx": "4bffefead3cf3773ebbc73f69d03539f21deab9eb909a7a0a08b81b4c7e9a879",
+    "EnergyGate.fbx": "9902715faa472a71b4443e67a99ddc08a791d5a42940ab78ef50895bbb11425b",
+    "EnergyPickup.fbx": "041c798c6768bf8dabebe2ae459d7d63ab347a62b31f04e79432fb1035f5fbbc",
+    "FinishMarker.fbx": "13b8a12c3a83c2a512b23b326b24fd4e2dab4f591873022057452c5ff0d7f272",
+    "HydraulicSlider.fbx": "847130388ff8a1eff1b33c0d97450c681a07212c44d65bab2221569a878cd4ea",
+    "MovingWall.fbx": "5d7f6bd24677f6c173393c0dbfa2b9dfb9c70e0519a62cbb13e51475d8a7b0fd",
+    "PulseBadge.fbx": "a93eb5a1151e549ac4d65711724df580af77969e749e86bd716286444ef56df1",
+    "RelayPylon.fbx": "0548e8e90fc06adbd80fa93e86643750328c437a662a4e1dcd6ad1b53bca54e5",
+    "RotatingArm.fbx": "ec7c8c6a8f91db59f6613682c7cef96fad05897ed0a86a17ab4e40bb9b0ba227",
+    "SplitPylon.fbx": "71e0dfd8b7157ec2477c2a805e98456561696131f4bce9334aecf9fd4c6571a9",
+    "TrackTile.fbx": "e58a332b80682e8103004708b46f8e85c0e53647c7637ed6da009ad473a3ddec",
+    "TurbineBeam.fbx": "3a7891ac929b4f07643a280840caa6c100abb5fe73b92fbdd79cc1e889e3a51e"
+  },
+  "fbx_sha256": "4bae3fac4a61be136e506141884faa742501d4d19b5f53edbc467782ee637404"
+}

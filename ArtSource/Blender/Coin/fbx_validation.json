@@ -1,0 +1,36 @@
+{
+  "result": "PASS",
+  "blender_version": "5.2.3 LTS",
+  "independent_fbx_import": true,
+  "mesh_count": 1,
+  "triangles": 624,
+  "materials": [
+    "Body",
+    "Dark",
+    "Accent"
+  ],
+  "source_bounds_xyz": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "source_center_xyz": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "root_scale": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "glyph_camera_facing_triangles": 22,
+  "glyph_runtime_face_tilt_degrees": 17.222337869398594,
+  "glyph_runtime_unity_normal": [
+    0.29608064889907837,
+    4.9382769873318466e-08,
+    -0.9551630020141602
+  ],
+  "old_fbx_unchanged_count": 18,
+  "collider_or_armature": false
+}

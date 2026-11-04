@@ -73,13 +73,13 @@ namespace TetherRush
         public int RemainingEnergyCount { get { int n = 0; foreach (var c in pickups) if (!c.Bonus && c.View.activeSelf) n++; return n; } }
 
         private sealed class Hazard { public Bounds Bounds; public GameObject View, OpenFrame; public bool Marked; public bool Open; public bool Gate; public string Reason; }
-        private sealed class Pickup { public Vector3 Position; public GameObject View; public bool Bonus; public int Id; }
+        private sealed class Pickup { public Vector3 Position; public GameObject View; public bool Bonus; public int Id; public Transform CoinVisual; public Quaternion CoinRotation; }
         private readonly List<Hazard> hazards = new List<Hazard>();
         private readonly List<Pickup> pickups = new List<Pickup>();
         private readonly List<Material> materials = new List<Material>();
         private readonly List<RaycastResult> uiHits = new List<RaycastResult>();
         private readonly float[] sweepTimes = new float[6];
-        private Material trackMat, redMat, goldMat, tealMat, peachMat, purpleMat, lineMat, darkMat, accentMat, dangerAccentMat, pulseAccentMat, tetherMat, relayWireMat;
+        private Material trackMat, redMat, goldMat, tealMat, peachMat, purpleMat, lineMat, darkMat, accentMat, dangerAccentMat, pulseAccentMat, tetherMat, relayWireMat, coinMat, coinRimMat;
         private VisualLibrary visuals;
         private TimedHazard[] timedHazards = new TimedHazard[0];
         private Transform[] timedViews = new Transform[0];
@@ -201,7 +201,7 @@ namespace TetherRush
                 if (c.Bonus)
                 {
                     Vector2 p = new Vector2(c.Position.x, c.Position.z);
-                    float radius = tuning.SphereRadius + .19f;
+                    float radius = tuning.SphereRadius + .25f;
                     hit = SegmentDistanceSquared(a, b, p) <= radius * radius ||
                         SegmentDistanceSquared(new Vector2(-a.x, a.y), new Vector2(-b.x, b.y), p) <= radius * radius;
                 }
@@ -402,6 +402,8 @@ namespace TetherRush
             accentMat = MakeMaterial("Edge accents", VisualTheme.Silver);
             dangerAccentMat = MakeMaterial("Fatal warning lights", VisualTheme.Danger);
             pulseAccentMat = MakeMaterial("Pulse target lights", VisualTheme.PulseAccent);
+            coinMat = MakeMaterial("Coin gold", new Color32(240, 198, 108, 255));
+            coinRimMat = MakeMaterial("Coin rim", new Color32(255, 226, 160, 255));
             relayWireMat = new Material(Shader.Find("Tether Rush/NeonEffect")) { name = "Relay floor conductor" };
             var wireColor = VisualTheme.Tether; wireColor.a = .2f;
             relayWireMat.SetColor("_BaseColor", wireColor); materials.Add(relayWireMat);
@@ -586,9 +588,12 @@ namespace TetherRush
         }
         private void AddPickup(Vector3 pos, bool bonus, int id)
         {
-            var obj = ModelVisual(bonus ? VisualKind.BonusCrystal : VisualKind.EnergyPickup, bonus ? "Bonus crystal" : "Tether energy",
-                pos, Vector3.one * (bonus ? .38f : .32f), bonus ? goldMat : tealMat);
-            pickups.Add(new Pickup { Position = pos, View = obj, Bonus = bonus, Id = id });
+            var obj = ModelVisual(bonus ? VisualKind.Coin : VisualKind.EnergyPickup, bonus ? "Bonus coin" : "Tether energy",
+                pos, bonus ? new Vector3(.5f, .5f, .18f) : Vector3.one * .32f, bonus ? coinMat : tealMat,
+                bonus ? coinRimMat : null);
+            var visual = bonus ? obj.transform.Find("Visual") : null;
+            pickups.Add(new Pickup { Position = pos, View = obj, Bonus = bonus, Id = id,
+                CoinVisual = visual, CoinRotation = visual != null ? visual.localRotation : Quaternion.identity });
         }
         private void BuildHud()
         {
@@ -651,6 +656,14 @@ namespace TetherRush
             gameCamera.transform.position = new Vector3(0, 10, z - 11);
             gameCamera.transform.rotation = Quaternion.LookRotation(new Vector3(0, .1f, z + 8) - gameCamera.transform.position);
             stage.Tick();
+            foreach (var pickup in pickups)
+            {
+                if (!pickup.Bonus || !pickup.View.activeSelf || pickup.CoinVisual == null) continue;
+                float age = Model.ActualElapsedTime;
+                pickup.CoinVisual.localRotation = pickup.CoinRotation * Quaternion.Euler(0,
+                    Mathf.Sin(age * 1.6f + pickup.Id * .7f) * 12, 0);
+                pickup.CoinVisual.localPosition = new Vector3(0, Mathf.Sin(age * 2 + pickup.Id) * .07f, 0);
+            }
             hud.Present(new HudState
             {
                 Phase = Model.Phase, AdvancedCourse = definition != null ? !definition.UsesEnergy : advancedCourse, AudioEnabled = Feedback.AudioEnabled,

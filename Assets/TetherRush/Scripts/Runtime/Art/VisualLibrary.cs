@@ -8,7 +8,7 @@ namespace TetherRush.Art
     {
         Core, TrackTile, Barrier, MovingWall, RotatingArm, EnergyGate, BreakableBlock,
         EnergyPickup, BonusCrystal, PulseBadge, FinishMarker, SplitPylon, ChevronBarrier, RelayPylon,
-        ClampBarrier, CapacitorBank, HydraulicSlider, TurbineBeam
+        ClampBarrier, CapacitorBank, HydraulicSlider, TurbineBeam, Coin
     }
 
     /// <summary>Blender exports are normalized independently from the authoritative gameplay geometry.</summary>

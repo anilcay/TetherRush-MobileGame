@@ -48,6 +48,10 @@ Tarih: 31.10.2026. `ONAYLI` kullanıcı isteğini/onayını, `ÖNERİ` henüz on
 | D-037 | ONAYLI | Sonsuz Akış'ta hız skor arttıkça yumuşak ve üst sınırlandırılmış artacak; bölümlerde sabit tempo korunacak. | Kullanıcının açık hızlandırma isteği; D-027'nin yalnız sonsuz hız maddesini günceller. |
 | D-038 | İLK DENGELEME | Sonsuz başlangıç7, tavan11,5 m/sn; 500→5500 skor yumuşak hedef eğrisi, en fazla0,25 m/sn² ivme. Yeni engel gövdeleri grafit, küçük mercan/amber/cyan işaretli. | Onaylı kapsam içinde incelenecek ilk ayar; gerçek test ve görüntülerle değerlendirilecek. |
 
+| D-039 | ONAYLI | Hypercasual oyuna uygun özgün sözsüz arka plan müziği üretilecek; toplama, Pulse, röle, sonuç ve UI sesleri iyileştirilecek. | Kullanıcının 04.11.2026 müzik ve ses isteği. |
+| D-040 | ONAYLI | Toplanan bonus görseli yeni Blender coin ile, sağ üst simge aynı coin tasarımıyla değiştirilecek. | Kullanıcının 04.11.2026 coin/model ve simge isteği. |
+| D-041 | ÜRETİM AYARI | 104 BPM sözsüz elektronik/mallet döngü; altın rim, koyu yüz ve çift çekirdek kabartmalı coin. Önceki bonus/save alanı ve coin başına100 skor korunur. .5 m coin için bonus temas yarıçapı .19→.25 m görselle eşleştirilir; yeni ekonomi yoktur. | D-039/040 içinde rutin üretim ve temas/görsel eşleme; müzik duyumu ve görsel beğeni kullanıcı incelemesine açıktır. |
+
 ## M1 onay paketi
 
 Kullanıcı D-008, D-009, D-010 ve D-014 kararlarını onayladı; M1 üretimi başlatıldı. İlk teslim Editor'da oynanabilir prototip, otomatik doğrulama ve Android test build'idir. D-017 ile fiziksel cihaz testi son aşamaya ertelendi; Editor prototipi kabulünü engellemez. Mobil performans ve gerçek dokunma kabulü cihaz testi yapılana kadar açık kalır.

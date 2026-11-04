@@ -4,7 +4,7 @@ Unity ile geliştirilecek, ortak bir enerji bağıyla bağlı iki küreyi tek pa
 
 ## Durum
 
-Güncel paket **0.7.0 (8)**: sade grafit engeller, **bağ rölesi**, **hareketli Pulse kilidi** ve skora göre hızlanan **Sonsuz Akış**. Röle geniş bağla pedden geçince enerji harcamadan bağlı kapıyı açar. Amber Pulse kilidi tam enerjiyle menzilde bırakılınca yana çekilir. Sonsuz tempo 500 skor sonrası yumuşakça 7→11,5 m/sn artar; bonuslar ani hız sıçraması yapmaz. Bölümler 7 m/sn kalır. **25 bölüm**, sıralı açılma ve kayıtlar korunur. **231/231 Unity testi**, Windows ve imzası doğrulanan Android build geçti. Sonuçlar [doğrulama kaydında](Docs/QA/SYSTEMS_VALIDATION.md); fiziksel cihaz testi son aşamadadır.
+Güncel paket **0.8.0 (9)**: özgün **73,85 saniyelik sözsüz Tether Flow** müziği, yenilenmiş **10 ses efekti** ve Blender'da üretilen **çift çekirdek işaretli altın coin**. Oyun, HUD ve harita aynı coin görselini kullanır. Müzik menü/deneme/retry geçişlerinde sürer; ses anahtarı/düzeyi kalıcıdır ve duraklatma/odak kaybında müzik duraklar. **25 bölüm**, sıralı açılma, röle/Pulse kilidi, hızlanan Sonsuz Akış ve kayıtlar korunur. **240/240 Unity testi**, Windows ve imzası doğrulanan Android build geçti. Son doğrulama [müzik/coin kaydında](Docs/QA/AUDIO_COIN_VALIDATION.md); fiziksel cihaz ve insan ses dengesi kabulü açıktır.
 
 - Hedef: **Android telefon, dikey ekran** (kullanıcı onayı: 31.10.2026).
 - Tasarım kaynağı: [GDD v2.0](Docs/Source/Tether_Rush_GDD_v2.pdf), 31.10.2026.
@@ -13,6 +13,13 @@ Güncel paket **0.7.0 (8)**: sade grafit engeller, **bağ rölesi**, **hareketli
 - Kaynak depo: https://github.com/anilcay/TetherRush-MobileGame
 
 ## Proje kayıtları
+
+- [Müzik/coin doğrulaması](Docs/QA/AUDIO_COIN_VALIDATION.md)
+- [Özgün müzik ve efektler](Docs/Audio/AUDIO_ASSETS.md)
+- [Ses entegrasyonu](Docs/Audio/AUDIO_INTEGRATION.md)
+- [Coin Blender tasarımı](Docs/Art/COIN_DESIGN.md)
+- [Müzik/efekt miks önizlemesi — 14 sn](AudioSource/TetherFlow.gameplay-preview.wav)
+- [Gerçek oyun/HUD görüntüsü](Docs/Art/Previews/AudioCoin_Game.png)
 
 - [Yeni sistemler doğrulaması](Docs/QA/SYSTEMS_VALIDATION.md)
 - [Sade tasarım ve mekanik araştırması](Docs/Research/INTERACTIVE_REDESIGN.md)
@@ -63,7 +70,7 @@ Haritada **1–25** numaraları vardır. Yeni profilde yalnız 1 açıktır. Bir
 
 İlk beşin oynanış yerleşimleri korunur. 20 yeni parkur; dar/geniş ritmi, hareketli duvar, dönen kol ve birden fazla bağımsız Pulse dizisini birleştirir. En uzun bölüm 280 m'dir. Ayrı bölüm isimleri kullanılmaz. Önceki beş bölümlük v1 kayıt, 25 bölümlük v2 yapıya kayıpsız genişler; eski ilerleme geri alınmaz.
 
-**Sonsuz Akış** ekranından **Akışa başla**: skora göre temposu artan, beş kalıpla çeşitlenen parkurda çarpışana kadar skor topla. Her tam metre 1, her bonus kristal 100 puandır. İlk500 skordan sonra tempo artar, 5500 hedefinde11,5m/sn tavanına yaklaşır; hız değişimi en fazla0,25m/sn² ile yumuşatılır. En iyi skor deneme sonunda saklanır. Tekrar deneme skor/parkur/hızı sıfırlar, rekoru korur.
+**Sonsuz Akış** ekranından **Akışa başla**: skora göre temposu artan, beş kalıpla çeşitlenen parkurda çarpışana kadar skor topla. Her tam metre 1, her coin 100 puandır. İlk500 skordan sonra tempo artar, 5500 hedefinde11,5m/sn tavanına yaklaşır; hız değişimi en fazla0,25m/sn² ile yumuşatılır. En iyi skor deneme sonunda saklanır. Tekrar deneme skor/parkur/hızı sıfırlar, rekoru korur.
 
 **Ayarlar** ses açık/kapalı, ses düzeyi ve kontrol açıklamasını içerir. Tercihler uygulama yeniden açılınca korunur. Kamera ve GUI görüntüleri otomatik testte gerçek URP'den alınır; ses duyumu ve fiziksel cihaz kabulü ayrıca bekler.
 
@@ -82,7 +89,7 @@ Unity Editor'ü kapattıktan sonra proje kökünde PowerShell ile:
 ./Tools/Unity.ps1 -Action Android
 ```
 
-`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-Systems.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-systems/TetherRush.exe` altında üretir. Eski M1/M2/cila/ilk menü çıktıları karşılaştırma için ayrı klasörlerde korunur.
+`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-AudioCoin.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-audio-coin/TetherRush.exe` altında üretir. Eski M1/M2/cila/ilk menü çıktıları karşılaştırma için ayrı klasörlerde korunur.
 
 Android araçları Türkçe karakter içeren proje yollarını kabul etmez. Bu klasör için `-Action Android` aynı depoya işaret eden geçici bir ASCII junction yolunu otomatik kullanır; kaynaklar taşınmaz veya kopyalanmaz. Bağlantı TEMP altında kalır ve tekrar kullanılır. Editor'dan doğrudan Android build almak için de ASCII bir proje yolu gerekir; mevcut klasörde Editor oynanışı etkilenmez.
 

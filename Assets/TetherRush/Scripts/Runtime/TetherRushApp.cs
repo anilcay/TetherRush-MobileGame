@@ -14,6 +14,7 @@ namespace TetherRush
         public MainMenuView Menu { get; private set; }
         public TetherRushGame Game { get; private set; }
         public MenuPage Page { get; private set; }
+        public MusicDirector Music { get; private set; }
         private Camera menuCamera;
         private PlayerProgress suppliedProgress;
         private bool persist = true;
@@ -35,11 +36,16 @@ namespace TetherRush
             menuCamera = cameraObject.GetComponent<Camera>();
             menuCamera.clearFlags = CameraClearFlags.SolidColor;
             menuCamera.backgroundColor = VisualTheme.Void; menuCamera.depth = -10;
+            Music = gameObject.AddComponent<MusicDirector>();
+            Music.Initialize(Progress.AudioEnabled && !Application.isBatchMode, Progress.Volume);
             Menu = gameObject.AddComponent<MainMenuView>();
-            Menu.Initialize(PlayLevel, StartEndless, SetAudio, SetVolume);
+            Menu.Initialize(index => { Music.PlayUiClick(); PlayLevel(index); },
+                () => { Music.PlayUiClick(); StartEndless(); }, SetAudio, SetVolume);
             Menu.SequentialLevels = true;
-            Menu.RequestedHome = ShowHome; Menu.RequestedLevels = ShowLevels;
-            Menu.RequestedEndless = ShowEndless; Menu.RequestedSettings = ShowSettings;
+            Menu.RequestedHome = () => { Music.PlayUiClick(); ShowHome(); };
+            Menu.RequestedLevels = () => { Music.PlayUiClick(); ShowLevels(); };
+            Menu.RequestedEndless = () => { Music.PlayUiClick(); ShowEndless(); };
+            Menu.RequestedSettings = () => { Music.PlayUiClick(); ShowSettings(); };
             ShowHome();
         }
 
@@ -76,12 +82,14 @@ namespace TetherRush
         {
             Progress.AudioEnabled = enabled;
             if (Game != null) Game.Feedback.AudioEnabled = enabled && !Application.isBatchMode;
+            Music.SetPreferences(enabled && !Application.isBatchMode, Progress.Volume);
             Save();
         }
         public void SetVolume(float volume)
         {
             Progress.Volume = volume;
             if (Game != null) Game.Feedback.Volume = Progress.Volume;
+            Music.SetPreferences(Progress.AudioEnabled && !Application.isBatchMode, Progress.Volume);
             Save();
         }
         public void PlayLevel(int index)
@@ -94,6 +102,7 @@ namespace TetherRush
         private void BeginRun(int index, bool endless)
         {
             CloseRun(); Menu.Hide(); menuCamera.gameObject.SetActive(false); Page = MenuPage.Playing;
+            Music.SetContext(true, false);
             var run = new GameObject(endless ? "Sonsuz Akış" : "Bölüm " + (index + 1));
             run.transform.SetParent(transform, false); run.SetActive(false);
             Game = run.AddComponent<TetherRushGame>(); Game.NavigationEnabled = true;
@@ -117,6 +126,7 @@ namespace TetherRush
         private void RecordResult(RunPhase phase)
         {
             if (Game == null) return;
+            Music.SetContext(true, phase == RunPhase.Paused);
             bool changed = false;
             if (Game.IsEndless && phase == RunPhase.Failed) changed = Progress.RecordEndless(Game.Score);
             else if (!Game.IsEndless && phase == RunPhase.Completed)
@@ -136,6 +146,7 @@ namespace TetherRush
                 Game.gameObject.SetActive(false); Destroy(Game.gameObject); Game = null;
             }
             if (menuCamera != null) menuCamera.gameObject.SetActive(true);
+            if (Music != null) Music.SetContext(false, false);
         }
         private void Save() { if (persist) PlayerSaveStore.Save(Progress); }
     }

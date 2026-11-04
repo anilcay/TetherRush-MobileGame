@@ -16,7 +16,7 @@ namespace TetherRush.Presentation
         private RectTransform content, viewport;
         private LevelMapCircuit circuit;
         private Text progress, footer, footerBonus;
-        private UiIcon footerCrystal;
+        private Image footerCrystal;
         private int[] bestBonuses;
         internal static readonly Color Background = new Color32(13, 23, 34, 255);
         internal static readonly Color Surface = new Color32(26, 42, 59, 255);
@@ -65,7 +65,11 @@ namespace TetherRush.Presentation
             footerRect.anchorMin = Vector2.zero; footerRect.anchorMax = new Vector2(1, 0);
             footerRect.offsetMin = new Vector2(24, 14); footerRect.offsetMax = new Vector2(-24, 62);
             footer = footerRect.gameObject.AddComponent<Text>(); Configure(footer, "Bölüm 1", 22, Paper, TextAnchor.MiddleLeft);
-            footerCrystal = Icon("Focused bonus crystal", footerRect, UiGlyph.Crystal, VisualTheme.Bonus, new Vector2(176, 0), 22);
+            var coinRect = MakeRect("Focused bonus coin", footerRect);
+            coinRect.anchorMin = coinRect.anchorMax = new Vector2(.5f, .5f);
+            coinRect.sizeDelta = Vector2.one * 24; coinRect.anchoredPosition = new Vector2(176, 0);
+            footerCrystal = coinRect.gameObject.AddComponent<Image>(); footerCrystal.sprite = UiResources.CoinSprite;
+            footerCrystal.preserveAspect = true; footerCrystal.raycastTarget = false;
             footerBonus = TextAt(footerRect, "0", 22, Paper, 440, 0, 52, 48, TextAnchor.MiddleRight);
             footerCrystal.gameObject.SetActive(false); footerBonus.gameObject.SetActive(false);
         }

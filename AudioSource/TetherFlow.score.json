@@ -1,0 +1,27 @@
+{
+  "title": "Tether Flow",
+  "composition": "Original wordless electronic facility loop, deterministic synthesis; no samples or artist imitation.",
+  "bpm": 104,
+  "meter": "4/4",
+  "bars": 32,
+  "key": "D minor with open ninths and suspended colors",
+  "sample_rate": 48000,
+  "chords": [
+    { "name": "Dm9", "bass": 38, "voicing": [53, 60, 64, 69] },
+    { "name": "Bbmaj7", "bass": 34, "voicing": [53, 57, 62, 65] },
+    { "name": "Fadd9", "bass": 41, "voicing": [53, 57, 60, 67] },
+    { "name": "Csus2", "bass": 36, "voicing": [55, 60, 62, 67] }
+  ],
+  "melody_midi": [
+    [[0.5, 74], [1.75, 77], [2.75, 81]],
+    [[0.75, 76], [2.25, 74]],
+    [[0.5, 77], [1.75, 74], [2.75, 72]],
+    [[0.75, 69], [2.25, 72]],
+    [[0.5, 72], [1.75, 77], [2.75, 79]],
+    [[0.75, 81], [2.25, 77]],
+    [[0.5, 79], [1.75, 74], [2.75, 76]],
+    [[0.75, 74], [2.25, 72]]
+  ],
+  "arrangement": "8-bar motif repeated in four sections; restrained opening shaker, octave response in section three; two-bar sustained voicings, syncopated bass, half-time soft kick, dry rim and swung shaker.",
+  "mix": "-20 LUFS target; periodic reverb/delay tails wrap across loop boundary. SFX occupy foreground."
+}

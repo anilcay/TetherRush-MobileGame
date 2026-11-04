@@ -1,0 +1,152 @@
+{
+  "music_master": {
+    "duration_s": 73.846146,
+    "sample_rate": 48000,
+    "channels": 2,
+    "peak_dbfs": -7.732,
+    "rms_dbfs": -20.773,
+    "dc_mean": 7.753146049170756e-09,
+    "finite": true,
+    "clipped_samples": 0,
+    "integrated_lufs": -20.0,
+    "loop_seam_step": 0.002258369701223794
+  },
+  "music_vorbis_decoded": {
+    "duration_s": 73.846146,
+    "sample_rate": 48000,
+    "channels": 2,
+    "peak_dbfs": -7.638,
+    "rms_dbfs": -20.75,
+    "dc_mean": -2.38371121668024e-05,
+    "finite": true,
+    "clipped_samples": 0,
+    "integrated_lufs": -19.988,
+    "loop_seam_step": 0.002749387174844742,
+    "frame_count_matches": true,
+    "bytes": 673576
+  },
+  "sfx": {
+    "Coin1": {
+      "duration_s": 0.403991,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak_dbfs": -6.0,
+      "rms_dbfs": -15.595,
+      "dc_mean": -5.824143029757205e-08,
+      "finite": true,
+      "clipped_samples": 0,
+      "silent_first_last_50_samples": true
+    },
+    "Coin2": {
+      "duration_s": 0.403991,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak_dbfs": -6.0,
+      "rms_dbfs": -15.225,
+      "dc_mean": 9.421407842276094e-08,
+      "finite": true,
+      "clipped_samples": 0,
+      "silent_first_last_50_samples": true
+    },
+    "Coin3": {
+      "duration_s": 0.403991,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak_dbfs": -6.0,
+      "rms_dbfs": -15.189,
+      "dc_mean": -1.3189970979194384e-07,
+      "finite": true,
+      "clipped_samples": 0,
+      "silent_first_last_50_samples": true
+    },
+    "Energy": {
+      "duration_s": 0.253991,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak_dbfs": -6.0,
+      "rms_dbfs": -17.12,
+      "dc_mean": 8.173870942920517e-09,
+      "finite": true,
+      "clipped_samples": 0,
+      "silent_first_last_50_samples": true
+    },
+    "Ready": {
+      "duration_s": 0.583991,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak_dbfs": -7.5,
+      "rms_dbfs": -18.323,
+      "dc_mean": -5.9250037811525974e-08,
+      "finite": true,
+      "clipped_samples": 0,
+      "silent_first_last_50_samples": true
+    },
+    "Pulse": {
+      "duration_s": 0.503991,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak_dbfs": -6.0,
+      "rms_dbfs": -19.97,
+      "dc_mean": 5.904327847895128e-08,
+      "finite": true,
+      "clipped_samples": 0,
+      "silent_first_last_50_samples": true
+    },
+    "Relay": {
+      "duration_s": 0.473991,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak_dbfs": -7.0,
+      "rms_dbfs": -16.089,
+      "dc_mean": 6.862029112372246e-08,
+      "finite": true,
+      "clipped_samples": 0,
+      "silent_first_last_50_samples": true
+    },
+    "Fail": {
+      "duration_s": 0.603991,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak_dbfs": -7.0,
+      "rms_dbfs": -16.302,
+      "dc_mean": 6.87457038801208e-08,
+      "finite": true,
+      "clipped_samples": 0,
+      "silent_first_last_50_samples": true
+    },
+    "Success": {
+      "duration_s": 0.923991,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak_dbfs": -7.0,
+      "rms_dbfs": -20.909,
+      "dc_mean": -4.65102443913663e-07,
+      "finite": true,
+      "clipped_samples": 0,
+      "silent_first_last_50_samples": true
+    },
+    "UiClick": {
+      "duration_s": 0.099002,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak_dbfs": -11.0,
+      "rms_dbfs": -27.475,
+      "dc_mean": 1.1184062107541802e-07,
+      "finite": true,
+      "clipped_samples": 0,
+      "silent_first_last_50_samples": true
+    }
+  },
+  "human_audition": "Not performed by renderer. Listening and Unity playback QA remain separate.",
+  "preview": {
+    "duration_s": 14.0,
+    "sample_rate": 48000,
+    "channels": 2,
+    "peak_dbfs": -12.314,
+    "rms_dbfs": -29.018,
+    "dc_mean": 3.4135836981494844e-07,
+    "finite": true,
+    "clipped_samples": 0
+  },
+  "asset_total_bytes": 1084580
+}

@@ -29,7 +29,13 @@ namespace TetherRush.Presentation
         private Renderer[][] coreRenderers;
         private float pickupFlash, pulseFlash;
         private AudioSource audioSource;
-        private AudioClip collectClip, bonusClip, readyClip, pulseClip, failClip, successClip;
+        private AudioClip collectClip, readyClip, pulseClip, relayClip, failClip, successClip;
+        private readonly AudioClip[] coinClips = new AudioClip[3];
+        private readonly System.Collections.Generic.List<AudioClip> ownedClips = new System.Collections.Generic.List<AudioClip>();
+        private int coinSequence, lastCoinFrame = -1;
+        private float nextCoinTime, nextEnergyTime;
+        public int CoinSequence => coinSequence;
+        public AudioSource Source => audioSource;
         private float clock, radius, terminalTime;
         private bool initialized, wasReady, audioEnabled = true, ownsSource;
         private Color terminalColor;
@@ -120,13 +126,15 @@ namespace TetherRush.Presentation
                 audioSource.playOnAwake = false; audioSource.loop = false; audioSource.spatialBlend = 0; audioSource.volume = volume;
                 audioSource.mute = !audioEnabled;
             }
-            // Procedural mono cues are allocated once; no runtime loading or per-frame clip generation.
-            collectClip = MakeCue("Energy", .085f, 540, 800, .18f);
-            bonusClip = MakeCue("Bonus", .12f, 880, 1320, .16f);
-            readyClip = MakeCue("Ready", .23f, 580, 1160, .15f);
-            pulseClip = MakeCue("Pulse", .22f, 320, 90, .23f);
-            failClip = MakeCue("Failure", .23f, 175, 65, .19f);
-            successClip = MakeCue("Completion", .35f, 660, 1320, .17f);
+            // Imported clips are shared; only missing-asset fallback clips belong to this instance.
+            collectClip = Cue(AudioPalette.Energy, "Energy", .085f, 540, 800, .18f);
+            for (int i = 0; i < coinClips.Length; i++)
+                coinClips[i] = Cue(AudioPalette.Coin(i), "Coin" + (i + 1), .12f, 880 + i * 110, 1320 + i * 110, .16f);
+            readyClip = Cue(AudioPalette.Ready, "Ready", .23f, 580, 1160, .15f);
+            pulseClip = Cue(AudioPalette.Pulse, "Pulse", .22f, 320, 90, .23f);
+            relayClip = Cue(AudioPalette.Relay, "Relay", .18f, 440, 880, .17f);
+            failClip = Cue(AudioPalette.Fail, "Failure", .23f, 175, 65, .19f);
+            successClip = Cue(AudioPalette.Success, "Completion", .35f, 660, 1320, .17f);
             ResetPresentation();
         }
 
@@ -160,9 +168,9 @@ namespace TetherRush.Presentation
             TickSparks(dt); TickRings(dt); TickGhosts(dt);
         }
 
-        public void EnergyCollected(Vector3 position) { if (!initialized) return; pickupFlash = .65f; Emit(position, VisualTheme.Energy, true, 5); Play(collectClip); }
-        public void RelayConnected() { if (initialized) Play(collectClip); }
-        public void BonusCollected(Vector3 position) { if (!initialized) return; Emit(position, VisualTheme.Bonus, false, 7); SpawnRing(position, .3f, .22f, VisualTheme.Bonus); Play(bonusClip); }
+        public void EnergyCollected(Vector3 position) { if (!initialized) return; pickupFlash = .65f; Emit(position, VisualTheme.Energy, true, 5); if (clock >= nextEnergyTime) { nextEnergyTime = clock + .025f; Play(collectClip, .8f); } }
+        public void RelayConnected() { if (initialized) Play(relayClip, .8f); }
+        public void BonusCollected(Vector3 position) { if (!initialized) return; Emit(position, VisualTheme.Bonus, false, 7); SpawnRing(position, .3f, .22f, VisualTheme.Bonus); PlayCoin(); }
         public void Pulse(Vector3 position)
         {
             if (!initialized) return;
@@ -221,6 +229,7 @@ namespace TetherRush.Presentation
         {
             if (!initialized) return;
             clock = terminalTime = pickupFlash = pulseFlash = 0; wasReady = false;
+            coinSequence = 0; lastCoinFrame = -1; nextCoinTime = nextEnergyTime = 0;
             if (leftMesh != null) leftMesh.localRotation = leftRotation;
             if (rightMesh != null) rightMesh.localRotation = rightRotation;
             foreach (var spark in sparks) { spark.Life = 0; spark.View.enabled = false; }
@@ -359,11 +368,25 @@ namespace TetherRush.Presentation
                 if (t >= 1) { ghost.Renderer.enabled = false; ghost.Filter.sharedMesh = null; ghost.Life = 0; }
             }
         }
-        private void Play(AudioClip clip)
+        private void PlayCoin()
         {
-            // Replace the short cue rather than stack voices when a swept frame collects several items.
+            // Swept pairs share one cue; progression never touches gameplay Random state.
+            if (lastCoinFrame == Time.frameCount || clock < nextCoinTime) return;
+            lastCoinFrame = Time.frameCount; nextCoinTime = clock + .035f;
+            Play(coinClips[coinSequence++ % coinClips.Length], .9f);
+        }
+        private void Play(AudioClip clip, float gain = .8f)
+        {
+            // Layer short cues so coins cannot truncate a Pulse or result signal.
             if (audioEnabled && audioSource != null && clip != null && isActiveAndEnabled)
-            { audioSource.clip = clip; audioSource.Play(); }
+                audioSource.PlayOneShot(clip, gain);
+        }
+        private AudioClip Cue(AudioClip imported, string name, float length, float from, float to, float amplitude)
+        {
+            if (imported != null) return imported;
+            var clip = MakeCue(name, length, from, to, amplitude);
+            ownedClips.Add(clip);
+            return clip;
         }
         private static AudioClip MakeCue(string name, float length, float from, float to, float amplitude)
         {
@@ -384,7 +407,7 @@ namespace TetherRush.Presentation
             if (effectMaterial != null) Destroy(effectMaterial);
             if (glowMaterial != null) Destroy(glowMaterial);
             if (ownsSource && audioSource != null) Destroy(audioSource);
-            foreach (var clip in new[] { collectClip, bonusClip, readyClip, pulseClip, failClip, successClip }) if (clip != null) Destroy(clip);
+            foreach (var clip in ownedClips) if (clip != null) Destroy(clip);
         }
     }
 }

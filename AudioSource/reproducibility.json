@@ -1,0 +1,12 @@
+[
+  {
+    "asset": "TetherFlow.ogg",
+    "sha256": "a921cb602528ce3ecaf4e83d59f3de2dac1e4f850ff4a621b8dca64745066f6b",
+    "full_and_reuse_match": true
+  },
+  {
+    "asset": "UiClick.wav",
+    "sha256": "5798c3f38456032a93bb02afe6da0ce2c475ef500f89b717140966db48239677",
+    "full_and_reuse_match": true
+  }
+]

@@ -62,7 +62,9 @@ namespace TetherRush.Presentation
                 new Vector2(116, -63), new Vector2(424, -58), false).gameObject;
             progressFill = Panel("Progress", progressRail.transform, UiResources.Paper, Vector2.zero,
                 new Vector2(0, 1), Vector2.zero, Vector2.zero, false).rectTransform;
-            Icon("Crystal", safeArea, UiGlyph.Crystal, UiResources.Paper, 448, 28, 22);
+            var coin = Rect("Coin", safeArea, new Vector2(0, 1), new Vector2(0, 1),
+                new Vector2(444, -53), new Vector2(471, -26)).gameObject.AddComponent<Image>();
+            coin.sprite = UiResources.CoinSprite; coin.preserveAspect = true; coin.raycastTarget = false;
             bonus = Label("Bonus", safeArea, "0", 20, UiResources.Paper, 474, 24, 52, 30);
             score = Label("Score", safeArea, "", 36, UiResources.Paper, 116, 25, 308, 43, true);
             score.alignment = TextAnchor.MiddleCenter;
