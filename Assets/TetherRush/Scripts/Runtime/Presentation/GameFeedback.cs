@@ -161,6 +161,7 @@ namespace TetherRush.Presentation
         }
 
         public void EnergyCollected(Vector3 position) { if (!initialized) return; pickupFlash = .65f; Emit(position, VisualTheme.Energy, true, 5); Play(collectClip); }
+        public void RelayConnected() { if (initialized) Play(collectClip); }
         public void BonusCollected(Vector3 position) { if (!initialized) return; Emit(position, VisualTheme.Bonus, false, 7); SpawnRing(position, .3f, .22f, VisualTheme.Bonus); Play(bonusClip); }
         public void Pulse(Vector3 position)
         {

@@ -87,26 +87,26 @@ namespace TetherRush.Course
             Beat[] beats;
             switch (index)
             {
-                case 5:  b.Course.Length = 124; beats = new[] { N(14), C(34), N(56), W(78), S(102) }; break;
+                case 5:  b.Course.Length = 124; beats = new[] { N(14), L(54), N(78), W(102) }; break;
                 case 6:  b.Course.Length = 132; beats = new[] { C(18), N(42), C(64), R(86), N(112) }; break;
-                case 7:  b.Course.Length = 144; beats = new[] { N(14), P(74), W(96), N(122) }; break;
+                case 7:  b.Course.Length = 144; beats = new[] { N(14), Q(74), W(96), N(122) }; break;
                 case 8:  b.Course.Length = 152; beats = new[] { W(20), S(44), R(68), N(92), C(116), N(138) }; break;
                 case 9:  b.Course.Length = 160; beats = new[] { N(14), C(36), W(58), N(80), C(104), S(128), N(146) }; break;
                 case 10: b.Course.Length = 168; beats = new[] { B(64), N(84), R(108), N(132), C(152) }; break;
-                case 11: b.Course.Length = 176; beats = new[] { C(18), W(40), S(64), C(88), N(112), R(136), N(158) }; break;
+                case 11: b.Course.Length = 176; beats = new[] { C(18), W(40), S(64), L(102), N(124), R(146), N(162) }; break;
                 case 12: b.Course.Length = 184; beats = new[] { N(14), P(78), S(100), W(124), R(148), N(170) }; break;
                 case 13: b.Course.Length = 192; beats = new[] { W(20), N(44), C(68), S(92), R(116), N(140), W(164), N(178) }; break;
                 case 14: b.Course.Length = 200; beats = new[] { N(14), C(36), B(100), N(122), W(144), S(166), R(186) }; break;
-                case 15: b.Course.Length = 208; beats = new[] { P(64), N(86), C(108), N(130), B(190) }; break;
+                case 15: b.Course.Length = 208; beats = new[] { P(64), N(86), C(108), N(130), Q(190) }; break;
                 case 16: b.Course.Length = 216; beats = new[] { C(18), S(42), W(66), R(90), N(114), C(138), S(162), R(186), N(202) }; break;
                 case 17: b.Course.Length = 224; beats = new[] { N(14), B(78), W(100), N(124), P(184), W(206) }; break;
                 case 18: b.Course.Length = 232; beats = new[] { W(18), S(42), C(66), N(90), R(114), S(138), W(162), N(186), C(210) }; break;
-                case 19: b.Course.Length = 240; beats = new[] { N(14), C(36), P(100), S(122), R(146), N(170), B(230) }; break;
+                case 19: b.Course.Length = 240; beats = new[] { N(14), C(36), Q(100), S(122), R(146), N(170), B(230) }; break;
                 case 20: b.Course.Length = 248; beats = new[] { B(64), W(86), S(110), R(134), N(158), C(182), W(206), S(230) }; break;
                 case 21: b.Course.Length = 256; beats = new[] { N(14), P(78), R(100), S(124), B(184), N(206), C(226), N(242) }; break;
                 case 22: b.Course.Length = 264; beats = new[] { W(18), N(42), B(106), W(128), R(152), S(176), P(236), N(256) }; break;
                 case 23: b.Course.Length = 272; beats = new[] { P(64), S(86), R(110), B(174), W(196), N(220), C(244), S(260) }; break;
-                default: b.Course.Length = 280; beats = new[] { P(64), N(86), B(154), S(176), P(244), W(266) }; break;
+                default: b.Course.Length = 280; beats = new[] { P(64), N(86), Q(154), S(176), P(244), W(266) }; break;
             }
 
             b.Course.Description = "Dar ve geniş geçişlerin ritmini oku; iki küreyi birlikte koru.";
@@ -114,7 +114,17 @@ namespace TetherRush.Course
             bool held = false;
             foreach (var beat in beats)
             {
-                if (beat.Kind == 'P' || beat.Kind == 'B')
+                if (beat.Kind == 'L')
+                {
+                    // Spread well before the pad; the linked gate is fourteen metres ahead.
+                    if (!held) LaterCue(b, beat.Z - 24, true);
+                    b.Relay(beat.Z - 14, beat.Z);
+                    b.Hint(beat.Z - 20, "BAĞ RÖLESİ • Basılı tut; geniş bağ röleyi açar, enerji harcamaz.");
+                    b.Bonuses(beat.Z + 3, 2.2f);
+                    held = true;
+                    continue;
+                }
+                if (beat.Kind == 'P' || beat.Kind == 'B' || beat.Kind == 'Q')
                 {
                     b.Course.UsesEnergy = true;
                     b.Course.Description = "Geçişleri zamanla; her işaretli hedef için beş yeni enerji topla ve menzilde bırak.";
@@ -122,7 +132,12 @@ namespace TetherRush.Course
                     b.Center(beat.Z - 40);
                     b.Charge(beat.Z - 32);
                     b.Bonuses(beat.Z - 10, 2.2f);
-                    b.PulseTarget(beat.Z, beat.Kind == 'P');
+                    if (beat.Kind == 'Q')
+                    {
+                        b.PulseLock(beat.Z);
+                        b.Hint(beat.Z - 9, "PULSE KİLİDİ • Amber işaretli hareketli kilide kadar basılı tut.");
+                    }
+                    else b.PulseTarget(beat.Z, beat.Kind == 'P');
                     LaterCue(b, beat.Z - 4, false, true);
                     held = false;
                     continue;
@@ -166,6 +181,8 @@ namespace TetherRush.Course
         private static Beat R(float z) => new Beat('R', z);
         private static Beat P(float z) => new Beat('P', z);
         private static Beat B(float z) => new Beat('B', z);
+        private static Beat L(float z) => new Beat('L', z);
+        private static Beat Q(float z) => new Beat('Q', z);
     }
 
     /// <summary>Shared authoring primitives. Offset also calibrates motion against global distance / 7.</summary>
@@ -174,6 +191,7 @@ namespace TetherRush.Course
         internal readonly CourseDefinition Course = new CourseDefinition();
         private readonly float offset;
         private readonly List<HazardSpec> hazards = new List<HazardSpec>();
+        private readonly List<RelaySpec> relays = new List<RelaySpec>();
         private readonly List<PickupSpec> pickups = new List<PickupSpec>();
         private readonly List<TimedHazard> timed = new List<TimedHazard>();
         private readonly List<HintSpec> hints = new List<HintSpec>();
@@ -203,6 +221,22 @@ namespace TetherRush.Course
         {
             hazards.Add(new HazardSpec { Label = label, Position = new Vector3(x, .65f, offset + z),
                 Size = new Vector3(width, 1.3f, depth), Marked = marked, Gate = gate, Reason = reason, Visual = visual });
+        }
+        internal void Relay(float padZ, float gateZ)
+        {
+            int id = relays.Count;
+            relays.Add(new RelaySpec { Id = id, Position = new Vector3(0, .55f, offset + padZ) });
+            Hazard("Bağ rölesi kapısı", 0, gateZ, 7.2f, .7f, false, true,
+                "Kapalı röle kapısı: önce iletken pedi geniş bağla etkinleştir.", VisualKind.EnergyGate);
+            hazards[hazards.Count - 1].RelayId = id;
+        }
+        internal void PulseLock(float z)
+        {
+            float absoluteZ = offset + z;
+            timed.Add(new TimedHazard { Kind = TimedHazardKind.MovingWall, PulseLock = true,
+                Center = new Vector2(0, absoluteZ), HalfExtents = new Vector2(3.6f, .35f),
+                Amplitude = .3f, AngularSpeed = .6f, Phase = -.6f * (absoluteZ / 7f),
+                Hint = "Pulse kilidi: beş enerjiyi sakla, amber işaret menzildeyken bırak." });
         }
         internal void Charge(float firstZ)
         {
@@ -239,7 +273,7 @@ namespace TetherRush.Course
         internal CourseDefinition Build()
         {
             Course.Hazards = hazards.ToArray(); Course.Pickups = pickups.ToArray();
-            Course.TimedHazards = timed.ToArray(); Course.Hints = hints.ToArray(); Course.SafeRoute = route.ToArray();
+            Course.Relays = relays.ToArray(); Course.TimedHazards = timed.ToArray(); Course.Hints = hints.ToArray(); Course.SafeRoute = route.ToArray();
             return Course;
         }
     }

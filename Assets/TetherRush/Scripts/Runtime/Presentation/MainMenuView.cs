@@ -136,7 +136,7 @@ namespace TetherRush.Presentation
             Label(endless.transform, "EN İYİ SKOR", 17, UiResources.Muted, 40, 246, 460, 30, false, TextAnchor.MiddleCenter);
             endlessRecord = Label(endless.transform, "0", 100, UiResources.Paper, 40, 283, 460, 126, true, TextAnchor.MiddleCenter);
             Rule(endless.transform, 40, 463, 460);
-            Label(endless.transform, "Küreleri engellerden koru.\nÇarpışana kadar devam et.", 22, UiResources.Paper, 40, 501, 460, 72, false, TextAnchor.MiddleCenter);
+            Label(endless.transform, "Skorun arttıkça tempo yükselir.\nKüreleri engellerden koru.", 22, UiResources.Paper, 40, 501, 460, 72, false, TextAnchor.MiddleCenter);
             Label(endless.transform, "Skor = tam metre + kristal × 100", 16, UiResources.Muted, 40, 589, 460, 28, false, TextAnchor.MiddleCenter);
             var start = Button("Start endless", endless.transform, 40, 731, 460, 84, UiResources.Paper, () => playEndless?.Invoke());
             Label(start.transform, "AKIŞA BAŞLA", 32, UiResources.Background, 24, 0, 345, 84, true);

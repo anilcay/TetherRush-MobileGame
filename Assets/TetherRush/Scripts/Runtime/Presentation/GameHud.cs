@@ -17,6 +17,7 @@ namespace TetherRush.Presentation
         public string CourseTitle;
         public bool Endless, CanGoHome, CanAdvance, TeachControls;
         public int Score, BestScore;
+        public float PaceMultiplier;
     }
 
     /// <summary>Presentation only; input, simulation and navigation remain callback owned.</summary>
@@ -118,7 +119,7 @@ namespace TetherRush.Presentation
             score.gameObject.SetActive(state.Endless);
             record.gameObject.SetActive(state.Endless);
             score.text = state.Score.ToString("N0");
-            record.text = "REKOR  " + state.BestScore.ToString("N0");
+            record.text = "REKOR  " + state.BestScore.ToString("N0") + (state.Endless ? "  ·  " + Mathf.Max(1, state.PaceMultiplier).ToString("0.0") + "×" : "");
             progressRail.SetActive(!state.Endless);
             float progress = state.FinishDistance > 0 ? Mathf.Clamp01(state.Distance / state.FinishDistance) : 0;
             displayedProgress = state.Phase == RunPhase.Ready ? 0 :
@@ -193,7 +194,8 @@ namespace TetherRush.Presentation
             }
             if (state.Phase == RunPhase.Running) coachRemaining = Mathf.Max(0, coachRemaining - Mathf.Max(0, dt));
             bool critical = current.IndexOf("MENZİLDE", StringComparison.OrdinalIgnoreCase) >= 0;
-            bool show = state.Phase == RunPhase.Running && (critical || (state.TeachControls && coachRemaining > 0));
+            bool contextual = current.StartsWith("BAĞ RÖLESİ", StringComparison.Ordinal) || current.StartsWith("PULSE KİLİDİ", StringComparison.Ordinal);
+            bool show = state.Phase == RunPhase.Running && (critical || ((state.TeachControls || contextual) && coachRemaining > 0));
             hint.gameObject.SetActive(show);
             if (!show) return;
             if (critical) hint.text = "MENZİLDE · BIRAK";
@@ -201,7 +203,7 @@ namespace TetherRush.Presentation
             {
                 int split = current.IndexOf('•');
                 string shortHint = (split >= 0 ? current.Substring(split + 1) : current).Trim();
-                hint.text = shortHint.Length > 36 || shortHint.Length == 0 ? "Basılı tut: açıl · Bırak: daral" : shortHint;
+                hint.text = shortHint.Length > 50 || shortHint.Length == 0 ? "Basılı tut: açıl · Bırak: daral" : shortHint;
             }
             hint.color = critical ? UiResources.Accent : UiResources.Paper;
         }

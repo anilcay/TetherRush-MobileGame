@@ -1,5 +1,7 @@
 # Engel görsel varyantları
 
+Bu belge0.6.0 tesliminin tarihsel kaydıdır. Güncel0.7.0 model kaynağı, ölçü ve görünüm için [sanat revizyonuna](OBSTACLE_ART_REVISION.md) bakın.
+
 04.11.2026 — Mevcut tesis dili içinde dört Blender görseli. Araştırma sentezi `Docs/Research/OBSTACLE_VARIANTS.md` ana yöneticiye aittir. Bu teslim yeni oynanış veya hareket sistemi tanımlamaz.
 
 | Model | Görsel kütle | Üçgen | Mesh / materyal |

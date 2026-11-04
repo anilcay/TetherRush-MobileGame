@@ -2,7 +2,7 @@ using System;
 
 namespace TetherRush.Course
 {
-    /// <summary>Five authored, composable patterns; no speed escalation or previous-charge requirement.</summary>
+    /// <summary>Five authored, composable patterns; each charge sequence is self-contained.</summary>
     public static class EndlessCourse
     {
         public const float ChunkLength = 112f;
@@ -17,7 +17,7 @@ namespace TetherRush.Course
             var b = new CourseBuilder(index * ChunkLength + jitter);
             b.Course.Id = "endless-" + seed + "-" + index;
             b.Course.Title = "Sonsuz Akış";
-            b.Course.Description = "Sabit tempoda ilerle. İki küreyi koru, bonuslarla skorunu artır.";
+            b.Course.Description = "Skor yükseldikçe hızlanan akışta iki küreyi koru, bonusları topla.";
             b.Course.Length = ChunkLength;
             switch (pattern)
             {
@@ -45,19 +45,19 @@ namespace TetherRush.Course
                     b.Hint(64, "BASILI TUT • Dönen kolun iki yanından geç.");
                     break;
                 case 3:
-                    b.Narrow(16); b.Center(36); b.WideMovingWall(56); b.Narrow(76); b.Center(94);
+                    b.Narrow(16); b.Center(36); b.Relay(42, 56); b.Narrow(76); b.Center(94);
                     b.Bonuses(44, 2.2f); b.Bonuses(62, 2.2f);
                     b.Cue(26, true); b.Cue(66, false); b.Cue(84, true); b.Cue(102, false);
-                    b.Hint(6, "AKIŞ • Orta bariyerden sonra hareketli duvarı da geniş geç.");
+                    b.Hint(6, "BAĞ RÖLESİ • Basılı tut; geniş bağ iletken pedi ve ilerideki kapıyı açar.");
                     b.Hint(64, "BIRAK • Dar geçitten sonra yeniden basılı tut.");
                     break;
                 default:
                     b.Course.UsesEnergy = true;
-                    b.Center(18); b.Charge(26); b.PulseTarget(58, false); b.Narrow(74); b.Center(94);
+                    b.Center(18); b.Charge(26); b.PulseLock(58); b.Narrow(74); b.Center(94);
                     b.Bonuses(46, 2.2f);
                     b.Cue(8, true); b.Cue(54, false); b.Cue(84, true); b.Cue(102, false);
-                    b.Hint(6, "BASILI TUT • Beş enerji, ardından işaretli blok.");
-                    b.Hint(53, "ŞİMDİ BIRAK • İşaretli bloğu Pulse ile kır.");
+                    b.Hint(6, "BASILI TUT • Beş enerji, ardından amber Pulse kilidi.");
+                    b.Hint(53, "ŞİMDİ BIRAK • Hareketli Pulse kilidini geri çek.");
                     b.Hint(82, "BASILI TUT • Son orta bariyer.");
                     break;
             }

@@ -28,7 +28,7 @@ for asset in manifest['assets']:
     # several contact heights, including points .0001 inside all four corners.
     # This explicitly catches an empty X/cross or chamfered contact footprint.
     inv=obj.matrix_world.inverted(); samples=0
-    for z in [-.49,-.10,0,.10,.15]:
+    for z in [-.49,-.10,0,.10,.111111,.13,.14]:
         for transverse in [-.4999,-.4,0,.4,.4999]:
             for axis in [0,1]:
                 start=Vector((-1,transverse,z) if axis==0 else (transverse,-1,z))

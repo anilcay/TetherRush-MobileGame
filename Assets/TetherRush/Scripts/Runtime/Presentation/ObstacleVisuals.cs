@@ -9,17 +9,8 @@ namespace TetherRush.Presentation
         public static VisualKind Resolve(string courseId, float distance, VisualKind original)
         {
             if (string.IsNullOrEmpty(courseId)) return original;
-            uint key = 2166136261u;
-            unchecked
-            {
-                foreach (char c in courseId) key = (key ^ c) * 16777619u;
-                key ^= (uint)Mathf.RoundToInt(distance * 4);
-                key ^= key >> 16; key *= 0x7feb352du; key ^= key >> 15;
-                key *= 0x846ca68bu; key ^= key >> 16;
-            }
-            // Keep a quarter of encounters in the familiar kit. A paired gate uses
-            // the same course/Z key on both sides, independent of world X.
-            if ((key & 3u) == 0) return original;
+            // One coherent revised kit throughout authored/endless routes. Legacy
+            // prototype scenes do not call this resolver and retain their original kit.
             switch (original)
             {
                 case VisualKind.SplitPylon: return VisualKind.ClampBarrier;

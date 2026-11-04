@@ -10,11 +10,12 @@
 
 ## Değişmez oynanış kuralları
 
-- Sabit otomatik ileri hareket, sabit ortak merkez, simetrik açılma/kapanma.
+- Bölümlerde sabit otomatik ileri hareket; Sonsuz Akış'ta kullanıcı onayıyla skora göre yumuşak ve üst sınırlandırılmış hız artışı. Sabit ortak merkez, simetrik açılma/kapanma.
 - Basılı tutmak açar; bırakmak daraltır. İkinci Pulse düğmesi yoktur.
 - Enerji doluyken gerçek bırakma olayı tek Pulse üretir ve enerjiyi tüketir. Kısmi enerji Pulse üretmez.
 - Bağ enerji toplar; küreler bonus kristal toplar ve ölümcül engelle çarpışır. Bağ normal engellerden geçer.
 - Pulse yalnızca kısa menzildeki özel işaretli hedefleri etkiler; normal ölümcül engelleri yok etmez.
+- Onaylı bağ rölesi, geniş bağın iletken pedden geçmesiyle eşleşen kapıyı enerjisiz açar. Amber işaretli hareketli Pulse kilidi yalnız tam enerjili menzil içi Pulse ile güvenli konuma çekilir.
 - Kürelerden biri ölümcül engele çarparsa deneme biter.
 
 ## Üretim ve teslim

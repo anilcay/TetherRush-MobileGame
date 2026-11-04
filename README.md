@@ -4,7 +4,7 @@ Unity ile geliştirilecek, ortak bir enerji bağıyla bağlı iki küreyi tek pa
 
 ## Durum
 
-Güncel paket **0.6.0 (7)**: dört özgün Blender engel modeli — kenet bloğu, kapasitör bankası, hidrolik kızak ve türbin kiriş. Modeller bölüm parkurlarında ve Sonsuz Akış'ta kararlı biçimde çeşitlenir. **25 bölüm**, sıralı açılma, tek tut/bırak/Pulse oynanışı, kayıtlar ve yenilenen UI korunur. **191/191 Unity testi**, Windows build ve imzası doğrulanan Android APK geçti. Sonuçlar [doğrulama kaydında](Docs/QA/OBSTACLE_VARIANTS_VALIDATION.md). Fiziksel cihaz testi son aşamadadır.
+Güncel paket **0.7.0 (8)**: sade grafit engeller, **bağ rölesi**, **hareketli Pulse kilidi** ve skora göre hızlanan **Sonsuz Akış**. Röle geniş bağla pedden geçince enerji harcamadan bağlı kapıyı açar. Amber Pulse kilidi tam enerjiyle menzilde bırakılınca yana çekilir. Sonsuz tempo 500 skor sonrası yumuşakça 7→11,5 m/sn artar; bonuslar ani hız sıçraması yapmaz. Bölümler 7 m/sn kalır. **25 bölüm**, sıralı açılma ve kayıtlar korunur. **231/231 Unity testi**, Windows ve imzası doğrulanan Android build geçti. Sonuçlar [doğrulama kaydında](Docs/QA/SYSTEMS_VALIDATION.md); fiziksel cihaz testi son aşamadadır.
 
 - Hedef: **Android telefon, dikey ekran** (kullanıcı onayı: 31.10.2026).
 - Tasarım kaynağı: [GDD v2.0](Docs/Source/Tether_Rush_GDD_v2.pdf), 31.10.2026.
@@ -13,6 +13,12 @@ Güncel paket **0.6.0 (7)**: dört özgün Blender engel modeli — kenet bloğu
 - Kaynak depo: https://github.com/anilcay/TetherRush-MobileGame
 
 ## Proje kayıtları
+
+- [Yeni sistemler doğrulaması](Docs/QA/SYSTEMS_VALIDATION.md)
+- [Sade tasarım ve mekanik araştırması](Docs/Research/INTERACTIVE_REDESIGN.md)
+- [Engel sanat revizyonu](Docs/Art/OBSTACLE_ART_REVISION.md)
+- [Bağ rölesi / Pulse kilidi](Docs/Design/INTERACTIVE_COURSE.md)
+- [Sonsuz tempo ayarı](Docs/Design/ENDLESS_PACE.md)
 
 - [Engel modelleri doğrulaması](Docs/QA/OBSTACLE_VARIANTS_VALIDATION.md)
 - [Kısa engel araştırması](Docs/Research/OBSTACLE_VARIANTS.md)
@@ -53,11 +59,11 @@ Güncel paket **0.6.0 (7)**: dört özgün Blender engel modeli — kenet bloğu
 
 Haritada **1–25** numaraları vardır. Yeni profilde yalnız 1 açıktır. Bir bölümü iki küreyle bitirmek sonraki düğümü açar; tamamlananlar tekrar oynanabilir. Başarı ve en iyi bonus cihazda saklanır. Sonuç ekranında **Sonraki bölüm**, duraklatma/sonuç ekranında **Haritaya dön** bulunur. Harita dönüşte son oynanan veya yeni açılan düğüme odaklanır. Tamamlanan, sıradaki ve kilitli durumlar sayı, renk ve check/lock işaretleriyle ayrılır.
 
-İlk bölümde yeni kenet ve kapasitör modelleri, dördüncü bölümden itibaren hidrolik kızak ve türbin kiriş görülebilir. Modeller mevcut engel rollerinin görsel çeşitleridir; temas, hareket fazı ve kontrol değişmez. Aynı parkuru yeniden açmak aynı modeli seçer.
+İlk bölümden itibaren sade omuz/kama engelleri, dördüncüde kayan/dönen tipler görülebilir. **Bölüm 6** bağ rölesini öğretir: zemindeki iki cyan iletkeni geniş bağla kapsa; ilerideki bağlı kapı açılır. **Bölüm 8** amber hareketli Pulse kilidini öğretir: beş enerjiyi sakla, MENZİLDE yazısında bırak. Röleye Pulse işlemez; normal engellere de Pulse işlemez.
 
 İlk beşin oynanış yerleşimleri korunur. 20 yeni parkur; dar/geniş ritmi, hareketli duvar, dönen kol ve birden fazla bağımsız Pulse dizisini birleştirir. En uzun bölüm 280 m'dir. Ayrı bölüm isimleri kullanılmaz. Önceki beş bölümlük v1 kayıt, 25 bölümlük v2 yapıya kayıpsız genişler; eski ilerleme geri alınmaz.
 
-**Sonsuz Akış** ekranından **Akışa başla**: sabit hızda devam eden, beş kalıpla çeşitlenen parkurda çarpışana kadar skor topla. Her tam metre 1, her bonus kristal 100 puandır. En iyi skor deneme sonunda saklanır. Tekrar deneme skoru/parkuru sıfırlar, rekoru korur.
+**Sonsuz Akış** ekranından **Akışa başla**: skora göre temposu artan, beş kalıpla çeşitlenen parkurda çarpışana kadar skor topla. Her tam metre 1, her bonus kristal 100 puandır. İlk500 skordan sonra tempo artar, 5500 hedefinde11,5m/sn tavanına yaklaşır; hız değişimi en fazla0,25m/sn² ile yumuşatılır. En iyi skor deneme sonunda saklanır. Tekrar deneme skor/parkur/hızı sıfırlar, rekoru korur.
 
 **Ayarlar** ses açık/kapalı, ses düzeyi ve kontrol açıklamasını içerir. Tercihler uygulama yeniden açılınca korunur. Kamera ve GUI görüntüleri otomatik testte gerçek URP'den alınır; ses duyumu ve fiziksel cihaz kabulü ayrıca bekler.
 
@@ -76,7 +82,7 @@ Unity Editor'ü kapattıktan sonra proje kökünde PowerShell ile:
 ./Tools/Unity.ps1 -Action Android
 ```
 
-`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-ObstacleVariants.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-obstacle-variants/TetherRush.exe` altında üretir. Eski M1/M2/cila/ilk menü çıktıları karşılaştırma için ayrı klasörlerde korunur.
+`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-Systems.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-systems/TetherRush.exe` altında üretir. Eski M1/M2/cila/ilk menü çıktıları karşılaştırma için ayrı klasörlerde korunur.
 
 Android araçları Türkçe karakter içeren proje yollarını kabul etmez. Bu klasör için `-Action Android` aynı depoya işaret eden geçici bir ASCII junction yolunu otomatik kullanır; kaynaklar taşınmaz veya kopyalanmaz. Bağlantı TEMP altında kalır ve tekrar kullanılır. Editor'dan doğrudan Android build almak için de ASCII bir proje yolu gerekir; mevcut klasörde Editor oynanışı etkilenmez.
 

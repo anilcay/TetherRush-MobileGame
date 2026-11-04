@@ -138,9 +138,9 @@ namespace TetherRush.Tests
         private void AssertPose(Transform view, TimedHazard h)
         {
             var p = h.PositionAt(game.Model.Distance / 7);
-            AssertVector(view.position, new Vector3(p.x, .65f, p.y), .001f, "Authoritative translation");
+            AssertVector(view.position, new Vector3(p.x, .45f, p.y), .001f, "Authoritative translation");
             Assert.That(Quaternion.Angle(view.rotation, Quaternion.Euler(0, -h.AngleAt(game.Model.Distance / 7) * Mathf.Rad2Deg, 0)), Is.LessThan(.002f));
-            AssertVector(view.localScale, new Vector3(h.HalfExtents.x * 2, 1.3f, h.HalfExtents.y * 2), .025f, "Timed scale");
+            AssertVector(view.localScale, new Vector3(h.HalfExtents.x * 2, .9f, h.HalfExtents.y * 2), .025f, "Timed scale");
         }
 
         [Test]
@@ -237,7 +237,9 @@ namespace TetherRush.Tests
             var prefab = Resources.Load<GameObject>("ArtModels/" + e.Kind);
             Assert.That(prefab, Is.Not.Null, e.Kind + " FBX");
             var mesh = prefab.GetComponentInChildren<MeshFilter>().sharedMesh;
-            foreach (var f in root.GetComponentsInChildren<MeshFilter>())
+            // Opened Pulse locks retain their authoritative source until chunk retirement,
+            // while the presentation snapshot retracts and the source stays hidden.
+            foreach (var f in root.GetComponentsInChildren<MeshFilter>(true))
                 if (f.sharedMesh == mesh)
                 {
                     var t = f.transform;
@@ -247,8 +249,9 @@ namespace TetherRush.Tests
                 }
             Assert.Fail("Actual game did not instantiate " + e.Kind + " at " + e.Z); return null;
         }
-        private static Vector3 Size(Encounter e) => e.Static != null ? e.Static.Size :
-            new Vector3(e.Timed.HalfExtents.x * 2, 1.3f, e.Timed.HalfExtents.y * 2);
+        private static Vector3 Size(Encounter e) => e.Static != null ?
+            new Vector3(e.Static.Size.x, .9f, e.Static.Size.z) :
+            new Vector3(e.Timed.HalfExtents.x * 2, .9f, e.Timed.HalfExtents.y * 2);
         private static Bounds CombinedBounds(Transform t)
         {
             var renderers = t.GetComponentsInChildren<MeshRenderer>(); Bounds b = renderers[0].bounds;

@@ -99,7 +99,7 @@ namespace TetherRush.Tests
                 Assert.That(h.Size.x, Is.GreaterThan(0)); Assert.That(h.Size.y, Is.GreaterThan(0));
                 Assert.That(h.Size.z, Is.GreaterThan(0));
                 Assert.That(h.Reason, Is.Not.Empty);
-                if (h.Gate) Assert.That(h.Marked, Is.True);
+                if (h.Gate) Assert.That(h.Marked || h.RelayId >= 0, Is.True);
             }
             foreach (var p in course.Pickups)
             { Finite(p.Position); Assert.That(p.Position.z, Is.InRange(start, end)); }
@@ -127,10 +127,12 @@ namespace TetherRush.Tests
 
         private static void ValidatePulseSequence(CourseDefinition c)
         {
-            foreach (var target in c.Hazards)
+            var targets = new System.Collections.Generic.List<float>();
+            foreach (var target in c.Hazards) if (target.Marked) targets.Add(target.Position.z);
+            foreach (var target in c.TimedHazards) if (target.PulseLock) targets.Add(target.Center.y);
+            foreach (float target in targets)
             {
-                if (!target.Marked) continue;
-                float release = target.Position.z - 4;
+                float release = target - 4;
                 int cueIndex = Array.FindIndex(c.SafeRoute, cue => !cue.Press && Mathf.Abs(cue.Distance - release) < .001f);
                 Assert.That(cueIndex, Is.GreaterThan(0));
                 float press = c.SafeRoute[cueIndex - 1].Distance;

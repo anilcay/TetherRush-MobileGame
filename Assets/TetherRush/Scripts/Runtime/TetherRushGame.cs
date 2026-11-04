@@ -26,6 +26,17 @@ namespace TetherRush
         public int Score => Model == null ? 0 : PlayerSaveStore.CalculateScore(Model.Distance, Model.Bonus);
         public int ActiveChunkCount => chunks.Count;
         public int ActivePickupCount => pickups.Count;
+        public float CurrentForwardSpeed => IsEndless ? pace.CurrentSpeed : tuning.ForwardSpeed;
+        public int ActivatedRelayCount { get; private set; }
+        public int ClosedPulseLockCount
+        {
+            get { int count = 0; foreach (var h in timedHazards) if (h.PulseLock && !openedTimed.Contains(h)) count++; return count; }
+        }
+        public MechanicFeedback MechanicFeedback { get; private set; }
+        private readonly EndlessPace pace = new EndlessPace();
+        private readonly HashSet<TimedHazard> openedTimed = new HashSet<TimedHazard>();
+        private sealed class RelayLink { public RelaySpec Spec; public Hazard Target; public GameObject View; public bool Open; }
+        private readonly List<RelayLink> relays = new List<RelayLink>();
         public event System.Action<RunPhase> PhaseChanged;
         public event System.Action HomeRequested, NextRequested;
         private CourseDefinition definition;
@@ -68,7 +79,7 @@ namespace TetherRush
         private readonly List<Material> materials = new List<Material>();
         private readonly List<RaycastResult> uiHits = new List<RaycastResult>();
         private readonly float[] sweepTimes = new float[6];
-        private Material trackMat, redMat, goldMat, tealMat, peachMat, purpleMat, lineMat, darkMat, accentMat, dangerAccentMat, pulseAccentMat, tetherMat;
+        private Material trackMat, redMat, goldMat, tealMat, peachMat, purpleMat, lineMat, darkMat, accentMat, dangerAccentMat, pulseAccentMat, tetherMat, relayWireMat;
         private VisualLibrary visuals;
         private TimedHazard[] timedHazards = new TimedHazard[0];
         private Transform[] timedViews = new Transform[0];
@@ -89,6 +100,8 @@ namespace TetherRush
             Feedback = gameObject.AddComponent<GameFeedback>();
             Feedback.Initialize(LeftCore, RightCore, tether, gameCamera, tetherMat, tuning.PulseRadius);
             Feedback.AudioEnabled = !Application.isBatchMode && preferredAudio;
+            MechanicFeedback = gameObject.AddComponent<MechanicFeedback>();
+            MechanicFeedback.Initialize();
             BuildHud();
             RefreshVisuals(0);
         }
@@ -97,10 +110,14 @@ namespace TetherRush
         {
             ClearPointer();
             Model.StartRun();
+            pace.Reset(); openedTimed.Clear(); ActivatedRelayCount = 0;
+            MechanicFeedback.ResetPresentation();
             if (IsEndless) ResetStream();
             ActivatedTargetCount = 0;
             foreach (var h in hazards) { h.Open = false; h.View.SetActive(true); if (h.OpenFrame != null) h.OpenFrame.SetActive(false); }
             foreach (var c in pickups) c.View.SetActive(true);
+            foreach (var relay in relays) relay.Open = false;
+            foreach (var view in timedViews) view.gameObject.SetActive(true);
             lastPhase = (RunPhase)(-1);
             RefreshVisuals(0);
             // Reset wakes after the simulation roots have returned to their new start poses.
@@ -131,7 +148,8 @@ namespace TetherRush
             {
                 float step = Mathf.Min(remaining, 1f / 120f);
                 float oldZ = Model.Distance, oldHalf = Model.HalfSeparation;
-                Model.Tick(step);
+                if (IsEndless) Model.Tick(step, pace.Advance(step, Score));
+                else Model.Tick(step);
                 if (IsEndless) MaintainStream();
                 ResolveContacts(oldZ, oldHalf);
                 // Resolve the input in the first simulation step, not after an entire slow frame.
@@ -160,9 +178,22 @@ namespace TetherRush
             }
             float startTime = oldZ / tuning.ForwardSpeed, endTime = Model.Distance / tuning.ForwardSpeed;
             foreach (var h in timedHazards)
-                if (h.HitsSweptSphere(a, b, tuning.SphereRadius, startTime, endTime) ||
-                    h.HitsSweptSphere(new Vector2(-a.x, a.y), new Vector2(-b.x, b.y), tuning.SphereRadius, startTime, endTime))
+                if (!openedTimed.Contains(h) && (h.HitsSweptSphere(a, b, tuning.SphereRadius, startTime, endTime) ||
+                    h.HitsSweptSphere(new Vector2(-a.x, a.y), new Vector2(-b.x, b.y), tuning.SphereRadius, startTime, endTime)))
                 { Model.Fail(h.Hint); return; }
+            foreach (var relay in relays)
+            {
+                float z = relay.Spec.Position.z;
+                if (relay.Open || z < oldZ || z > Model.Distance) continue;
+                float t = Model.Distance > oldZ ? (z - oldZ) / (Model.Distance - oldZ) : 0;
+                if (Mathf.Lerp(oldHalf, Model.HalfSeparation, t) + .00001f < relay.Spec.RequiredHalfSpan) continue;
+                relay.Open = true; relay.Target.Open = true; ActivatedRelayCount++;
+                MechanicFeedback.RelayTriggered(relay.Spec.Position, relay.Target.Bounds.center);
+                Feedback.RelayConnected();
+                MechanicFeedback.Retract(relay.Target.View.transform);
+                relay.Target.View.SetActive(false);
+                if (relay.Target.OpenFrame != null) relay.Target.OpenFrame.SetActive(true);
+            }
             foreach (var c in pickups)
             {
                 if (!c.View.activeSelf) continue;
@@ -236,7 +267,26 @@ namespace TetherRush
                     ActivatedTargetCount++;
                 }
             }
+            for (int i = 0; i < timedHazards.Length; i++)
+            {
+                var h = timedHazards[i];
+                if (!h.PulseLock || openedTimed.Contains(h) || !PulseLockInRange(h)) continue;
+                openedTimed.Add(h); ActivatedTargetCount++;
+                MechanicFeedback.Retract(timedViews[i]);
+                timedViews[i].gameObject.SetActive(false);
+            }
             Feedback.Pulse(center);
+        }
+
+        private bool PulseLockInRange(TimedHazard h)
+        {
+            float time = Model.Distance / tuning.ForwardSpeed;
+            Vector2 delta = new Vector2(0, Model.Distance) - h.PositionAt(time);
+            float angle = h.AngleAt(time), cos = Mathf.Cos(angle), sin = Mathf.Sin(angle);
+            Vector2 local = new Vector2(cos * delta.x + sin * delta.y, -sin * delta.x + cos * delta.y);
+            Vector2 outside = new Vector2(Mathf.Max(0, Mathf.Abs(local.x) - h.HalfExtents.x),
+                Mathf.Max(0, Mathf.Abs(local.y) - h.HalfExtents.y));
+            return outside.sqrMagnitude <= tuning.PulseRadius * tuning.PulseRadius + .00001f;
         }
 
         private void PollInput(out bool press, out bool release)
@@ -296,20 +346,23 @@ namespace TetherRush
             if (material.HasProperty("_EmissionColor")) material.SetColor("_EmissionColor", color * .12f);
             materials.Add(material); return material;
         }
-        private GameObject ModelVisual(VisualKind kind, string label, Vector3 pos, Vector3 size, Material material)
+        private GameObject ModelVisual(VisualKind kind, string label, Vector3 pos, Vector3 size, Material material, Material edgeOverride = null)
         {
+            if (kind == VisualKind.ClampBarrier || kind == VisualKind.CapacitorBank ||
+                kind == VisualKind.HydraulicSlider || kind == VisualKind.TurbineBeam)
+            { pos.y = .45f; size.y = .9f; }
             Material edge = kind == VisualKind.TrackTile || kind == VisualKind.RelayPylon ? lineMat :
                 kind == VisualKind.Barrier || kind == VisualKind.SplitPylon || kind == VisualKind.ChevronBarrier ||
                 kind == VisualKind.ClampBarrier || kind == VisualKind.CapacitorBank ||
                 kind == VisualKind.HydraulicSlider || kind == VisualKind.TurbineBeam ||
                 kind == VisualKind.MovingWall || kind == VisualKind.RotatingArm ? dangerAccentMat :
                 kind == VisualKind.EnergyGate || kind == VisualKind.BreakableBlock || kind == VisualKind.PulseBadge ? pulseAccentMat : null;
-            return visuals.Create(kind, label, spawnParent != null ? spawnParent : world, pos, size, material, edge);
+            return visuals.Create(kind, label, spawnParent != null ? spawnParent : world, pos, size, material, edgeOverride != null ? edgeOverride : edge);
         }
-        private void AddHazard(string label, Vector3 pos, Vector3 size, bool marked, string reason, bool gate = false, VisualKind variant = VisualKind.Barrier)
+        private Hazard AddHazard(string label, Vector3 pos, Vector3 size, bool marked, string reason, bool gate = false, VisualKind variant = VisualKind.Barrier, bool relayGate = false)
         {
             var obj = ModelVisual(marked ? (gate ? VisualKind.EnergyGate : VisualKind.BreakableBlock) : variant,
-                label, pos, size, marked ? goldMat : redMat);
+                label, pos, size, marked ? goldMat : redMat, relayGate ? tealMat : null);
             var hazard = new Hazard { Bounds = new Bounds(pos, size), View = obj, Marked = marked, Gate = gate, Reason = reason };
             hazards.Add(hazard);
             if (gate)
@@ -333,6 +386,7 @@ namespace TetherRush
                 var sign = ModelVisual(VisualKind.PulseBadge, label + " pulse mark", pos + new Vector3(0, 1.1f, 0), new Vector3(.65f, .65f, .12f), goldMat);
                 sign.transform.SetParent(obj.transform, true);
             }
+            return hazard;
         }
         private void BuildWorld()
         {
@@ -348,6 +402,9 @@ namespace TetherRush
             accentMat = MakeMaterial("Edge accents", VisualTheme.Silver);
             dangerAccentMat = MakeMaterial("Fatal warning lights", VisualTheme.Danger);
             pulseAccentMat = MakeMaterial("Pulse target lights", VisualTheme.PulseAccent);
+            relayWireMat = new Material(Shader.Find("Tether Rush/NeonEffect")) { name = "Relay floor conductor" };
+            var wireColor = VisualTheme.Tether; wireColor.a = .2f;
+            relayWireMat.SetColor("_BaseColor", wireColor); materials.Add(relayWireMat);
             visuals = new VisualLibrary(darkMat, accentMat);
             if (IsEndless)
             {
@@ -418,19 +475,54 @@ namespace TetherRush
         }
         private void BuildContent(CourseDefinition course, List<Transform> movingViews)
         {
-            foreach (var h in course.Hazards) AddHazard(h.Label, h.Position, h.Size, h.Marked, h.Reason, h.Gate,
-                h.Marked ? h.Visual : ObstacleVisuals.Resolve(course.Id, h.Position.z, h.Visual));
+            var relayGates = new Dictionary<int, Hazard>();
+            foreach (var h in course.Hazards)
+            {
+                var hazard = AddHazard(h.Label, h.Position, h.Size, h.Marked, h.Reason, h.Gate,
+                    h.Marked ? h.Visual : ObstacleVisuals.Resolve(course.Id, h.Position.z, h.Visual), h.RelayId >= 0);
+                if (h.RelayId >= 0) relayGates.Add(h.RelayId, hazard);
+            }
+            foreach (var spec in course.Relays)
+            {
+                var root = new GameObject("Bağ rölesi"); root.transform.SetParent(spawnParent != null ? spawnParent : world, false);
+                var gate = relayGates[spec.Id];
+                RelayWire(root.transform, new Vector3(-spec.RequiredHalfSpan, .08f, spec.Position.z),
+                    new Vector3(spec.RequiredHalfSpan, .08f, spec.Position.z));
+                RelayWire(root.transform, new Vector3(0, .065f, spec.Position.z), new Vector3(0, .065f, gate.Bounds.center.z));
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    var pad = ModelVisual(VisualKind.EnergyPickup, "Relay receiver", new Vector3(side * spec.RequiredHalfSpan, .08f, spec.Position.z),
+                        new Vector3(.48f, .14f, .7f), tealMat, tealMat);
+                    pad.transform.SetParent(root.transform, true);
+                }
+                relays.Add(new RelayLink { Spec = spec, Target = gate, View = root });
+            }
             foreach (var p in course.Pickups) AddPickup(p.Position, p.Bonus, nextPickupId++);
             foreach (var h in course.TimedHazards)
-                movingViews.Add(ModelVisual(ObstacleVisuals.Resolve(course.Id, h.Center.y,
+            {
+                var view = ModelVisual(ObstacleVisuals.Resolve(course.Id, h.Center.y,
                     h.Kind == TimedHazardKind.RotatingArm ? VisualKind.RotatingArm : VisualKind.MovingWall),
                     "Timed hazard", new Vector3(h.Center.x, .65f, h.Center.y),
-                    new Vector3(h.HalfExtents.x * 2, 1.3f, h.HalfExtents.y * 2), redMat).transform);
+                    new Vector3(h.HalfExtents.x * 2, 1.3f, h.HalfExtents.y * 2), h.PulseLock ? goldMat : redMat,
+                    h.PulseLock ? pulseAccentMat : null).transform;
+                movingViews.Add(view);
+                if (!h.PulseLock) continue;
+                var sign = ModelVisual(VisualKind.PulseBadge, "Moving Pulse lock mark", view.position + Vector3.up * .85f,
+                    new Vector3(.55f, .55f, .12f), goldMat);
+                sign.transform.SetParent(view, true);
+            }
+        }
+        private void RelayWire(Transform parent, Vector3 a, Vector3 b)
+        {
+            var go = new GameObject("Relay conductor", typeof(LineRenderer)); go.transform.SetParent(parent, false);
+            var line = go.GetComponent<LineRenderer>(); line.sharedMaterial = relayWireMat;
+            line.useWorldSpace = true; line.positionCount = 2; line.widthMultiplier = .022f;
+            line.SetPosition(0, a); line.SetPosition(1, b);
         }
         private void ResetStream()
         {
             foreach (var chunk in chunks) { chunk.Root.gameObject.SetActive(false); Destroy(chunk.Root.gameObject); }
-            chunks.Clear(); hazards.Clear(); pickups.Clear(); nextChunkIndex = nextPickupId = 0;
+            chunks.Clear(); hazards.Clear(); pickups.Clear(); relays.Clear(); openedTimed.Clear(); nextChunkIndex = nextPickupId = 0;
             MaintainStream();
         }
         private void MaintainStream()
@@ -440,6 +532,8 @@ namespace TetherRush
             {
                 var retired = chunks[0];
                 hazards.RemoveAll(h => h.View.transform.IsChildOf(retired.Root));
+                relays.RemoveAll(r => r.View.transform.IsChildOf(retired.Root));
+                foreach (var timed in retired.Data.TimedHazards) openedTimed.Remove(timed);
                 for (int i = pickups.Count - 1; i >= 0; i--)
                     if (pickups[i].View.transform.IsChildOf(retired.Root))
                     { Model.RetireCollectible(pickups[i].Id); pickups.RemoveAt(i); }
@@ -466,6 +560,17 @@ namespace TetherRush
         }
         private string AuthoredHint()
         {
+            foreach (var h in timedHazards)
+                if (h.PulseLock && Mathf.Abs(h.Center.y - Model.Distance) < 8)
+                {
+                    if (openedTimed.Contains(h)) return "KİLİT AÇILDI • Geçit hazır.";
+                    return Model.Energy == tuning.EnergyCapacity && PulseLockInRange(h)
+                        ? "MENZİLDE • Şimdi BIRAK!" : "PULSE KİLİDİ • Enerjiyi sakla, işarette bırak.";
+                }
+            foreach (var relay in relays)
+                if (Model.Distance >= relay.Spec.Position.z - 18 && Model.Distance < relay.Target.Bounds.center.z)
+                    return relay.Open ? "RÖLE AÇILDI • Geçit hazır."
+                        : "BAĞ RÖLESİ • İletken pedleri bağlamak için basılı tut.";
             CourseDefinition course = definition;
             if (IsEndless)
                 foreach (var chunk in chunks) if (Model.Distance >= chunk.Index * EndlessCourse.ChunkLength && Model.Distance < (chunk.Index + 1) * EndlessCourse.ChunkLength) { course = chunk.Data; break; }
@@ -540,7 +645,7 @@ namespace TetherRush
             for (int i = 0; i < timedHazards.Length; i++)
             {
                 var position = timedHazards[i].PositionAt(runTime);
-                timedViews[i].SetPositionAndRotation(new Vector3(position.x, .65f, position.y),
+                timedViews[i].SetPositionAndRotation(new Vector3(position.x, timedViews[i].position.y, position.y),
                     Quaternion.Euler(0, -timedHazards[i].AngleAt(runTime) * Mathf.Rad2Deg, 0));
             }
             gameCamera.transform.position = new Vector3(0, 10, z - 11);
@@ -554,11 +659,12 @@ namespace TetherRush
                 EnergyCapacity = tuning.EnergyCapacity, Bonus = Model.Bonus, ActivatedTargets = ActivatedTargetCount,
                 Hint = definition != null || IsEndless ? AuthoredHint() : SectionHint(Section()), FailureReason = Model.FailureReason,
                 CourseTitle = IsEndless ? "SONSUZ AKIŞ" : definition != null ? "BÖLÜM " + (SelectedLevelIndex + 1).ToString("00") : null,
-                Endless = IsEndless, Score = Score, BestScore = BestScore,
-                TeachControls = !IsEndless && (definition == null || SelectedLevelIndex < 5),
+                Endless = IsEndless, Score = Score, BestScore = BestScore, PaceMultiplier = CurrentForwardSpeed / tuning.ForwardSpeed,
+                TeachControls = !IsEndless && (definition == null || SelectedLevelIndex < 5 || definition.Relays.Length > 0 || System.Array.Exists(definition.TimedHazards, h => h.PulseLock)),
                 CanGoHome = NavigationEnabled, CanAdvance = NavigationEnabled && SelectedLevelIndex >= 0 && SelectedLevelIndex + 1 < LevelCatalog.Count
             }, Model.Phase == RunPhase.Paused ? 0 : dt);
             Feedback.Tick(Model.Phase == RunPhase.Paused ? 0 : dt, Model.IsHeld, Model.Energy == tuning.EnergyCapacity, Model.Phase);
+            MechanicFeedback.Tick(Model.Phase == RunPhase.Paused ? 0 : dt);
             if (lastPhase == Model.Phase) return;
             lastPhase = Model.Phase;
             if (Model.Phase == RunPhase.Failed) Feedback.Failed();

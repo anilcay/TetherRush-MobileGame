@@ -38,7 +38,7 @@
   "assets": [
     {
       "id": "ClampBarrier",
-      "triangles": 348,
+      "triangles": 116,
       "mesh_count": 1,
       "material_slots": [
         "Body",
@@ -62,14 +62,14 @@
       ],
       "contact_slab_source_z": [
         -0.5,
-        0.16
+        0.14
       ],
-      "sha256": "4f63b8091e48799a9693086b950a96a67e5de35647ca5179e133ab6bc7c96881",
-      "bytes": 25948
+      "sha256": "bb83f27af6ab7411a60593ae1dab00b1117eab12281bd025033c0eb51b2ebfe9",
+      "bytes": 21068
     },
     {
       "id": "CapacitorBank",
-      "triangles": 624,
+      "triangles": 116,
       "mesh_count": 1,
       "material_slots": [
         "Body",
@@ -93,14 +93,14 @@
       ],
       "contact_slab_source_z": [
         -0.5,
-        0.16
+        0.14
       ],
-      "sha256": "d93a778e1c502c4cf7c6b21a9573ec16093be430d1c5cd2c709e39d39c9fe4d3",
-      "bytes": 30844
+      "sha256": "2c033dbffac6edff5e020a009f6892ebfbe3489362ec0f46e1750e77acb8af1b",
+      "bytes": 21324
     },
     {
       "id": "HydraulicSlider",
-      "triangles": 424,
+      "triangles": 116,
       "mesh_count": 1,
       "material_slots": [
         "Body",
@@ -124,14 +124,14 @@
       ],
       "contact_slab_source_z": [
         -0.5,
-        0.16
+        0.14
       ],
-      "sha256": "f80a8f14422662acf84e8fd990cad10707653e45ceb81fea5953425909ffa926",
-      "bytes": 27788
+      "sha256": "847130388ff8a1eff1b33c0d97450c681a07212c44d65bab2221569a878cd4ea",
+      "bytes": 21228
     },
     {
       "id": "TurbineBeam",
-      "triangles": 336,
+      "triangles": 196,
       "mesh_count": 1,
       "material_slots": [
         "Body",
@@ -155,10 +155,10 @@
       ],
       "contact_slab_source_z": [
         -0.5,
-        0.16
+        0.14
       ],
-      "sha256": "f269e561d031031d3a51fe393a4ae5ba0c545645998fd679bbcd5f8102c0adb8",
-      "bytes": 25964
+      "sha256": "3a7891ac929b4f07643a280840caa6c100abb5fe73b92fbdd79cc1e889e3a51e",
+      "bytes": 22988
     }
   ]
 }

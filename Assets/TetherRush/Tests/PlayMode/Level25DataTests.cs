@@ -82,14 +82,15 @@ namespace TetherRush.Tests
             for (int i = 0; i < LevelCatalog.Count; i++)
             {
                 var c = LevelCatalog.Get(i);
-                int targets = 0;
-                foreach (var target in c.Hazards)
+                var targetPositions = new List<float>();
+                foreach (var target in c.Hazards) if (target.Marked) targetPositions.Add(target.Position.z);
+                foreach (var target in c.TimedHazards) if (target.PulseLock) targetPositions.Add(target.Center.y);
+                int targets = targetPositions.Count;
+                foreach (float target in targetPositions)
                 {
-                    if (!target.Marked) continue;
-                    targets++;
                     Assert.That(c.UsesEnergy, Is.True);
                     int releaseIndex = Array.FindIndex(c.SafeRoute,
-                        cue => !cue.Press && Mathf.Abs(cue.Distance - (target.Position.z - 4)) < .001f);
+                        cue => !cue.Press && Mathf.Abs(cue.Distance - (target - 4)) < .001f);
                     Assert.That(releaseIndex, Is.GreaterThan(0), c.Id);
                     var press = c.SafeRoute[releaseIndex - 1];
                     Assert.That(press.Press, Is.True);
@@ -106,7 +107,8 @@ namespace TetherRush.Tests
                 if (targets > 1) multiPulseLevels++;
             }
             Assert.That(multiPulseLevels, Is.GreaterThanOrEqualTo(6));
-            Assert.That(Array.FindAll(LevelCatalog.Get(24).Hazards, h => h.Marked).Length, Is.EqualTo(3));
+            var last = LevelCatalog.Get(24);
+            Assert.That(Array.FindAll(last.Hazards, h => h.Marked).Length + Array.FindAll(last.TimedHazards, h => h.PulseLock).Length, Is.EqualTo(3));
         }
 
         [Test]

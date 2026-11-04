@@ -9,6 +9,7 @@ namespace TetherRush.Course
     public sealed class TimedHazard
     {
         public TimedHazardKind Kind;
+        public bool PulseLock;
         public Vector2 Center;
         public Vector2 HalfExtents;
         public float Amplitude, AngularSpeed, Phase;

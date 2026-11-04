@@ -16,7 +16,7 @@ scene.world = bpy.data.worlds.new('ObstacleVariantsWorld')
 scene.unit_settings.system = 'METRIC'
 scene.unit_settings.scale_length = 1
 mats = {}
-for name, col in {'Body':(.34,.40,.49,1), 'Dark':(.045,.075,.12,1), 'Accent':(.96,.25,.29,1)}.items():
+for name, col in {'Body':(.25,.32,.39,1), 'Dark':(.06,.10,.15,1), 'Accent':(.83,.40,.44,1)}.items():
     mat = bpy.data.materials.new(name); mat.diffuse_color = col
     mats[name] = mat
 assets = {}
@@ -38,14 +38,30 @@ def cylinder(name, center, radius, depth, role, vertices=12):
     obj=bpy.context.object; obj.name=name; obj.data.materials.append(mats[role]); parts.append(obj)
     return obj
 
+def shoulder(name, width=.76, depth=.66, slope=0, top=.5):
+    # Full rectangular collision footprint ends at +.14. All shoulder
+    # chamfers are above that plane. No disconnected contact slab.
+    def contact(z):
+        return [(-.46,-.5,z),(.46,-.5,z),(.5,-.5,z),(.5,.5,z),
+                (.46,.5,z),(-.46,.5,z),(-.5,.5,z),(-.5,-.5,z)]
+    def upper(w,d,c,z):
+        xy=[(-w/2+c,-d/2),(w/2-c,-d/2),(w/2,-d/2+c),(w/2,d/2-c),
+            (w/2-c,d/2),(-w/2+c,d/2),(-w/2,d/2-c),(-w/2,-d/2+c)]
+        return [(x,y,z+slope*y) for x,y in xy]
+    rings=[contact(-.5),contact(.14),upper(.98,.98,.09,.24),
+           upper(width,depth,.09,top-abs(slope)*depth/2)]
+    verts=[v for ring in rings for v in ring]
+    faces=[tuple(reversed(range(8)))]
+    for k in range(3):
+        for j in range(8): faces.append((k*8+j,k*8+(j+1)%8,(k+1)*8+(j+1)%8,(k+1)*8+j))
+    faces.append(tuple(range(24,32)))
+    mesh=bpy.data.meshes.new(name); mesh.from_pydata(verts,[],faces); mesh.update()
+    obj=bpy.data.objects.new(name,mesh); scene.collection.objects.link(obj)
+    obj.data.materials.append(mats['Body']); parts.append(obj)
+
 def begin(name):
     global parts
     parts=[]
-    # Exact unchamfered rectangular contact slab. Every X/Y point is filled
-    # from normalized vertical -.5 to +.16, including the gameplay core band.
-    box('FullContactSlab',(0,0,-.17),(1,1,.66),'Body')
-    # Front warning band lies on, rather than outside, the footprint.
-    box('DangerBand',(0,-.494,.015),(.96,.012,.11),'Accent')
 
 def finish(name):
     bpy.ops.object.select_all(action='DESELECT')
@@ -68,49 +84,30 @@ def finish(name):
     assets[name]=(root,obj)
 
 begin('ClampBarrier')
-box('RecessedTop',(0,0,.19),(.80,.92,.06),'Dark',.012)
-for x in [-.35,.35]:
-    box('ClampJaw',(x,.06,.32),(.30,.84,.32),'Body',.035)
-    box('JawDangerCap',(x,.06,.49),(.23,.73,.02),'Accent')
-    box('JawFace',(x,-.367,.31),(.20,.012,.18),'Dark',.01)
-box('LockedCenterRail',(0,0,.245),(.12,.92,.11),'Dark',.012)
-for y in [-.28,0,.28]: box('RailNotch',(0,y,.305),(.12,.07,.012),'Accent')
+shoulder('SmoothShoulder',.80,.72,.10)
+box('FootRecess',(0,.495,-.46),(.94,.01,.07),'Dark')
+box('WarningInlay',(0,-.17,.453),(.60,.045,.012),'Accent',.004)
 finish('ClampBarrier')
 
 begin('CapacitorBank')
-box('BankSocket',(0,0,.20),(.94,.90,.08),'Dark',.018)
-for x in [-.30,0,.30]:
-    cylinder('CapacitorPod',(x,0,.34),.14,.28,'Body')
-    cylinder('PodInsulator',(x,0,.465),.12,.05,'Dark')
-    cylinder('ChargeTerminal',(x,0,.495),.075,.01,'Accent')
-    for y in [-.136,.136]: box('PodSignal',(x,y,.34),(.055,.015,.18),'Accent')
-for y in [-.40,.40]: box('BusBar',(0,y,.27),(.92,.08,.14),'Dark',.012)
+shoulder('RoundedMonolith',.68,.80,-.18)
+box('BaseReveal',(0,.495,-.46),(.94,.01,.07),'Dark')
+# Inlay follows wedge surface instead of floating above it.
+o=box('LinearWarning',(0,-.30,.488),(.45,.025,.012),'Accent',.003)
+o.rotation_euler[0]=math.atan(-.18)
 finish('CapacitorBank')
 
 begin('HydraulicSlider')
-box('Platen',(0,-.19,.28),(.92,.52,.24),'Body',.025)
-box('PlatenInset',(0,-.455,.29),(.72,.012,.15),'Dark',.01)
-for x in [-.30,.30]:
-    obj=cylinder('PistonHousing',(x,.21,.285),.13,.43,'Dark')
-    obj.rotation_euler[0]=math.pi/2
-    obj=cylinder('PistonRod',(x,-.015,.285),.065,.26,'Body')
-    obj.rotation_euler[0]=math.pi/2
-    box('LinearGuide',(x,.10,.455),(.12,.72,.07),'Body',.012)
-    box('GuideSignal',(x,.10,.495),(.055,.60,.01),'Accent')
-for x in [-.16,.16]:
-    o=box('TranslationMark',(x,-.464,.29),(.04,.008,.12),'Accent'); o.rotation_euler[1]=-.35
+shoulder('PistonCap',.78,.68,0,top=.49)
+box('SlideRecess',(0,.497,-.43),(.80,.006,.10),'Dark')
+o=box('DirectionStroke',(0,-.04,.496),(.40,.055,.008),'Accent',.003)
+o.rotation_euler[2]=-.38
 finish('HydraulicSlider')
 
 begin('TurbineBeam')
-box('ContinuousBeam',(0,0,.24),(1,1,.16),'Body',.025)
-for y in [-.38,.38]: box('BeamDangerBand',(0,y,.325),(.95,.12,.01),'Accent')
-cylinder('TurbineHousing',(0,0,.37),.31,.10,'Dark',16)
-cylinder('AxleCap',(0,0,.46),.13,.06,'Body',12)
-cylinder('AxleSignal',(0,0,.495),.075,.01,'Accent',12)
-for i in range(8):
-    angle=i*math.tau/8
-    obj=box('SurfaceCoolingFin',(.215*math.cos(angle),.215*math.sin(angle),.445),(.14,.038,.05),'Body')
-    obj.rotation_euler[2]=angle+.4
+shoulder('ContinuousRotor',.92,.64,0,top=.48)
+cylinder('SimpleHub',(0,0,.49),.15,.02,'Dark',24)
+box('EdgeStripe',(0,-.235,.488),(.82,.045,.012),'Accent',.003)
 finish('TurbineBeam')
 
 profile=dict(use_selection=True,object_types={'MESH','EMPTY'},axis_forward='-Z',axis_up='Y',global_scale=1.,apply_unit_scale=True,apply_scale_options='FBX_SCALE_UNITS',use_space_transform=True,bake_space_transform=False,bake_anim=False,use_mesh_modifiers=True,mesh_smooth_type='FACE',add_leaf_bones=False,path_mode='AUTO')
@@ -124,7 +121,7 @@ for name,(root,obj) in assets.items():
     bpy.ops.object.select_all(action='DESELECT'); root.select_set(True); obj.select_set(True)
     bpy.context.view_layer.objects.active=root
     dest=EXPORT/(name+'.fbx'); bpy.ops.export_scene.fbx(filepath=str(dest),**profile)
-    manifest['assets'].append({'id':name,'triangles':tri,'mesh_count':1,'material_slots':['Body','Dark','Accent'],'bounds_source_xyz':[1,1,1],'center':[0,0,0],'root_scale':[1,1,1],'contact_slab_source_z':[-.5,.16],'sha256':hashlib.sha256(dest.read_bytes()).hexdigest(),'bytes':dest.stat().st_size})
+    manifest['assets'].append({'id':name,'triangles':tri,'mesh_count':1,'material_slots':['Body','Dark','Accent'],'bounds_source_xyz':[1,1,1],'center':[0,0,0],'root_scale':[1,1,1],'contact_slab_source_z':[-.5,.14],'sha256':hashlib.sha256(dest.read_bytes()).hexdigest(),'bytes':dest.stat().st_size})
 assert all(hashlib.sha256((EXPORT/name).read_bytes()).hexdigest()==sha for name,sha in old_hashes.items())
 (SOURCE/'export_manifest.json').write_text(json.dumps(manifest,indent=2),encoding='utf-8')
 for name in assets:
@@ -139,13 +136,13 @@ for i,(name,(root,obj)) in enumerate(assets.items()):
     dup=obj.copy(); dup.data=obj.data.copy(); dup.parent=None; scene.collection.objects.link(dup)
     dup.hide_render=False; dup.location=(x,y,0)
     dup.rotation_euler=(math.radians(-48),0,math.radians(-18))
-    dup.scale=(2.5,1.2,1.3) if name!='TurbineBeam' else (3.0,1.15,.7)
+    dup.scale={'ClampBarrier':(2.2,1.2,.9),'CapacitorBank':(2.35,1.0,.9),'HydraulicSlider':(1.15,1.2,.9),'TurbineBeam':(4.2,.72,.9)}[name]
     curve=bpy.data.curves.new(name+'Label','FONT'); curve.body=name; curve.align_x='CENTER'; curve.size=.23
-    label=bpy.data.objects.new(name+'Label',curve); scene.collection.objects.link(label); label.location=(x,y-1.25,.4); curve.materials.append(mats['Accent'])
+    label=bpy.data.objects.new(name+'Label',curve); scene.collection.objects.link(label); label.location=(x,y-1.25,.4); curve.materials.append(mats['Body'])
 scene.render.engine='BLENDER_WORKBENCH'
 scene.display.shading.light='STUDIO'; scene.display.shading.studio_light='paint.sl'
-scene.display.shading.color_type='MATERIAL'; scene.display.shading.show_shadows=False
-scene.display.shading.show_cavity=True; scene.display.shading.cavity_type='BOTH'
+scene.display.shading.color_type='MATERIAL'; scene.view_settings.view_transform='Standard'; scene.display.shading.show_shadows=False
+scene.display.shading.show_cavity=False; scene.display.shading.cavity_type='BOTH'
 scene.display.shading.background_type='WORLD'; scene.world.color=(.018,.025,.04)
 camdata=bpy.data.cameras.new('PreviewCamera'); cam=bpy.data.objects.new('PreviewCamera',camdata); scene.collection.objects.link(cam)
 cam.location=(0,0,15); camdata.type='ORTHO'; camdata.ortho_scale=8.4; scene.camera=cam

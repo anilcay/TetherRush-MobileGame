@@ -14,6 +14,7 @@ namespace TetherRush.Core
         public RunTuning Tuning { get; }
         public RunPhase Phase { get; private set; }
         public float Distance { get; private set; }
+        public float ActualElapsedTime { get; private set; }
         public float HalfSeparation { get; private set; }
         public int Energy { get; private set; }
         public int Bonus { get; private set; }
@@ -39,6 +40,7 @@ namespace TetherRush.Core
             Tuning.Validate();
             Phase = RunPhase.Ready;
             Distance = 0f;
+            ActualElapsedTime = 0f;
             HalfSeparation = Tuning.MinHalfSeparation;
             Energy = 0;
             Bonus = 0;
@@ -74,15 +76,24 @@ namespace TetherRush.Core
 
         public void Tick(float dt)
         {
+            Tick(dt, Tuning.ForwardSpeed);
+        }
+
+        /// <summary>Advance with an explicit forward speed, leaving separation and input unchanged.</summary>
+        public void Tick(float dt, float forwardSpeed)
+        {
             if (float.IsNaN(dt) || float.IsInfinity(dt) || dt < 0f)
                 throw new ArgumentOutOfRangeException(nameof(dt), "Delta time must be finite and nonnegative.");
+            if (float.IsNaN(forwardSpeed) || float.IsInfinity(forwardSpeed) || forwardSpeed <= 0f)
+                throw new ArgumentOutOfRangeException(nameof(forwardSpeed), "Forward speed must be finite and positive.");
             if (Phase != RunPhase.Running) return;
             float target = IsHeld ? Tuning.MaxHalfSeparation : Tuning.MinHalfSeparation;
             float step = Tuning.SeparationSpeed * dt;
             HalfSeparation = HalfSeparation < target
                 ? Math.Min(HalfSeparation + step, target)
                 : Math.Max(HalfSeparation - step, target);
-            Distance += Tuning.ForwardSpeed * dt;
+            Distance += forwardSpeed * dt;
+            ActualElapsedTime += dt;
         }
 
         public bool CollectEnergy(int collectibleId, int amount = 1)

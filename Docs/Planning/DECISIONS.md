@@ -43,6 +43,11 @@ Tarih: 31.10.2026. `ONAYLI` kullanıcı isteğini/onayını, `ÖNERİ` henüz on
 | D-033 | ONAYLI | Kısa araştırma ardından oyuna farklı engel modelleri tasarlanıp entegre edilecek. | Kullanıcının 04.11.2026 isteği. |
 | D-034 | ENGEL ÜRETİM YÖNÜ | Kenet bloğu, kapasitör bankası, hidrolik kızak ve türbin kiriş; mevcut normal engellerin tesis temasında Blender görsel çeşitleri. Normal engeller kırmızı, işaretli Pulse hedefleri amber kalır. | D-033 kapsamında araştırma sonucu; yeni kontrol, fizik, zamanlama veya boşluk/zıplama eklenmez. Aynı dar/merkez/kayan/dönen davranış korunur. |
 
+| D-035 | ONAYLI | Önceki engel görünümü revize edilecek; tema içinde sade, göz yormayan siluet ve küçük durum şeritleri kullanılacak. Bazı engellere gerçek etkileşimler eklenecek. | Kullanıcının 04.11.2026 yeni isteği. |
+| D-036 | ONAYLI | Bağ rölesi ve Pulse kilidi birlikte eklenecek: geniş bağ pedden geçince eşleşen kapı açılır; özel işaretli hareketli kilit menzil içi tam Pulse ile geri çekilir. | Kullanıcı iki mekanik için “İkisini de ekle” seçti. |
+| D-037 | ONAYLI | Sonsuz Akış'ta hız skor arttıkça yumuşak ve üst sınırlandırılmış artacak; bölümlerde sabit tempo korunacak. | Kullanıcının açık hızlandırma isteği; D-027'nin yalnız sonsuz hız maddesini günceller. |
+| D-038 | İLK DENGELEME | Sonsuz başlangıç7, tavan11,5 m/sn; 500→5500 skor yumuşak hedef eğrisi, en fazla0,25 m/sn² ivme. Yeni engel gövdeleri grafit, küçük mercan/amber/cyan işaretli. | Onaylı kapsam içinde incelenecek ilk ayar; gerçek test ve görüntülerle değerlendirilecek. |
+
 ## M1 onay paketi
 
 Kullanıcı D-008, D-009, D-010 ve D-014 kararlarını onayladı; M1 üretimi başlatıldı. İlk teslim Editor'da oynanabilir prototip, otomatik doğrulama ve Android test build'idir. D-017 ile fiziksel cihaz testi son aşamaya ertelendi; Editor prototipi kabulünü engellemez. Mobil performans ve gerçek dokunma kabulü cihaz testi yapılana kadar açık kalır.

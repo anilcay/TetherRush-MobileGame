@@ -4,7 +4,7 @@
     {
       "id": "ClampBarrier",
       "result": "PASS",
-      "triangles": 348,
+      "triangles": 116,
       "mesh_count": 1,
       "material_slots": [
         "Body",
@@ -26,12 +26,12 @@
         1.0,
         1.0
       ],
-      "contact_front_edge_rays": 50
+      "contact_front_edge_rays": 70
     },
     {
       "id": "CapacitorBank",
       "result": "PASS",
-      "triangles": 624,
+      "triangles": 116,
       "mesh_count": 1,
       "material_slots": [
         "Body",
@@ -53,12 +53,12 @@
         1.0,
         1.0
       ],
-      "contact_front_edge_rays": 50
+      "contact_front_edge_rays": 70
     },
     {
       "id": "HydraulicSlider",
       "result": "PASS",
-      "triangles": 424,
+      "triangles": 116,
       "mesh_count": 1,
       "material_slots": [
         "Body",
@@ -80,12 +80,12 @@
         1.0,
         1.0
       ],
-      "contact_front_edge_rays": 50
+      "contact_front_edge_rays": 70
     },
     {
       "id": "TurbineBeam",
       "result": "PASS",
-      "triangles": 336,
+      "triangles": 196,
       "mesh_count": 1,
       "material_slots": [
         "Body",
@@ -107,7 +107,7 @@
         1.0,
         1.0
       ],
-      "contact_front_edge_rays": 50
+      "contact_front_edge_rays": 70
     }
   ],
   "old_fbx_unchanged_count": 14

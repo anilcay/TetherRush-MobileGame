@@ -18,10 +18,10 @@ namespace TetherRush.Presentation
         public static readonly Color TetherReady = Hex(0xA7F3FF);
         public static readonly Color Energy = Hex(0x66EBF5);
         public static readonly Color Bonus = Hex(0xFFDFA0);
-        public static readonly Color Danger = Hex(0xF36B7D);
-        public static readonly Color DangerBody = Hex(0x6E3145);
-        public static readonly Color PulseTarget = Hex(0xDCA349);
-        public static readonly Color PulseAccent = Hex(0xFFD885);
+        public static readonly Color Danger = Hex(0xCF7B83);
+        public static readonly Color DangerBody = Hex(0x405364);
+        public static readonly Color PulseTarget = Hex(0x6B6254);
+        public static readonly Color PulseAccent = Hex(0xD8AC64);
         public static readonly Color UIBackground = Hex(0x102035);
         public static readonly Color UIText = Hex(0xEAF4FC);
         public static readonly Color UIMuted = Hex(0x9BAFC5);

@@ -1,0 +1,140 @@
+{
+  "precondition": "100 injected bonus crystals (10000 score) to test maximum target; then real routes",
+  "samples": [
+    {
+      "seconds": 0.008333334,
+      "distance": 0.0583506972,
+      "speed": 7.0020833
+    },
+    {
+      "seconds": 2.00833178,
+      "distance": 14.5646019,
+      "speed": 7.5020833
+    },
+    {
+      "seconds": 4.008358,
+      "distance": 30.0708523,
+      "speed": 8.002084
+    },
+    {
+      "seconds": 6.00832748,
+      "distance": 46.5771027,
+      "speed": 8.502084
+    },
+    {
+      "seconds": 8.008297,
+      "distance": 64.08335,
+      "speed": 9.002084
+    },
+    {
+      "seconds": 10.0082664,
+      "distance": 82.58961,
+      "speed": 9.502084
+    },
+    {
+      "seconds": 12.0082359,
+      "distance": 102.095856,
+      "speed": 10.0020838
+    },
+    {
+      "seconds": 14.0082054,
+      "distance": 122.602104,
+      "speed": 10.5020838
+    },
+    {
+      "seconds": 16.0081749,
+      "distance": 144.108353,
+      "speed": 11.0020838
+    },
+    {
+      "seconds": 18.0081444,
+      "distance": 166.6146,
+      "speed": 11.5
+    },
+    {
+      "seconds": 20.0081139,
+      "distance": 189.6163,
+      "speed": 11.5
+    },
+    {
+      "seconds": 22.0080833,
+      "distance": 212.618011,
+      "speed": 11.5
+    },
+    {
+      "seconds": 24.0080528,
+      "distance": 235.61972,
+      "speed": 11.5
+    },
+    {
+      "seconds": 26.0080223,
+      "distance": 258.621,
+      "speed": 11.5
+    },
+    {
+      "seconds": 28.0079918,
+      "distance": 281.619049,
+      "speed": 11.5
+    },
+    {
+      "seconds": 30.0079613,
+      "distance": 304.6171,
+      "speed": 11.5
+    },
+    {
+      "seconds": 32.00793,
+      "distance": 327.615143,
+      "speed": 11.5
+    },
+    {
+      "seconds": 34.008358,
+      "distance": 350.6132,
+      "speed": 11.5
+    },
+    {
+      "seconds": 36.0087852,
+      "distance": 373.611237,
+      "speed": 11.5
+    },
+    {
+      "seconds": 38.0092125,
+      "distance": 396.609283,
+      "speed": 11.5
+    },
+    {
+      "seconds": 40.00964,
+      "distance": 419.60733,
+      "speed": 11.5
+    },
+    {
+      "seconds": 42.010067,
+      "distance": 442.605377,
+      "speed": 11.5
+    },
+    {
+      "seconds": 44.0104942,
+      "distance": 465.603424,
+      "speed": 11.5
+    },
+    {
+      "seconds": 46.01092,
+      "distance": 488.601471,
+      "speed": 11.5
+    },
+    {
+      "seconds": 48.01135,
+      "distance": 511.599518,
+      "speed": 11.5
+    },
+    {
+      "seconds": 50.011776,
+      "distance": 534.5976,
+      "speed": 11.5
+    },
+    {
+      "seconds": 52.0122032,
+      "distance": 557.595642,
+      "speed": 11.5
+    }
+  ]
+}
