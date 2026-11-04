@@ -300,6 +300,8 @@ namespace TetherRush
         {
             Material edge = kind == VisualKind.TrackTile || kind == VisualKind.RelayPylon ? lineMat :
                 kind == VisualKind.Barrier || kind == VisualKind.SplitPylon || kind == VisualKind.ChevronBarrier ||
+                kind == VisualKind.ClampBarrier || kind == VisualKind.CapacitorBank ||
+                kind == VisualKind.HydraulicSlider || kind == VisualKind.TurbineBeam ||
                 kind == VisualKind.MovingWall || kind == VisualKind.RotatingArm ? dangerAccentMat :
                 kind == VisualKind.EnergyGate || kind == VisualKind.BreakableBlock || kind == VisualKind.PulseBadge ? pulseAccentMat : null;
             return visuals.Create(kind, label, spawnParent != null ? spawnParent : world, pos, size, material, edge);
@@ -416,10 +418,12 @@ namespace TetherRush
         }
         private void BuildContent(CourseDefinition course, List<Transform> movingViews)
         {
-            foreach (var h in course.Hazards) AddHazard(h.Label, h.Position, h.Size, h.Marked, h.Reason, h.Gate, h.Visual);
+            foreach (var h in course.Hazards) AddHazard(h.Label, h.Position, h.Size, h.Marked, h.Reason, h.Gate,
+                h.Marked ? h.Visual : ObstacleVisuals.Resolve(course.Id, h.Position.z, h.Visual));
             foreach (var p in course.Pickups) AddPickup(p.Position, p.Bonus, nextPickupId++);
             foreach (var h in course.TimedHazards)
-                movingViews.Add(ModelVisual(h.Kind == TimedHazardKind.RotatingArm ? VisualKind.RotatingArm : VisualKind.MovingWall,
+                movingViews.Add(ModelVisual(ObstacleVisuals.Resolve(course.Id, h.Center.y,
+                    h.Kind == TimedHazardKind.RotatingArm ? VisualKind.RotatingArm : VisualKind.MovingWall),
                     "Timed hazard", new Vector3(h.Center.x, .65f, h.Center.y),
                     new Vector3(h.HalfExtents.x * 2, 1.3f, h.HalfExtents.y * 2), redMat).transform);
         }

@@ -40,6 +40,9 @@ Tarih: 31.10.2026. `ONAYLI` kullanıcı isteğini/onayını, `ÖNERİ` henüz on
 | D-031 | ONAYLI | Menü ve oyun UI, başarılı hypercasual örnekler ayrıntılı incelendikten sonra temaya uygun ortak bir tasarım diliyle yenilenecek. | Kullanıcının UI yenileme isteği ve 04.11.2026 devam talimatı. |
 | D-032 | UI UYGULAMA YÖNÜ | Barlow tipografi, özgün küçük simgeler, düz lacivert/kırık beyaz yüzeyler, tek baskın eylem ve kompakt HUD. Menüde mevcut Blender modelleri; Pulse menzil uyarısı korunur. | D-031 kapsamında araştırma sentezi; sonuç gerçek Unity kareleri üzerinden değerlendirilecek. 25 bölüm, sıralı açılma, oynanış ve kayıt şeması değişmez. |
 
+| D-033 | ONAYLI | Kısa araştırma ardından oyuna farklı engel modelleri tasarlanıp entegre edilecek. | Kullanıcının 04.11.2026 isteği. |
+| D-034 | ENGEL ÜRETİM YÖNÜ | Kenet bloğu, kapasitör bankası, hidrolik kızak ve türbin kiriş; mevcut normal engellerin tesis temasında Blender görsel çeşitleri. Normal engeller kırmızı, işaretli Pulse hedefleri amber kalır. | D-033 kapsamında araştırma sonucu; yeni kontrol, fizik, zamanlama veya boşluk/zıplama eklenmez. Aynı dar/merkez/kayan/dönen davranış korunur. |
+
 ## M1 onay paketi
 
 Kullanıcı D-008, D-009, D-010 ve D-014 kararlarını onayladı; M1 üretimi başlatıldı. İlk teslim Editor'da oynanabilir prototip, otomatik doğrulama ve Android test build'idir. D-017 ile fiziksel cihaz testi son aşamaya ertelendi; Editor prototipi kabulünü engellemez. Mobil performans ve gerçek dokunma kabulü cihaz testi yapılana kadar açık kalır.

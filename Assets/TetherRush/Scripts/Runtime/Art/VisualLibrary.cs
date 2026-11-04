@@ -7,7 +7,8 @@ namespace TetherRush.Art
     public enum VisualKind
     {
         Core, TrackTile, Barrier, MovingWall, RotatingArm, EnergyGate, BreakableBlock,
-        EnergyPickup, BonusCrystal, PulseBadge, FinishMarker, SplitPylon, ChevronBarrier, RelayPylon
+        EnergyPickup, BonusCrystal, PulseBadge, FinishMarker, SplitPylon, ChevronBarrier, RelayPylon,
+        ClampBarrier, CapacitorBank, HydraulicSlider, TurbineBeam
     }
 
     /// <summary>Blender exports are normalized independently from the authoritative gameplay geometry.</summary>

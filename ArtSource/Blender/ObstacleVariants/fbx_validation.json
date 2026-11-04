@@ -1,0 +1,114 @@
+{
+  "blender_version": "5.2.3 LTS",
+  "checks": [
+    {
+      "id": "ClampBarrier",
+      "result": "PASS",
+      "triangles": 348,
+      "mesh_count": 1,
+      "material_slots": [
+        "Body",
+        "Dark",
+        "Accent"
+      ],
+      "imported_bounds_xyz": [
+        1.0,
+        1.0000001192092896,
+        1.0000001192092896
+      ],
+      "center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "root_scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "contact_front_edge_rays": 50
+    },
+    {
+      "id": "CapacitorBank",
+      "result": "PASS",
+      "triangles": 624,
+      "mesh_count": 1,
+      "material_slots": [
+        "Body",
+        "Dark",
+        "Accent"
+      ],
+      "imported_bounds_xyz": [
+        1.0,
+        1.0000001192092896,
+        1.0000001192092896
+      ],
+      "center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "root_scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "contact_front_edge_rays": 50
+    },
+    {
+      "id": "HydraulicSlider",
+      "result": "PASS",
+      "triangles": 424,
+      "mesh_count": 1,
+      "material_slots": [
+        "Body",
+        "Dark",
+        "Accent"
+      ],
+      "imported_bounds_xyz": [
+        1.0,
+        1.0000001192092896,
+        1.0000001192092896
+      ],
+      "center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "root_scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "contact_front_edge_rays": 50
+    },
+    {
+      "id": "TurbineBeam",
+      "result": "PASS",
+      "triangles": 336,
+      "mesh_count": 1,
+      "material_slots": [
+        "Body",
+        "Dark",
+        "Accent"
+      ],
+      "imported_bounds_xyz": [
+        1.0,
+        1.0000001192092896,
+        1.0000001192092896
+      ],
+      "center": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "root_scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "contact_front_edge_rays": 50
+    }
+  ],
+  "old_fbx_unchanged_count": 14
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "kind": "ClampBarrier",
+    "level": 1,
+    "worldZ": 16,
+    "captureDistance": 8.050005
+  },
+  {
+    "kind": "CapacitorBank",
+    "level": 1,
+    "worldZ": 36,
+    "captureDistance": 28.1165
+  },
+  {
+    "kind": "HydraulicSlider",
+    "level": 4,
+    "worldZ": 24,
+    "captureDistance": 16.10001
+  },
+  {
+    "kind": "TurbineBeam",
+    "level": 4,
+    "worldZ": 70,
+    "captureDistance": 62.06696
+  }
+]

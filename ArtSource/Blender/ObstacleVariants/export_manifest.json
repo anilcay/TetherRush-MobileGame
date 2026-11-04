@@ -1,0 +1,164 @@
+{
+  "blender_version": "5.2.3 LTS",
+  "profile": {
+    "use_selection": true,
+    "object_types": [
+      "EMPTY",
+      "MESH"
+    ],
+    "axis_forward": "-Z",
+    "axis_up": "Y",
+    "global_scale": 1.0,
+    "apply_unit_scale": true,
+    "apply_scale_options": "FBX_SCALE_UNITS",
+    "use_space_transform": true,
+    "bake_space_transform": false,
+    "bake_anim": false,
+    "use_mesh_modifiers": true,
+    "mesh_smooth_type": "FACE",
+    "add_leaf_bones": false,
+    "path_mode": "AUTO"
+  },
+  "old_fbx_sha256": {
+    "Barrier.fbx": "29b21afe76ec21e25cb0726c700843bfbf1c8c334dd49e4450a493f25360a565",
+    "BonusCrystal.fbx": "de3e10b23e8cc1deb2e84406c4eff318dd8baabf42d535ad4b9ccfad0dcd82ae",
+    "BreakableBlock.fbx": "8fadbb00ebe5ea6a624f260c6b4fe5f9121a61c57ec967e34bd97fb9c642d72f",
+    "ChevronBarrier.fbx": "7112682322ca217192fff1223e1b4c3638f5d99ae6e65445bd74b1b43e7e2a73",
+    "Core.fbx": "4bffefead3cf3773ebbc73f69d03539f21deab9eb909a7a0a08b81b4c7e9a879",
+    "EnergyGate.fbx": "9902715faa472a71b4443e67a99ddc08a791d5a42940ab78ef50895bbb11425b",
+    "EnergyPickup.fbx": "041c798c6768bf8dabebe2ae459d7d63ab347a62b31f04e79432fb1035f5fbbc",
+    "FinishMarker.fbx": "13b8a12c3a83c2a512b23b326b24fd4e2dab4f591873022057452c5ff0d7f272",
+    "MovingWall.fbx": "5d7f6bd24677f6c173393c0dbfa2b9dfb9c70e0519a62cbb13e51475d8a7b0fd",
+    "PulseBadge.fbx": "a93eb5a1151e549ac4d65711724df580af77969e749e86bd716286444ef56df1",
+    "RelayPylon.fbx": "0548e8e90fc06adbd80fa93e86643750328c437a662a4e1dcd6ad1b53bca54e5",
+    "RotatingArm.fbx": "ec7c8c6a8f91db59f6613682c7cef96fad05897ed0a86a17ab4e40bb9b0ba227",
+    "SplitPylon.fbx": "71e0dfd8b7157ec2477c2a805e98456561696131f4bce9334aecf9fd4c6571a9",
+    "TrackTile.fbx": "e58a332b80682e8103004708b46f8e85c0e53647c7637ed6da009ad473a3ddec"
+  },
+  "assets": [
+    {
+      "id": "ClampBarrier",
+      "triangles": 348,
+      "mesh_count": 1,
+      "material_slots": [
+        "Body",
+        "Dark",
+        "Accent"
+      ],
+      "bounds_source_xyz": [
+        1,
+        1,
+        1
+      ],
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "contact_slab_source_z": [
+        -0.5,
+        0.16
+      ],
+      "sha256": "4f63b8091e48799a9693086b950a96a67e5de35647ca5179e133ab6bc7c96881",
+      "bytes": 25948
+    },
+    {
+      "id": "CapacitorBank",
+      "triangles": 624,
+      "mesh_count": 1,
+      "material_slots": [
+        "Body",
+        "Dark",
+        "Accent"
+      ],
+      "bounds_source_xyz": [
+        1,
+        1,
+        1
+      ],
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "contact_slab_source_z": [
+        -0.5,
+        0.16
+      ],
+      "sha256": "d93a778e1c502c4cf7c6b21a9573ec16093be430d1c5cd2c709e39d39c9fe4d3",
+      "bytes": 30844
+    },
+    {
+      "id": "HydraulicSlider",
+      "triangles": 424,
+      "mesh_count": 1,
+      "material_slots": [
+        "Body",
+        "Dark",
+        "Accent"
+      ],
+      "bounds_source_xyz": [
+        1,
+        1,
+        1
+      ],
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "contact_slab_source_z": [
+        -0.5,
+        0.16
+      ],
+      "sha256": "f80a8f14422662acf84e8fd990cad10707653e45ceb81fea5953425909ffa926",
+      "bytes": 27788
+    },
+    {
+      "id": "TurbineBeam",
+      "triangles": 336,
+      "mesh_count": 1,
+      "material_slots": [
+        "Body",
+        "Dark",
+        "Accent"
+      ],
+      "bounds_source_xyz": [
+        1,
+        1,
+        1
+      ],
+      "center": [
+        0,
+        0,
+        0
+      ],
+      "root_scale": [
+        1,
+        1,
+        1
+      ],
+      "contact_slab_source_z": [
+        -0.5,
+        0.16
+      ],
+      "sha256": "f269e561d031031d3a51fe393a4ae5ba0c545645998fd679bbcd5f8102c0adb8",
+      "bytes": 25964
+    }
+  ]
+}

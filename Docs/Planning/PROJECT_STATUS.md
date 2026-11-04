@@ -2,6 +2,12 @@
 
 Son güncelleme: 04.11.2026.
 
+## Engel modelleri — 0.6.0 (7)
+
+D-033: kısa araştırma sonrası dört özgün Blender modeli eklendi: kenet bloğu, kapasitör bankası, hidrolik kızak ve türbin kiriş. obstacle_blender model/kaynak/FBX ve bağımsız doğrulamayı, obstacle_qa entegrasyon planı ve yeni6 PlayMode senaryosunu GPT-6.1 Sol medium ile üstlendi. Ana yönetici araştırma, yalnız sunum katmanındaki kararlı model seçimi, kırmızı tehlike materyali, test/render/build ve Git teslimini birleştirdi.
+
+4 FBX reimport ve model başına50 temas rayı geçti; eski14FBX değişmedi. Ek bütçe1732 üçgen/4mesh; kit18 model/8280 üçgen/24mesh. **96 EditMode +95 PlayMode =191/191** geçti. Gerçek dört URP yaklaşım karesi incelendi. İlk bölümde iki statik, dördüncüde iki hareketli model görülebilir; Sonsuz Akış da aynı modelleri kararlı seçer. Course/Core verisi, SafeRoute, temas ve zamanlama kaynakları değişmedi; 25 bölüm, sıralı açılma, Pulse, kayıt ve mevcut UI korunur. Windows ve Android strict build exit0; APK 38.173.530 bayt, 0.6.0 (7), ARM64/API25/36/portrait ve v2 imzası doğrulandı. Kanıt Docs/QA/OBSTACLE_VARIANTS_VALIDATION.md ve Results/ObstacleVariants_test_results.json; kaynak ArtSource/Blender/ObstacleVariants, kareler Docs/Art/Previews/Obstacles_*.png.
+
 ## UI yenilemesi — 0.5.0 (6)
 
 D-031 ile kullanıcı başarılı hypercasual UI incelemesi ardından menü ve oyun arayüzünü yenilememizi istedi. Uygulamadan önce yedi resmî ürün/mağaza ve gerçek ekran görselleri incelendi; gözlem/çıkarım ve promo/runtime ayrımı Docs/Research altında kayıtlı. Barlow/OFL tipografi, özgün simgeler, düz koyu/kırık beyaz yüzeyler, tek baskın eylem ortak dil oluşturur. Ana menü gerçek Blender modelleri içerir; harita düz soketlere, HUD 103px üst bilgiye indirildi. Kalıcı alt açıklama kaldırıldı; kısa öğretici ilk beşte, Pulse menzil uyarısı her bölümde korunur.
@@ -47,11 +53,11 @@ Cila tesliminden sonra kullanıcı 02.11.2026 tarihinde menü ve ilk bölümleri
 | Araç | Gözlenen durum |
 | --- | --- |
 | Unity | Proje 6000.3.19f1 (7689f4515d75) ile açıldı, C# derlendi ve prototip sahnesi kaydedildi. URP 17.3.0, Input System 1.19.0 kilitlendi. |
-| Android desteği | UI APK build exit 0: 38.133.750 bayt, 0.5.0 (6), ARM64, min API 25 / target 36, portrait; v2 imzası doğrulandı. output/android/TetherRush-UIRefresh.apk. ASCII junction ve generated-cache callback kullanılır. |
-| Blender | 5.2.3 LTS ile 14 FBX, düzenlenebilir kaynak ve pafta. Bağımsız re-import 14/14 ve Unity model kontrolü geçti. Kit 6.548 üçgen, 20 mesh; kaynak ArtSource/Blender içinde. |
+| Android desteği | Engel paketi APK build exit0: 38.173.530 bayt, 0.6.0 (7), ARM64, min API25 / target36, portrait; v2 imzası doğrulandı. output/android/TetherRush-ObstacleVariants.apk. ASCII junction ve generated-cache callback kullanılır. |
+| Blender | 5.2.3 LTS ile toplam18 FBX; ilk14 korunur, yeni4 bağımsız reimport ve50 temas rayı/model ile doğrulandı. Kit8.280 üçgen/24mesh; düzenlenebilir kaynak ve paftalar ArtSource/Blender içinde. |
 | Git | origin GitHub TetherRush-MobileGame, dal main. Kod, Blender kaynak/FBX, gerçek Unity kareleri ve doğrulama özetleri sürüm kontrolüne alınır; build/cache çıktıları dışarıda tutulur. Son teslim hash'i git log ve yönetim sohbetindeki teslim raporundan izlenir. |
-| Unity testleri | UI: EditMode 96/96 + PlayMode 89/89 = 185/185. Docs/QA/Results/UIRefresh_test_results.json; önceki 182/124/61 kayıtları korunur. |
-| Windows önizleme | UI build exit 0, output/windows-ui-refresh/TetherRush.exe. Gerçek kareler Docs/Art/Previews/UIRefresh_*.png; kullanıcı değerlendirmesi açık. |
+| Unity testleri | Engel paketi: EditMode96/96 +PlayMode95/95 =191/191. Docs/QA/Results/ObstacleVariants_test_results.json; önceki185/182/124/61 kayıtları korunur. |
+| Windows önizleme | Engel paketi build exit0, output/windows-obstacle-variants/TetherRush.exe. Kareler Docs/Art/Previews/Obstacles_*.png ve UIRefresh_*.png; kullanıcı değerlendirmesi açık. |
 
 ## Kilometre taşları
 
@@ -63,6 +69,7 @@ Cila tesliminden sonra kullanıcı 02.11.2026 tarihinde menü ve ilk bölümleri
 | Menü ve ilk bölüm paketi | Ana menü, beş öğretici bölüm, Sonsuz Akış, yerel skor/ayarlar. | Kullanıcı kapsamı onayladı; 124 test ve Windows build geçti. Android 0.3.0 (4) ve imzası doğrulandı. |
 | 25 bölüm haritası | Numaralı tematik yol, sıralı açılma,20 yeni bölüm, eski kayıt göçü. | 182 test ve Windows build geçti; Android 0.4.0 (5) ve imzası doğrulandı. |
 | UI yenilemesi | Referans araştırması, ortak menü/HUD/harita dili, font/simge ve Blender önizleme. | 185 test, gerçek render, Windows ve imzası doğrulanan Android 0.5.0 build geçti. |
+| Engel modelleri | Araştırma,4 Blender varyantı ve bölüm/sonsuz görsel seçimi. | 191 test,4 gerçek kare,Windows ve imzası doğrulanan Android0.6.0 build geçti. |
 | M3 – Mobil doğrulama | Fiziksel cihaz, performans, ekran oranları, pause/resume, ses ve titreşim. | Cihaz ve hedef bütçeler belirlenecek. |
 | M4 – Yayına hazırlık | Mağaza gereksinimleri ve dağıtım. | Kullanıcı ayrıca kapsam/onay verecek. |
 
@@ -72,4 +79,4 @@ Başlangıç MainMenu; Leveller numaralı 25 düğümlük haritayı açar. Yeni 
 
 ## Sıradaki yönetim kararı
 
-Kullanıcı yeni menü/HUD/harita görünümünü, dokunma/kaydırma hissini ve 25 bölümün insan tarafından zorluk ritmini bu sürümde inceleyecek. Yeni oyun sistemi veya ekonomi eklenmeden kapsam tartışılacak. Android telefon testi D-017 gereği sonda; tekrar cihaz talep edilmeyecek. Oynama README.md, güncel gerçek kareler Docs/Art/Previews/UIRefresh_*.png altında.
+Kullanıcı yeni engelleri ve menü/HUD/harita görünümünü, dokunma/kaydırma hissini ve 25 bölümün insan tarafından zorluk ritmini bu sürümde inceleyecek. Yeni oyun sistemi veya ekonomi eklenmeden kapsam tartışılacak. Android telefon testi D-017 gereği sonda; tekrar cihaz talep edilmeyecek. Oynama README.md, güncel gerçek kareler Docs/Art/Previews/Obstacles_*.png ve UIRefresh_*.png altında.

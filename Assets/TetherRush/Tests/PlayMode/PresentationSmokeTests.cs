@@ -39,10 +39,10 @@ namespace TetherRush.Tests
         }
 
         [Test]
-        public void AllFourteenBlenderModelsHaveCenteredUnitBoundsAndSupportedShaders()
+        public void AllEighteenBlenderModelsHaveCenteredUnitBoundsAndSupportedShaders()
         {
             var kinds = (VisualKind[])System.Enum.GetValues(typeof(VisualKind));
-            Assert.That(kinds.Length, Is.EqualTo(14));
+            Assert.That(kinds.Length, Is.EqualTo(18));
             foreach (var kind in kinds)
             {
                 var prefab = Resources.Load<GameObject>("ArtModels/" + kind);

@@ -4,7 +4,7 @@ Unity ile geliştirilecek, ortak bir enerji bağıyla bağlı iki küreyi tek pa
 
 ## Durum
 
-Güncel paket **0.5.0 (6)**: hypercasual UI araştırmasına dayanan yeni menü, kompakt oyun HUD'u ve sade bölüm haritası. Barlow tipografi, özgün simgeler, mevcut Blender modellerinin menü önizlemesi ve tek baskın eylem ortak bir dil kurar. **25 bölüm**, sıralı açılma, eski kayıtların v2 göçü ve tek tut/bırak oynanışı korunur. **185/185 Unity testi**, Windows build ve imzası doğrulanan Android APK geçti. Ayrıntılar [doğrulama kaydında](Docs/QA/UI_REFRESH_VALIDATION.md). Fiziksel cihaz testi son aşamadadır.
+Güncel paket **0.6.0 (7)**: dört özgün Blender engel modeli — kenet bloğu, kapasitör bankası, hidrolik kızak ve türbin kiriş. Modeller bölüm parkurlarında ve Sonsuz Akış'ta kararlı biçimde çeşitlenir. **25 bölüm**, sıralı açılma, tek tut/bırak/Pulse oynanışı, kayıtlar ve yenilenen UI korunur. **191/191 Unity testi**, Windows build ve imzası doğrulanan Android APK geçti. Sonuçlar [doğrulama kaydında](Docs/QA/OBSTACLE_VARIANTS_VALIDATION.md). Fiziksel cihaz testi son aşamadadır.
 
 - Hedef: **Android telefon, dikey ekran** (kullanıcı onayı: 31.10.2026).
 - Tasarım kaynağı: [GDD v2.0](Docs/Source/Tether_Rush_GDD_v2.pdf), 31.10.2026.
@@ -13,6 +13,11 @@ Güncel paket **0.5.0 (6)**: hypercasual UI araştırmasına dayanan yeni menü,
 - Kaynak depo: https://github.com/anilcay/TetherRush-MobileGame
 
 ## Proje kayıtları
+
+- [Engel modelleri doğrulaması](Docs/QA/OBSTACLE_VARIANTS_VALIDATION.md)
+- [Kısa engel araştırması](Docs/Research/OBSTACLE_VARIANTS.md)
+- [Blender engel varlıkları](Docs/Art/OBSTACLE_VARIANTS.md)
+- [Gerçek oyun içi kenet modeli](Docs/Art/Previews/Obstacles_ClampBarrier_Level1.png)
 
 - [UI yenilemesi doğrulaması](Docs/QA/UI_REFRESH_VALIDATION.md)
 - [UI araştırma ve sentezi](Docs/Research/UI_SYNTHESIS.md)
@@ -48,6 +53,8 @@ Güncel paket **0.5.0 (6)**: hypercasual UI araştırmasına dayanan yeni menü,
 
 Haritada **1–25** numaraları vardır. Yeni profilde yalnız 1 açıktır. Bir bölümü iki küreyle bitirmek sonraki düğümü açar; tamamlananlar tekrar oynanabilir. Başarı ve en iyi bonus cihazda saklanır. Sonuç ekranında **Sonraki bölüm**, duraklatma/sonuç ekranında **Haritaya dön** bulunur. Harita dönüşte son oynanan veya yeni açılan düğüme odaklanır. Tamamlanan, sıradaki ve kilitli durumlar sayı, renk ve check/lock işaretleriyle ayrılır.
 
+İlk bölümde yeni kenet ve kapasitör modelleri, dördüncü bölümden itibaren hidrolik kızak ve türbin kiriş görülebilir. Modeller mevcut engel rollerinin görsel çeşitleridir; temas, hareket fazı ve kontrol değişmez. Aynı parkuru yeniden açmak aynı modeli seçer.
+
 İlk beşin oynanış yerleşimleri korunur. 20 yeni parkur; dar/geniş ritmi, hareketli duvar, dönen kol ve birden fazla bağımsız Pulse dizisini birleştirir. En uzun bölüm 280 m'dir. Ayrı bölüm isimleri kullanılmaz. Önceki beş bölümlük v1 kayıt, 25 bölümlük v2 yapıya kayıpsız genişler; eski ilerleme geri alınmaz.
 
 **Sonsuz Akış** ekranından **Akışa başla**: sabit hızda devam eden, beş kalıpla çeşitlenen parkurda çarpışana kadar skor topla. Her tam metre 1, her bonus kristal 100 puandır. En iyi skor deneme sonunda saklanır. Tekrar deneme skoru/parkuru sıfırlar, rekoru korur.
@@ -69,7 +76,7 @@ Unity Editor'ü kapattıktan sonra proje kökünde PowerShell ile:
 ./Tools/Unity.ps1 -Action Android
 ```
 
-`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-UIRefresh.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-ui-refresh/TetherRush.exe` altında üretir. Eski M1/M2/cila/ilk menü çıktıları karşılaştırma için ayrı klasörlerde korunur.
+`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-ObstacleVariants.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-obstacle-variants/TetherRush.exe` altında üretir. Eski M1/M2/cila/ilk menü çıktıları karşılaştırma için ayrı klasörlerde korunur.
 
 Android araçları Türkçe karakter içeren proje yollarını kabul etmez. Bu klasör için `-Action Android` aynı depoya işaret eden geçici bir ASCII junction yolunu otomatik kullanır; kaynaklar taşınmaz veya kopyalanmaz. Bağlantı TEMP altında kalır ve tekrar kullanılır. Editor'dan doğrudan Android build almak için de ASCII bir proje yolu gerekir; mevcut klasörde Editor oynanışı etkilenmez.
 
