@@ -63,7 +63,9 @@ namespace TetherRush.Tests
             Assert.That(meshes.Length, Is.GreaterThanOrEqualTo(3));
             foreach (var mesh in meshes)
                 Assert.That(mesh.bounds.center.x, Is.InRange(497f, 503f), "Imported bounds must follow the isolated stage");
-            var preview = FindPreviewCamera(); Assert.That(preview.enabled && preview.gameObject.activeInHierarchy, Is.True);
+            var preview = FindPreviewCamera();
+            Assert.That(preview.gameObject.activeInHierarchy, Is.True);
+            Assert.That(preview.enabled, Is.False, "Static preview is rendered on demand");
             app.ShowSettings(); Assert.That(preview.gameObject.activeInHierarchy, Is.False);
             app.ShowHome(); Assert.That(preview.gameObject.activeInHierarchy, Is.True);
             app.PlayLevel(0); app.Game.AutoSimulate = false;

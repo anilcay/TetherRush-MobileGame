@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using TetherRush.Art;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 namespace TetherRush.Presentation
@@ -12,6 +14,9 @@ namespace TetherRush.Presentation
         private Camera previewCamera;
         private RenderTexture texture;
         private RawImage target;
+        private bool visible;
+        private int pendingPasses;
+        private readonly UniversalRenderPipeline.SingleCameraRequest renderRequest = new UniversalRenderPipeline.SingleCameraRequest();
         private readonly List<Material> materials = new List<Material>();
         public void Initialize(RawImage image)
         {
@@ -38,13 +43,15 @@ namespace TetherRush.Presentation
             foreach (var child in stage.GetComponentsInChildren<Transform>()) child.gameObject.layer=30;
             var cameraObject = new GameObject("Menu preview camera",typeof(Camera)); cameraObject.transform.SetParent(stage.transform,false);
             previewCamera=cameraObject.GetComponent<Camera>(); previewCamera.cullingMask=1<<30;
+            // This stage is static. Keep its texture instead of rendering another camera every frame.
+            previewCamera.enabled=false;
             previewCamera.clearFlags=CameraClearFlags.SolidColor; previewCamera.backgroundColor=UiResources.Background;
             previewCamera.orthographic=true; previewCamera.orthographicSize=1.9f;
             previewCamera.nearClipPlane=.1f; previewCamera.farClipPlane=30;
             previewCamera.transform.position=origin+new Vector3(3.6f,4.8f,-6);
             previewCamera.transform.LookAt(origin+new Vector3(0,-.1f,0));
             texture=new RenderTexture(768,480,24,RenderTextureFormat.ARGB32) {name="Menu Blender preview",antiAliasing=2};
-            texture.Create(); previewCamera.targetTexture=texture; target.texture=texture;
+            texture.Create(); previewCamera.targetTexture=texture; target.texture=texture; target.enabled=false;
             stage.transform.position = new Vector3(500,0,0);
             SetVisible(false);
         }
@@ -54,7 +61,36 @@ namespace TetherRush.Presentation
             material.SetColor("_BaseColor",color); material.SetFloat("_Smoothness",.6f); material.SetFloat("_RimStrength",.12f);
             materials.Add(material); return material;
         }
-        public void SetVisible(bool visible) { if(stage!=null) stage.SetActive(visible); }
+        public void SetVisible(bool value)
+        {
+            if (stage == null) return;
+            bool changed = visible != value;
+            visible = value; stage.SetActive(value);
+            if (value && changed) QueuePreview();
+        }
+        private void QueuePreview()
+        {
+            pendingPasses = 2;
+            // Never display an uninitialized or lost render target while URP is warming up.
+            if (target != null && !texture.IsCreated()) target.enabled = false;
+        }
+        private void OnEnable() { if (visible && texture != null) QueuePreview(); }
+        private void LateUpdate()
+        {
+            if (!visible || stage == null || !stage.activeInHierarchy) return;
+            if (!texture.IsCreated())
+            {
+                target.enabled = false;
+                texture.Create();
+                pendingPasses = 2;
+            }
+            if (pendingPasses <= 0 || RenderPipelineManager.currentPipeline == null ||
+                !RenderPipeline.SupportsRenderRequest(previewCamera, renderRequest)) return;
+            renderRequest.destination = texture;
+            RenderPipeline.SubmitRenderRequest(previewCamera, renderRequest);
+            pendingPasses--;
+            if (pendingPasses == 0) target.enabled = true;
+        }
         private void OnDestroy()
         {
             if(target!=null) target.texture=null;

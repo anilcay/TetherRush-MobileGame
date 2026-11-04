@@ -52,6 +52,8 @@ Tarih: 31.10.2026. `ONAYLI` kullanıcı isteğini/onayını, `ÖNERİ` henüz on
 | D-040 | ONAYLI | Toplanan bonus görseli yeni Blender coin ile, sağ üst simge aynı coin tasarımıyla değiştirilecek. | Kullanıcının 04.11.2026 coin/model ve simge isteği. |
 | D-041 | ÜRETİM AYARI | 104 BPM sözsüz elektronik/mallet döngü; altın rim, koyu yüz ve çift çekirdek kabartmalı coin. Önceki bonus/save alanı ve coin başına100 skor korunur. .5 m coin için bonus temas yarıçapı .19→.25 m görselle eşleştirilir; yeni ekonomi yoktur. | D-039/040 içinde rutin üretim ve temas/görsel eşleme; müzik duyumu ve görsel beğeni kullanıcı incelemesine açıktır. |
 
+| D-042 | ONAYLI | Oyunun optimizasyonu geliştirilecek. Aynı oynanış, kayıtlar, görsel kalite ve ses korunarak ölçülen CPU/GC ve gereksiz çizim yükü azaltılır. | Kullanıcının 04.11.2026 optimizasyon isteği. Fiziksel cihaz testi D-017 gereği sonda kalır. |
+
 ## M1 onay paketi
 
 Kullanıcı D-008, D-009, D-010 ve D-014 kararlarını onayladı; M1 üretimi başlatıldı. İlk teslim Editor'da oynanabilir prototip, otomatik doğrulama ve Android test build'idir. D-017 ile fiziksel cihaz testi son aşamaya ertelendi; Editor prototipi kabulünü engellemez. Mobil performans ve gerçek dokunma kabulü cihaz testi yapılana kadar açık kalır.

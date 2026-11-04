@@ -38,6 +38,10 @@ namespace TetherRush.Presentation
         private float displayedProgress, coachRemaining;
         private string previousHint;
         private RunPhase previousPhase;
+        private HudState lastState;
+        private bool presented;
+        private string coachSource, coachText;
+        private bool coachCritical, coachContextual;
 
         public void Initialize(bool advanced, Action startOrResume, Action pause, Action toggleAudio, Action otherCourse)
         {
@@ -115,18 +119,24 @@ namespace TetherRush.Presentation
             ApplySafeArea();
             subtitle.text = state.Endless ? "SONSUZ AKIŞ" : !string.IsNullOrEmpty(state.CourseTitle)
                 ? state.CourseTitle : state.AdvancedCourse ? "BÖLÜM 02" : "BÖLÜM 01";
-            subtitle.rectTransform.offsetMin = new Vector2(116, state.Endless ? -30 : -46);
-            subtitle.rectTransform.offsetMax = new Vector2(424, state.Endless ? 0 : -16);
-            bonus.text = state.Bonus.ToString();
+            if (!presented || lastState.Endless != state.Endless)
+            {
+                subtitle.rectTransform.offsetMin = new Vector2(116, state.Endless ? -30 : -46);
+                subtitle.rectTransform.offsetMax = new Vector2(424, state.Endless ? 0 : -16);
+            }
+            if (!presented || lastState.Bonus != state.Bonus) bonus.text = state.Bonus.ToString();
             score.gameObject.SetActive(state.Endless);
             record.gameObject.SetActive(state.Endless);
-            score.text = state.Score.ToString("N0");
-            record.text = "REKOR  " + state.BestScore.ToString("N0") + (state.Endless ? "  ·  " + Mathf.Max(1, state.PaceMultiplier).ToString("0.0") + "×" : "");
+            if (state.Endless && (!presented || !lastState.Endless || lastState.Score != state.Score))
+                score.text = state.Score.ToString("N0");
+            if (state.Endless && (!presented || !lastState.Endless || lastState.BestScore != state.BestScore || lastState.PaceMultiplier != state.PaceMultiplier))
+                record.text = "REKOR  " + state.BestScore.ToString("N0") + "  ·  " + Mathf.Max(1, state.PaceMultiplier).ToString("0.0") + "×";
             progressRail.SetActive(!state.Endless);
             float progress = state.FinishDistance > 0 ? Mathf.Clamp01(state.Distance / state.FinishDistance) : 0;
             displayedProgress = state.Phase == RunPhase.Ready ? 0 :
                 Mathf.Lerp(displayedProgress, progress, 1 - Mathf.Exp(-12 * Mathf.Max(0, dt)));
-            progressFill.anchorMax = new Vector2(displayedProgress, 1);
+            if (!state.Endless && progressFill.anchorMax.x != displayedProgress)
+                progressFill.anchorMax = new Vector2(displayedProgress, 1);
             bool charged = state.EnergyCapacity > 0 && state.Energy >= state.EnergyCapacity;
             energyRow.SetActive(!state.AdvancedCourse);
             energyLabel.text = charged ? "PULSE HAZIR" : "PULSE";
@@ -141,7 +151,13 @@ namespace TetherRush.Presentation
             outcome.SetActive(!running);
             audioButton.gameObject.SetActive(!running);
             audioIcon.Glyph = state.AudioEnabled ? UiGlyph.SoundOn : UiGlyph.SoundOff;
-            if (running) { previousPhase = state.Phase; return; }
+            bool updateCard = !presented || previousPhase != state.Phase || lastState.Endless != state.Endless ||
+                lastState.AdvancedCourse != state.AdvancedCourse || lastState.CanAdvance != state.CanAdvance ||
+                lastState.CanSwitchCourse != state.CanSwitchCourse || lastState.CanGoHome != state.CanGoHome ||
+                lastState.Score != state.Score || lastState.BestScore != state.BestScore || lastState.Bonus != state.Bonus ||
+                lastState.FailureReason != state.FailureReason || lastState.CourseTitle != state.CourseTitle;
+            lastState = state; presented = true;
+            if (running || !updateCard) { previousPhase = state.Phase; return; }
 
             nextAction = state.CanAdvance && state.Phase == RunPhase.Completed;
             bool canSwitch = state.CanSwitchCourse && (state.Phase == RunPhase.Ready || state.Phase == RunPhase.Failed || state.Phase == RunPhase.Completed);
@@ -187,6 +203,15 @@ namespace TetherRush.Presentation
         private void UpdateCoach(HudState state, float dt)
         {
             string current = state.Hint ?? string.Empty;
+            if (coachSource != current)
+            {
+                coachSource = current;
+                coachCritical = current.IndexOf("MENZİLDE", StringComparison.OrdinalIgnoreCase) >= 0;
+                coachContextual = current.StartsWith("BAĞ RÖLESİ", StringComparison.Ordinal) || current.StartsWith("PULSE KİLİDİ", StringComparison.Ordinal);
+                int split = current.IndexOf('•');
+                string shortHint = (split >= 0 ? current.Substring(split + 1) : current).Trim();
+                coachText = shortHint.Length > 50 || shortHint.Length == 0 ? "Basılı tut: açıl · Bırak: daral" : shortHint;
+            }
             if (state.Phase == RunPhase.Ready || (state.Phase == RunPhase.Running && previousPhase != RunPhase.Running && previousPhase != RunPhase.Paused))
                 previousHint = null;
             if (state.Phase != RunPhase.Paused && current != previousHint)
@@ -195,18 +220,13 @@ namespace TetherRush.Presentation
                 coachRemaining = 2.2f;
             }
             if (state.Phase == RunPhase.Running) coachRemaining = Mathf.Max(0, coachRemaining - Mathf.Max(0, dt));
-            bool critical = current.IndexOf("MENZİLDE", StringComparison.OrdinalIgnoreCase) >= 0;
-            bool contextual = current.StartsWith("BAĞ RÖLESİ", StringComparison.Ordinal) || current.StartsWith("PULSE KİLİDİ", StringComparison.Ordinal);
+            bool critical = coachCritical;
+            bool contextual = coachContextual;
             bool show = state.Phase == RunPhase.Running && (critical || ((state.TeachControls || contextual) && coachRemaining > 0));
             hint.gameObject.SetActive(show);
             if (!show) return;
             if (critical) hint.text = "MENZİLDE · BIRAK";
-            else
-            {
-                int split = current.IndexOf('•');
-                string shortHint = (split >= 0 ? current.Substring(split + 1) : current).Trim();
-                hint.text = shortHint.Length > 50 || shortHint.Length == 0 ? "Basılı tut: açıl · Bırak: daral" : shortHint;
-            }
+            else hint.text = coachText;
             hint.color = critical ? UiResources.Accent : UiResources.Paper;
         }
 

@@ -1,6 +1,6 @@
 {
   "name": "TetherRush.Runtime",
   "rootNamespace": "TetherRush",
-  "references": ["TetherRush.Core", "Unity.InputSystem", "Unity.ugui"],
+  "references": ["TetherRush.Core", "Unity.InputSystem", "Unity.ugui", "Unity.RenderPipelines.Universal.Runtime"],
   "autoReferenced": true
 }

@@ -2,6 +2,14 @@
 
 Son güncelleme: 04.11.2026.
 
+## Optimizasyon — 0.9.0 (10)
+
+D-042 kapsamında önce kalibre GC.Alloc olay sayacı ve aynı rota CPU ölçümü alındı. GameHud sabit sayı/koç/kart formatını önbellekliyor; MenuHero statik önizlemeyi iki ilk render sonrası saklıyor ve texture kaybında yeniliyor. Temasta muhafazakâr Z ön elemesi, sabit bölüm/öğretici bilgisi, pointer reuse ve chunk kimliğiyle emeklilik var. GameFeedback halka noktalarını toplu yüklüyor, sabit MPB ve gizli aura işini atlıyor; ghost materyal slotlarını tekrar kullanıyor. Kontrol, solver, 25 bölüm/kayıt, ses ve URP MSAA 2/renderScale 1 korunur.
+
+Aynı kontrollü Editor/Mono rotalarında GC.Alloc olayı %97–99, ortalama SimulateStep süresi %43–61 azaldı; bunlar bayt/peak RAM veya telefon FPS ölçümü değildir. Idle 30 karede menü preview 30→0 çizim; sabit sonuç/pause 512 adımda tahsis 0. Tüm karşılaştırılan rota sonu değerleri aynı. Oyun/harita gerçek kareleri 0.8.0 referanslarıyla piksel düzeyinde aynı; menü görsel kabulü ve RT kaybı testi geçti. **120 EditMode +136 PlayMode =256/256** geçti. Windows/Android strict build exit0; APK39.163.089 bayt,0.9.0 (10), ARM64/API25/36/portrait ve v2 imzası doğrulandı. Kalıcı kayıt Docs/QA/OPTIMIZATION_VALIDATION.md ve Results/Optimization_*.json.
+
+optimization_ui, optimization_core ve optimization_render GPT-6.1 Sol medium ile ayrı dosya sahipliklerinde çalıştı; ana yönetici ölçüm altyapısı, kaynak incelemesi, gerçek render karşılaştırması, ortak test/assembly uyarlaması, build/Git teslimini yürütür. İlk iki yeni test fixture sorunu düzeltildi; son tam tur 136/136. Daha büyük model havuzlaması ve fiziksel cihaz GPU/FPS/termal/pil kabulü açık; D-017 gereği telefon talebi yinelenmez.
+
 ## Müzik ve coin — 0.8.0 (9)
 
 D-039/040: özgün 73,85 saniyelik sözsüz Tether Flow müziği, 10 kısa ses efekti ve altın coin/HUD simgesi tamamlandı. Müzik tek uygulama kaynağında menü/koşu/retry boyunca sürer; mevcut kalıcı ses anahtarı/düzeyi uygulanır. Pause, odak kaybı ve uygulama arka planı ayrı nedenlerdir. Üç coin ses varyantı ve toplama çiftlerini tek sese indiren aralık sınırı vardır. Kaynak reçete/master, üretim betiği ve sayısal ses QA depoda; runtime ses dosyaları toplam yaklaşık1,085MB.
@@ -67,11 +75,11 @@ Cila tesliminden sonra kullanıcı 02.11.2026 tarihinde menü ve ilk bölümleri
 | Araç | Gözlenen durum |
 | --- | --- |
 | Unity | Proje 6000.3.19f1 (7689f4515d75) ile açıldı, C# derlendi ve prototip sahnesi kaydedildi. URP 17.3.0, Input System 1.19.0 kilitlendi. |
-| Android desteği | Müzik/coin APK strict build exit0:39.158.057 bayt,0.8.0 (9), ARM64/API25/36/portrait; v2 imzası doğrulandı. output/android/TetherRush-AudioCoin.apk. ASCII junction ve generated-cache callback kullanılır. |
+| Android desteği | Optimizasyon APK strict build exit0:39.163.089 bayt,0.9.0 (10), ARM64/API25/36/portrait; v2 imzası doğrulandı. output/android/TetherRush-Optimized.apk. ASCII junction/generated-cache callback kullanılır. |
 | Blender | 5.2.3 LTS ile19 FBX; yeniCoin624tri/tekmesh/üç materyal, bağımsız reimport geçti. Önceki18FBX aynı; toplam kit7.716tri/25mesh. Kaynak ve paftalar ArtSource/Blender içinde. |
 | Git | origin GitHub TetherRush-MobileGame, dal main. Kod, Blender kaynak/FBX, gerçek Unity kareleri ve doğrulama özetleri sürüm kontrolüne alınır; build/cache çıktıları dışarıda tutulur. Son teslim hash'i git log ve yönetim sohbetindeki teslim raporundan izlenir. |
-| Unity testleri | Müzik/coin: EditMode120/120 +PlayMode120/120 =240/240. Docs/QA/Results/AudioCoin_test_results.json; önceki231/191/185/182/124/61 kayıtları korunur. |
-| Windows önizleme | Müzik/coin strict build exit0, output/windows-audio-coin/TetherRush.exe. Güncel kareler Docs/Art/Previews/AudioCoin_*.png. |
+| Unity testleri | Optimizasyon: EditMode120/120 +PlayMode136/136 =256/256. Docs/QA/Results/Optimization_test_results.json; önceki240/231/191/185/182/124/61 kayıtları korunur. |
+| Windows önizleme | Optimizasyon strict build exit0, output/windows-optimized/TetherRush.exe. Güncel kareler Docs/Art/Previews/Optimized_*.png. |
 
 ## Kilometre taşları
 
@@ -86,6 +94,7 @@ Cila tesliminden sonra kullanıcı 02.11.2026 tarihinde menü ve ilk bölümleri
 | Engel modelleri | Araştırma,4 Blender varyantı ve bölüm/sonsuz görsel seçimi. | 191 test,4 gerçek kare,Windows ve imzası doğrulanan Android0.6.0 build geçti. |
 | Sade sanat ve etkileşimler | Bağ rölesi, hareketli Pulse kilidi, skorla artan sonsuz tempo. |231 test,9 gerçek kare,Windows/Android0.7.0 ve APK imzası geçti. |
 | Müzik ve coin | Özgün sözsüz döngü/10SFX, Blender coin ve aynı HUD/harita Sprite. |240 test,2 gerçek kare, Windows/Android0.8.0 strict build ve APK imzası geçti. |
+| Optimizasyon | HUD/cache, demand preview, temas ön elemesi, stream/efekt maliyeti. |256 test, aynı rota kıyası,3 gerçek kare, Windows/Android0.9.0 strict build ve APK imzası geçti. |
 | M3 – Mobil doğrulama | Fiziksel cihaz, performans, ekran oranları, pause/resume, ses ve titreşim. | Cihaz ve hedef bütçeler belirlenecek. |
 | M4 – Yayına hazırlık | Mağaza gereksinimleri ve dağıtım. | Kullanıcı ayrıca kapsam/onay verecek. |
 
@@ -95,4 +104,4 @@ Başlangıç MainMenu; Leveller numaralı 25 düğümlük haritayı açar. Yeni 
 
 ## Sıradaki yönetim kararı
 
-Kullanıcı yeni müzik/efektlerin duyumunu, ses dengesini ve coin model/simgesini inceleyecek; sade engeller, iki mekanik ve artan sonsuz temponun insan zorluk değerlendirmesi de açık kalır. Yeni oyun sistemi veya ekonomi eklenmeden kapsam tartışılacak. Android telefon testi D-017 gereği sonda; tekrar cihaz talep edilmeyecek. Oynama README.md, güncel gerçek kareler Docs/Art/Previews/AudioCoin_*.png altında.
+Kullanıcı optimize sürümün Editor/Windows akıcılığını ve görünümünü inceleyecek. Yeni müzik/efektlerin duyumu, coin tasarımı, mekanik okunurluğu ve sonsuz zorluk ritmi insan kabulünde açık kalır. Yeni oyun sistemi veya ekonomi eklenmeden kapsam tartışılacak. Android telefon testi D-017 gereği sonda; tekrar cihaz talep edilmeyecek. Oynama README.md, güncel gerçek kareler Docs/Art/Previews/Optimized_*.png altında.

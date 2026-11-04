@@ -4,7 +4,7 @@ Unity ile geliştirilecek, ortak bir enerji bağıyla bağlı iki küreyi tek pa
 
 ## Durum
 
-Güncel paket **0.8.0 (9)**: özgün **73,85 saniyelik sözsüz Tether Flow** müziği, yenilenmiş **10 ses efekti** ve Blender'da üretilen **çift çekirdek işaretli altın coin**. Oyun, HUD ve harita aynı coin görselini kullanır. Müzik menü/deneme/retry geçişlerinde sürer; ses anahtarı/düzeyi kalıcıdır ve duraklatma/odak kaybında müzik duraklar. **25 bölüm**, sıralı açılma, röle/Pulse kilidi, hızlanan Sonsuz Akış ve kayıtlar korunur. **240/240 Unity testi**, Windows ve imzası doğrulanan Android build geçti. Son doğrulama [müzik/coin kaydında](Docs/QA/AUDIO_COIN_VALIDATION.md); fiziksel cihaz ve insan ses dengesi kabulü açıktır.
+Güncel paket **0.9.0 (10)**: HUD metin önbelleği, sabit menü önizlemesinde demand render, muhafazakâr temas ön elemesi ve toplu efekt güncellemeleri. Aynı kontrollü Editor rotalarında GC.Alloc olayları **%97–99**, ortalama oyun döngüsü işlem süresi **%43–61** azaldı; bu ölçüm telefon FPS veya RAM yüzdesi değildir. Oynanış, 25 bölüm/kayıt, görsel kalite ve ses korunur. **256/256 Unity testi**, Windows ve imzası doğrulanan Android build geçti. [Doğrulama ve ölçüm sınırları](Docs/QA/OPTIMIZATION_VALIDATION.md); fiziksel cihaz testi son aşamadadır.
 
 - Hedef: **Android telefon, dikey ekran** (kullanıcı onayı: 31.10.2026).
 - Tasarım kaynağı: [GDD v2.0](Docs/Source/Tether_Rush_GDD_v2.pdf), 31.10.2026.
@@ -13,6 +13,10 @@ Güncel paket **0.8.0 (9)**: özgün **73,85 saniyelik sözsüz Tether Flow** m�
 - Kaynak depo: https://github.com/anilcay/TetherRush-MobileGame
 
 ## Proje kayıtları
+
+- [Optimizasyon doğrulaması](Docs/QA/OPTIMIZATION_VALIDATION.md)
+- [Önce/sonra ölçümleri](Docs/QA/Results/Optimization_comparison.json)
+- [Optimize gerçek menü karesi](Docs/Art/Previews/Optimized_Menu.png)
 
 - [Müzik/coin doğrulaması](Docs/QA/AUDIO_COIN_VALIDATION.md)
 - [Özgün müzik ve efektler](Docs/Audio/AUDIO_ASSETS.md)
@@ -89,7 +93,7 @@ Unity Editor'ü kapattıktan sonra proje kökünde PowerShell ile:
 ./Tools/Unity.ps1 -Action Android
 ```
 
-`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-AudioCoin.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-audio-coin/TetherRush.exe` altında üretir. Eski M1/M2/cila/ilk menü çıktıları karşılaştırma için ayrı klasörlerde korunur.
+`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-Optimized.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-optimized/TetherRush.exe` altında üretir. Eski M1/M2/cila/ilk menü çıktıları karşılaştırma için ayrı klasörlerde korunur.
 
 Android araçları Türkçe karakter içeren proje yollarını kabul etmez. Bu klasör için `-Action Android` aynı depoya işaret eden geçici bir ASCII junction yolunu otomatik kullanır; kaynaklar taşınmaz veya kopyalanmaz. Bağlantı TEMP altında kalır ve tekrar kullanılır. Editor'dan doğrudan Android build almak için de ASCII bir proje yolu gerekir; mevcut klasörde Editor oynanışı etkilenmez.
 

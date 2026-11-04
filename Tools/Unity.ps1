@@ -1,7 +1,8 @@
 param(
     [ValidateSet('Prepare', 'EditMode', 'PlayMode', 'Android', 'Windows')]
     [string]$Action = 'Prepare',
-    [string]$UnityPath = 'C:\Program Files\Unity\Hub\Editor\6000.3.19f1\Editor\Unity.exe'
+    [string]$UnityPath = 'C:\Program Files\Unity\Hub\Editor\6000.3.19f1\Editor\Unity.exe',
+    [string]$TestFilter = ''
 )
 $ErrorActionPreference = 'Stop'
 $taskProject = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
@@ -32,6 +33,7 @@ $taskArgs = @('-batchmode', '-projectPath', ('"' + $taskProject + '"'), '-logFil
 if ($Action -eq 'EditMode' -or $Action -eq 'PlayMode') {
     # The test runner exits itself. -quit can terminate it before results are written.
     $taskArgs += @('-runTests', '-testPlatform', $Action, '-testResults', ('"' + (Join-Path $taskLogs "$Action.xml") + '"'))
+    if ($TestFilter) { $taskArgs += @('-testFilter', ('"' + $TestFilter + '"')) }
 } else {
     $taskMethod = switch ($Action) {
         'Prepare' { 'PrepareProject' }

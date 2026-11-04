@@ -35,13 +35,18 @@ namespace TetherRush
         public MechanicFeedback MechanicFeedback { get; private set; }
         private readonly EndlessPace pace = new EndlessPace();
         private readonly HashSet<TimedHazard> openedTimed = new HashSet<TimedHazard>();
-        private sealed class RelayLink { public RelaySpec Spec; public Hazard Target; public GameObject View; public bool Open; }
+        private sealed class RelayLink { public int ChunkIndex; public RelaySpec Spec; public Hazard Target; public GameObject View; public bool Open; }
         private readonly List<RelayLink> relays = new List<RelayLink>();
         public event System.Action<RunPhase> PhaseChanged;
         public event System.Action HomeRequested, NextRequested;
         private CourseDefinition definition;
         private int endlessSeed = 1, nextChunkIndex, nextPickupId;
         private Transform spawnParent;
+        private int spawnChunkIndex = -1;
+        private string courseTitle;
+        private bool teachControls;
+        private PointerEventData pointerEventData;
+        private EventSystem pointerEventSystem;
         private sealed class StreamChunk
         {
             public int Index; public Transform Root; public CourseDefinition Data;
@@ -72,8 +77,8 @@ namespace TetherRush
         public int ActivatedTargetCount { get; private set; }
         public int RemainingEnergyCount { get { int n = 0; foreach (var c in pickups) if (!c.Bonus && c.View.activeSelf) n++; return n; } }
 
-        private sealed class Hazard { public Bounds Bounds; public GameObject View, OpenFrame; public bool Marked; public bool Open; public bool Gate; public string Reason; }
-        private sealed class Pickup { public Vector3 Position; public GameObject View; public bool Bonus; public int Id; public Transform CoinVisual; public Quaternion CoinRotation; }
+        private sealed class Hazard { public int ChunkIndex; public Bounds Bounds; public GameObject View, OpenFrame; public bool Marked; public bool Open; public bool Gate; public string Reason; }
+        private sealed class Pickup { public int ChunkIndex; public Vector3 Position; public GameObject View; public bool Bonus; public int Id; public Transform CoinVisual; public Quaternion CoinRotation; }
         private readonly List<Hazard> hazards = new List<Hazard>();
         private readonly List<Pickup> pickups = new List<Pickup>();
         private readonly List<Material> materials = new List<Material>();
@@ -97,6 +102,8 @@ namespace TetherRush
             Application.targetFrameRate = 60;
             Model = new RunModel(tuning);
             BuildWorld();
+            courseTitle = IsEndless ? "SONSUZ AKIŞ" : definition != null ? "BÖLÜM " + (SelectedLevelIndex + 1).ToString("00") : null;
+            teachControls = !IsEndless && (definition == null || SelectedLevelIndex < 5 || definition.Relays.Length > 0 || System.Array.Exists(definition.TimedHazards, h => h.PulseLock));
             Feedback = gameObject.AddComponent<GameFeedback>();
             Feedback.Initialize(LeftCore, RightCore, tether, gameCamera, tetherMat, tuning.PulseRadius);
             Feedback.AudioEnabled = !Application.isBatchMode && preferredAudio;
@@ -171,14 +178,14 @@ namespace TetherRush
             Vector2 a = new Vector2(oldHalf, oldZ), b = new Vector2(Model.HalfSeparation, Model.Distance);
             foreach (var h in hazards)
             {
-                if (h.Open) continue;
+                if (h.Open || !OverlapsZ(oldZ, Model.Distance, h.Bounds.min.z, h.Bounds.max.z, tuning.SphereRadius)) continue;
                 if (SweptCircleBox(a, b, h.Bounds, tuning.SphereRadius) ||
                     SweptCircleBox(new Vector2(-a.x, a.y), new Vector2(-b.x, b.y), h.Bounds, tuning.SphereRadius))
                 { Model.Fail(h.Reason); return; }
             }
             float startTime = oldZ / tuning.ForwardSpeed, endTime = Model.Distance / tuning.ForwardSpeed;
             foreach (var h in timedHazards)
-                if (!openedTimed.Contains(h) && (h.HitsSweptSphere(a, b, tuning.SphereRadius, startTime, endTime) ||
+                if (!openedTimed.Contains(h) && TimedOverlapsZ(h, oldZ, Model.Distance, tuning.SphereRadius) && (h.HitsSweptSphere(a, b, tuning.SphereRadius, startTime, endTime) ||
                     h.HitsSweptSphere(new Vector2(-a.x, a.y), new Vector2(-b.x, b.y), tuning.SphereRadius, startTime, endTime)))
                 { Model.Fail(h.Hint); return; }
             foreach (var relay in relays)
@@ -196,7 +203,8 @@ namespace TetherRush
             }
             foreach (var c in pickups)
             {
-                if (!c.View.activeSelf) continue;
+                if (!c.View.activeSelf || !OverlapsZ(oldZ, Model.Distance, c.Position.z, c.Position.z,
+                    c.Bonus ? tuning.SphereRadius + .25f : .18f)) continue;
                 bool hit;
                 if (c.Bonus)
                 {
@@ -219,6 +227,25 @@ namespace TetherRush
                     c.View.SetActive(false);
                 }
             }
+        }
+
+        // Conservative rejection only; detailed contact calculations remain authoritative.
+        // World-coordinate rounding allowance preserves inclusive contacts in float geometry.
+        private static bool OverlapsZ(float from, float to, double minimum, double maximum, double padding)
+        {
+            double scale = System.Math.Max(System.Math.Max(System.Math.Abs(from), System.Math.Abs(to)),
+                System.Math.Max(System.Math.Abs(minimum), System.Math.Abs(maximum)));
+            double rounding = .00001 + scale * .0000005;
+            return System.Math.Max(from, to) + padding + rounding >= minimum &&
+                System.Math.Min(from, to) - padding - rounding <= maximum;
+        }
+
+        private static bool TimedOverlapsZ(TimedHazard hazard, float from, float to, float radius)
+        {
+            double x = hazard.HalfExtents.x, z = hazard.HalfExtents.y;
+            double extent = hazard.Kind == TimedHazardKind.RotatingArm ? System.Math.Sqrt(x * x + z * z) : z;
+            return OverlapsZ(from, to, hazard.Center.y - extent, hazard.Center.y + extent,
+                radius + TimedHazard.ContactPrecision);
         }
 
         private static float SegmentDistanceSquared(Vector2 a, Vector2 b, Vector2 p)
@@ -334,7 +361,14 @@ namespace TetherRush
         {
             if (EventSystem.current == null) return false;
             uiHits.Clear();
-            EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current) { position = position }, uiHits);
+            if (pointerEventData == null || pointerEventSystem != EventSystem.current)
+            {
+                pointerEventSystem = EventSystem.current;
+                pointerEventData = new PointerEventData(pointerEventSystem);
+            }
+            pointerEventData.Reset();
+            pointerEventData.position = position;
+            pointerEventSystem.RaycastAll(pointerEventData, uiHits);
             return uiHits.Count > 0;
         }
 
@@ -363,7 +397,7 @@ namespace TetherRush
         {
             var obj = ModelVisual(marked ? (gate ? VisualKind.EnergyGate : VisualKind.BreakableBlock) : variant,
                 label, pos, size, marked ? goldMat : redMat, relayGate ? tealMat : null);
-            var hazard = new Hazard { Bounds = new Bounds(pos, size), View = obj, Marked = marked, Gate = gate, Reason = reason };
+            var hazard = new Hazard { ChunkIndex = spawnChunkIndex, Bounds = new Bounds(pos, size), View = obj, Marked = marked, Gate = gate, Reason = reason };
             hazards.Add(hazard);
             if (gate)
             {
@@ -497,7 +531,7 @@ namespace TetherRush
                         new Vector3(.48f, .14f, .7f), tealMat, tealMat);
                     pad.transform.SetParent(root.transform, true);
                 }
-                relays.Add(new RelayLink { Spec = spec, Target = gate, View = root });
+                relays.Add(new RelayLink { ChunkIndex = spawnChunkIndex, Spec = spec, Target = gate, View = root });
             }
             foreach (var p in course.Pickups) AddPickup(p.Position, p.Bonus, nextPickupId++);
             foreach (var h in course.TimedHazards)
@@ -533,11 +567,13 @@ namespace TetherRush
             while (chunks.Count > 0 && (chunks[0].Index + 1) * EndlessCourse.ChunkLength < Model.Distance - 35)
             {
                 var retired = chunks[0];
-                hazards.RemoveAll(h => h.View.transform.IsChildOf(retired.Root));
-                relays.RemoveAll(r => r.View.transform.IsChildOf(retired.Root));
+                for (int i = hazards.Count - 1; i >= 0; i--)
+                    if (hazards[i].ChunkIndex == retired.Index) hazards.RemoveAt(i);
+                for (int i = relays.Count - 1; i >= 0; i--)
+                    if (relays[i].ChunkIndex == retired.Index) relays.RemoveAt(i);
                 foreach (var timed in retired.Data.TimedHazards) openedTimed.Remove(timed);
                 for (int i = pickups.Count - 1; i >= 0; i--)
-                    if (pickups[i].View.transform.IsChildOf(retired.Root))
+                    if (pickups[i].ChunkIndex == retired.Index)
                     { Model.RetireCollectible(pickups[i].Id); pickups.RemoveAt(i); }
                 retired.Root.gameObject.SetActive(false); Destroy(retired.Root.gameObject); chunks.RemoveAt(0); changed = true;
             }
@@ -545,19 +581,26 @@ namespace TetherRush
             {
                 var chunk = new StreamChunk { Index = nextChunkIndex, Data = EndlessCourse.CreateChunk(nextChunkIndex, endlessSeed) };
                 chunk.Root = new GameObject("Akış / " + nextChunkIndex).transform; chunk.Root.SetParent(world, false);
-                spawnParent = chunk.Root;
+                spawnParent = chunk.Root; spawnChunkIndex = chunk.Index;
                 float start = nextChunkIndex * EndlessCourse.ChunkLength;
                 for (int z = 0; z < EndlessCourse.ChunkLength; z += 8) AddTrack(start + z, 8);
                 for (int z = 0; z < EndlessCourse.ChunkLength; z += 16)
                     for (int side = -1; side <= 1; side += 2)
                         ModelVisual(VisualKind.RelayPylon, "Facility relay", new Vector3(side * 4.8f, .65f, start + z), new Vector3(.45f, 1.7f, .65f), trackMat);
-                BuildContent(chunk.Data, chunk.TimedViews); chunks.Add(chunk); nextChunkIndex++; spawnParent = null; changed = true;
+                BuildContent(chunk.Data, chunk.TimedViews); chunks.Add(chunk); nextChunkIndex++; spawnParent = null; spawnChunkIndex = -1; changed = true;
             }
             if (changed)
             {
-                var moving = new List<TimedHazard>(); var views = new List<Transform>();
-                foreach (var chunk in chunks) { moving.AddRange(chunk.Data.TimedHazards); views.AddRange(chunk.TimedViews); }
-                timedHazards = moving.ToArray(); timedViews = views.ToArray();
+                int count = 0;
+                foreach (var chunk in chunks) count += chunk.Data.TimedHazards.Length;
+                timedHazards = new TimedHazard[count]; timedViews = new Transform[count];
+                int offset = 0;
+                foreach (var chunk in chunks)
+                {
+                    System.Array.Copy(chunk.Data.TimedHazards, 0, timedHazards, offset, chunk.Data.TimedHazards.Length);
+                    chunk.TimedViews.CopyTo(timedViews, offset);
+                    offset += chunk.Data.TimedHazards.Length;
+                }
             }
         }
         private string AuthoredHint()
@@ -592,7 +635,7 @@ namespace TetherRush
                 pos, bonus ? new Vector3(.5f, .5f, .18f) : Vector3.one * .32f, bonus ? coinMat : tealMat,
                 bonus ? coinRimMat : null);
             var visual = bonus ? obj.transform.Find("Visual") : null;
-            pickups.Add(new Pickup { Position = pos, View = obj, Bonus = bonus, Id = id,
+            pickups.Add(new Pickup { ChunkIndex = spawnChunkIndex, Position = pos, View = obj, Bonus = bonus, Id = id,
                 CoinVisual = visual, CoinRotation = visual != null ? visual.localRotation : Quaternion.identity });
         }
         private void BuildHud()
@@ -671,9 +714,9 @@ namespace TetherRush
                 Distance = z, FinishDistance = CourseFinishDistance, Energy = Model.Energy,
                 EnergyCapacity = tuning.EnergyCapacity, Bonus = Model.Bonus, ActivatedTargets = ActivatedTargetCount,
                 Hint = definition != null || IsEndless ? AuthoredHint() : SectionHint(Section()), FailureReason = Model.FailureReason,
-                CourseTitle = IsEndless ? "SONSUZ AKIŞ" : definition != null ? "BÖLÜM " + (SelectedLevelIndex + 1).ToString("00") : null,
+                CourseTitle = courseTitle,
                 Endless = IsEndless, Score = Score, BestScore = BestScore, PaceMultiplier = CurrentForwardSpeed / tuning.ForwardSpeed,
-                TeachControls = !IsEndless && (definition == null || SelectedLevelIndex < 5 || definition.Relays.Length > 0 || System.Array.Exists(definition.TimedHazards, h => h.PulseLock)),
+                TeachControls = teachControls,
                 CanGoHome = NavigationEnabled, CanAdvance = NavigationEnabled && SelectedLevelIndex >= 0 && SelectedLevelIndex + 1 < LevelCatalog.Count
             }, Model.Phase == RunPhase.Paused ? 0 : dt);
             Feedback.Tick(Model.Phase == RunPhase.Paused ? 0 : dt, Model.IsHeld, Model.Energy == tuning.EnergyCapacity, Model.Phase);
