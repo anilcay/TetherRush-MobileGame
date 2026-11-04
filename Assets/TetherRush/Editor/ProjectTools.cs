@@ -23,7 +23,7 @@ namespace TetherRush.Editor
         {
             PlayerSettings.companyName = "Anil Cay";
             PlayerSettings.productName = "Tether Rush";
-            PlayerSettings.bundleVersion = "0.4.0";
+            PlayerSettings.bundleVersion = "0.5.0";
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.anilcay.tetherrush");
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToPortrait = true;
@@ -39,7 +39,7 @@ namespace TetherRush.Editor
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
-            PlayerSettings.Android.bundleVersionCode = 5;
+            PlayerSettings.Android.bundleVersionCode = 6;
             PlayerSettings.Android.useCustomKeystore = false;
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             EditorSettings.serializationMode = SerializationMode.ForceText;
@@ -113,14 +113,14 @@ namespace TetherRush.Editor
         {
             PrepareProject();
             EditorUserBuildSettings.buildAppBundle = false;
-            Build(BuildTarget.Android, "output/android/TetherRush-LevelMap25.apk");
+            Build(BuildTarget.Android, "output/android/TetherRush-UIRefresh.apk");
         }
 
         [MenuItem("Tether Rush/Build Windows Preview")]
         public static void BuildWindows()
         {
             PrepareProject();
-            Build(BuildTarget.StandaloneWindows64, "output/windows-level-map/TetherRush.exe");
+            Build(BuildTarget.StandaloneWindows64, "output/windows-ui-refresh/TetherRush.exe");
         }
 
         private static void Build(BuildTarget target, string path)

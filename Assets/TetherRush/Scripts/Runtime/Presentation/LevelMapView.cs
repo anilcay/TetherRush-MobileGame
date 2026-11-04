@@ -12,11 +12,17 @@ namespace TetherRush.Presentation
         private const float Step = 156f, EndPadding = 130f;
         private readonly List<GameObject> nodes = new List<GameObject>();
         private Font font;
-        private Sprite sphere, halo;
         private ScrollRect scroll;
         private RectTransform content, viewport;
         private LevelMapCircuit circuit;
-        private Text progress, footer, legend;
+        private Text progress, footer, footerBonus;
+        private UiIcon footerCrystal;
+        private int[] bestBonuses;
+        internal static readonly Color Background = new Color32(13, 23, 34, 255);
+        internal static readonly Color Surface = new Color32(26, 42, 59, 255);
+        internal static readonly Color Paper = new Color32(245, 242, 233, 255);
+        internal static readonly Color Muted = new Color32(131, 147, 163, 255);
+        internal static readonly Color RouteLine = new Color32(49, 67, 86, 255);
         private Action<int> play;
         private bool[] completed;
         private int unlocked, current;
@@ -27,19 +33,20 @@ namespace TetherRush.Presentation
 
         public void Initialize(Font textFont, Sprite coreSprite, Sprite haloSprite, Action home, Action<int> start)
         {
-            font = textFont; sphere = coreSprite; halo = haloSprite; play = start;
+            // Legacy sprite arguments remain API-compatible; map sockets use the shared flat disc.
+            font = UiResources.Body != null ? UiResources.Body : textFont; play = start;
             // The header and footer are siblings of the masked viewport, so they never scroll away.
-            var back = Box("Back", transform, 22, 24, 144, 48, VisualTheme.Track);
+            var back = Box("Back", transform, 16, 18, 72, 72, Color.clear);
             back.raycastTarget = true;
             var backButton = back.gameObject.AddComponent<Button>(); backButton.targetGraphic = back;
             backButton.onClick.AddListener(() => home?.Invoke());
-            TextAt(back.transform, "‹  Ana menü", 15, VisualTheme.Silver, 0, 0, 144, 48);
-            TextAt(transform, "Leveller", 35, VisualTheme.UIText, 22, 83, 300, 48, TextAnchor.MiddleLeft, FontStyle.Bold);
-            progress = TextAt(transform, "0 / 25", 17, VisualTheme.Tether, 350, 91, 166, 34, TextAnchor.MiddleRight, FontStyle.Bold);
-            legend = TextAt(transform, "● Tamamlandı    ◉ Sıradaki    ○ Keşfet", 12, VisualTheme.UIMuted, 22, 136, 496, 24, TextAnchor.MiddleLeft);
+            Icon("Back icon", back.transform, UiGlyph.Back, Paper, new Vector2(0, 0), 28);
+            var title = TextAt(transform, "Leveller", 38, Paper, 104, 28, 280, 52, TextAnchor.MiddleLeft);
+            title.font = UiResources.Display;
+            progress = TextAt(transform, "0/25", 22, Muted, 380, 36, 132, 40, TextAnchor.MiddleRight);
 
-            viewport = Stretch("Map viewport", transform, new Vector2(12, 72), new Vector2(-12, -174));
-            var surface = viewport.gameObject.AddComponent<Image>(); surface.color = VisualTheme.Inlay;
+            viewport = Stretch("Map viewport", transform, new Vector2(12, 76), new Vector2(-12, -108));
+            var surface = viewport.gameObject.AddComponent<Image>(); surface.color = Background;
             surface.raycastTarget = true;
             viewport.gameObject.AddComponent<RectMask2D>();
             scroll = viewport.gameObject.AddComponent<ScrollRect>();
@@ -56,14 +63,17 @@ namespace TetherRush.Presentation
 
             var footerRect = MakeRect("Map footer", transform);
             footerRect.anchorMin = Vector2.zero; footerRect.anchorMax = new Vector2(1, 0);
-            footerRect.offsetMin = new Vector2(22, 14); footerRect.offsetMax = new Vector2(-22, 62);
-            footer = footerRect.gameObject.AddComponent<Text>(); Configure(footer, "Haritayı kaydır, enerji hattını keşfet.", 13, VisualTheme.UIMuted, TextAnchor.MiddleCenter);
+            footerRect.offsetMin = new Vector2(24, 14); footerRect.offsetMax = new Vector2(-24, 62);
+            footer = footerRect.gameObject.AddComponent<Text>(); Configure(footer, "Bölüm 1", 22, Paper, TextAnchor.MiddleLeft);
+            footerCrystal = Icon("Focused bonus crystal", footerRect, UiGlyph.Crystal, VisualTheme.Bonus, new Vector2(176, 0), 22);
+            footerBonus = TextAt(footerRect, "0", 22, Paper, 440, 0, 52, 48, TextAnchor.MiddleRight);
+            footerCrystal.gameObject.SetActive(false); footerBonus.gameObject.SetActive(false);
         }
 
         public void SetLevels(int count, bool[] done, int[] bonuses, bool sequential)
         {
             for (int i = 0; i < nodes.Count; i++) { nodes[i].SetActive(false); Destroy(nodes[i]); }
-            nodes.Clear(); completed = done;
+            nodes.Clear(); completed = done; bestBonuses = bonuses;
             count = Mathf.Max(0, count);
             int highest = -1, total = 0;
             for (int i = 0; i < count; i++) if (IsDone(i)) { highest = i; total++; }
@@ -71,11 +81,9 @@ namespace TetherRush.Presentation
             unlocked = sequential ? current : count - 1;
             float height = EndPadding * 2 + Mathf.Max(0, count - 1) * Step;
             content.sizeDelta = new Vector2(0, height);
-            progress.text = total + " / " + count + "  TAMAM";
-            legend.text = sequential ? "● Tamamlandı    ◉ Sıradaki    ○ Kilitli" : "● Tamamlandı    ◉ Sıradaki    ○ Keşfet";
-            footer.text = sequential ? "Bölümleri tamamla, enerji hattını aç." : "Tüm bölümler açık. Haritayı kaydır.";
+            progress.text = total + "/" + count;
             circuit.SetRoute(count, done, unlocked, current);
-            for (int i = 0; i < count; i++) BuildNode(i, bonuses);
+            for (int i = 0; i < count; i++) BuildNode(i);
             FocusLevel(current);
         }
 
@@ -84,6 +92,10 @@ namespace TetherRush.Presentation
             if (NodeCount == 0) return;
             index = Mathf.Clamp(index, 0, NodeCount - 1);
             focusIndex = index;
+            footer.text = "Bölüm " + (index + 1);
+            bool showBonus = IsDone(index) && bestBonuses != null && index < bestBonuses.Length;
+            footerCrystal.gameObject.SetActive(showBonus); footerBonus.gameObject.SetActive(showBonus);
+            if (showBonus) footerBonus.text = bestBonuses[index].ToString();
             Canvas.ForceUpdateCanvases();
             focusedViewportSize = viewport.rect.size;
             scroll.StopMovement();
@@ -103,38 +115,54 @@ namespace TetherRush.Presentation
         internal static float NodeX(int index, float width) => width * .5f + Mathf.Sin(index * .86f) * width * .285f;
         private bool IsDone(int i) => completed != null && i < completed.Length && completed[i];
 
-        private void BuildNode(int index, int[] bonuses)
+        private void BuildNode(int index)
         {
             bool done = IsDone(index), locked = index > unlocked, active = index == current;
-            Color accent = index / 5 % 3 == 0 ? VisualTheme.CoreA : index / 5 % 3 == 1 ? VisualTheme.CoreB : VisualTheme.Bonus;
             var holder = MakeRect("Socket " + (index + 1), content);
             holder.anchorMin = holder.anchorMax = new Vector2(.5f + Mathf.Sin(index * .86f) * .285f, 0);
             holder.sizeDelta = new Vector2(136, 140);
             holder.anchoredPosition = new Vector2(0, NodeY(index));
             nodes.Add(holder.gameObject);
-            if (active) Circle("Current energy glow", holder, 150, WithAlpha(VisualTheme.Tether, .45f), halo);
-            Circle("Socket rim", holder, 108, locked ? VisualTheme.Track : done ? VisualTheme.Tether : accent, sphere);
-            Circle("Socket inset", holder, 96, VisualTheme.Inlay, sphere);
-            var face = Circle("Level " + (index + 1), holder, 84, locked ? VisualTheme.Track : done ? VisualTheme.TrackAccent : VisualTheme.UIBackground, sphere);
+            if (active && !done && !locked)
+            {
+                Circle("Current rim", holder, 106, VisualTheme.Tether);
+                Circle("Current rim spacing", holder, 102, Background);
+            }
+            var face = Circle("Level " + (index + 1), holder, 94,
+                locked ? Surface : done ? Paper : active ? VisualTheme.Tether : Surface);
             face.raycastTarget = true;
             var button = face.gameObject.AddComponent<LevelMapNodeButton>(); button.targetGraphic = face;
             button.interactable = !locked;
             button.onClick.AddListener(() => { if (index <= unlocked) play?.Invoke(index); });
             var number = MakeRect("Number", face.transform);
             number.anchorMin = Vector2.zero; number.anchorMax = Vector2.one; number.offsetMin = number.offsetMax = Vector2.zero;
-            Configure(number.gameObject.AddComponent<Text>(), (index + 1).ToString(), 30, locked ? VisualTheme.UIMuted : VisualTheme.UIText, TextAnchor.MiddleCenter, FontStyle.Bold);
-            string status = locked ? "KİLİTLİ" : done ? "TAMAMLANDI" : active ? "SIRADAKİ" : "";
-            TextAt(holder, status, 10, locked ? VisualTheme.UIMuted : done ? VisualTheme.Tether : accent, 0, 126, 136, 18);
-            if (done && bonuses != null && index < bonuses.Length)
-                TextAt(holder, "BONUS " + bonuses[index], 10, VisualTheme.Bonus, 0, 145, 136, 17);
+            number.anchoredPosition = new Vector2(0, locked ? 8 : 0);
+            var label = number.gameObject.AddComponent<Text>();
+            Configure(label, (index + 1).ToString(), 40, locked ? Muted : done || active ? Background : Paper, TextAnchor.MiddleCenter);
+            label.font = UiResources.Display;
+            if (done)
+            {
+                var badge = Circle("Completed check backing", holder, 24, Background);
+                badge.rectTransform.anchoredPosition = new Vector2(37, -34);
+                Icon("Completed check", holder, UiGlyph.Check, Paper, new Vector2(37, -34), 18);
+            }
+            else if (locked) Icon("Locked", holder, UiGlyph.Lock, Muted, new Vector2(0, -28), 18);
         }
 
-        private Image Circle(string name, RectTransform parent, float size, Color color, Sprite sprite)
+        private Image Circle(string name, RectTransform parent, float size, Color color)
         {
             var r = MakeRect(name, parent); r.anchorMin = r.anchorMax = new Vector2(.5f, .5f);
             r.sizeDelta = Vector2.one * size;
-            var image = r.gameObject.AddComponent<Image>(); image.sprite = sprite; image.color = color; image.raycastTarget = false;
+            var image = r.gameObject.AddComponent<Image>(); image.sprite = UiResources.CircleSprite; image.color = color; image.raycastTarget = false;
             image.preserveAspect = true; return image;
+        }
+        private UiIcon Icon(string name, Transform parent, UiGlyph glyph, Color color, Vector2 position, float size)
+        {
+            var r = MakeRect(name, parent); r.anchorMin = r.anchorMax = new Vector2(.5f, .5f);
+            r.sizeDelta = Vector2.one * size; r.anchoredPosition = position;
+            r.gameObject.AddComponent<CanvasRenderer>();
+            var icon = r.gameObject.AddComponent<UiIcon>(); icon.Glyph = glyph; icon.color = color; icon.raycastTarget = false;
+            return icon;
         }
         private Image Box(string name, Transform parent, float x, float y, float w, float h, Color color)
         {
@@ -162,7 +190,6 @@ namespace TetherRush.Presentation
         {
             var r = MakeRect(name, parent); r.anchorMin = Vector2.zero; r.anchorMax = Vector2.one; r.offsetMin = min; r.offsetMax = max; return r;
         }
-        private static Color WithAlpha(Color c, float a) { c.a = a; return c; }
     }
 
     /// <summary>ScrollRect also cancels clicks on drag; this guard rejects a displaced touch explicitly.</summary>
@@ -176,76 +203,32 @@ namespace TetherRush.Presentation
         }
     }
 
-    /// <summary>One clipped UI mesh for the whole static facility, energized conduit and completion ticks.</summary>
+    /// <summary>A single clipped, flat conduit connects every numbered facility socket.</summary>
     [RequireComponent(typeof(CanvasRenderer))]
     public sealed class LevelMapCircuit : MaskableGraphic
     {
-        private int count, unlocked, current;
-        private bool[] completed;
+        private int count, current;
         public void SetRoute(int nodeCount, bool[] done, int unlockedIndex, int currentIndex)
         {
-            count = nodeCount; completed = done; unlocked = unlockedIndex; current = currentIndex; SetVerticesDirty();
+            count = nodeCount; current = currentIndex; SetVerticesDirty();
         }
         protected override void OnPopulateMesh(VertexHelper vh)
         {
             vh.Clear(); float w = rectTransform.rect.width;
             Vector2 origin = rectTransform.rect.min;
-            // Five-node facility bays vary their rail geometry and accent, without individual level names.
-            for (int band = 0; band * 5 < count; band++)
-            {
-                float bottom = Mathf.Max(20, LevelMapView.NodeY(band * 5) - 96);
-                float top = Mathf.Min(rectTransform.rect.height - 20, bottom + 754);
-                Color accent = band % 3 == 0 ? VisualTheme.CoreA : band % 3 == 1 ? VisualTheme.CoreB : VisualTheme.Bonus;
-                Color plate = VisualTheme.UIBackground; plate.a = .56f;
-                Quad(vh, origin + new Vector2(20, bottom), new Vector2(w - 40, top - bottom), plate);
-                for (int rail = 0; rail < 2; rail++)
-                {
-                    float x = rail == 0 ? 34 : w - 34;
-                    Line(vh, origin + new Vector2(x, bottom + 24), origin + new Vector2(x, top - 24), 2, VisualTheme.Track);
-                    int bars = 3 + band % 3;
-                    for (int b = 0; b < bars; b++)
-                    {
-                        float y = bottom + 35 + b * 20;
-                        Color dim = accent; dim.a = .38f;
-                        Quad(vh, origin + new Vector2(x - 5, y), new Vector2(10, 8), dim);
-                    }
-                }
-                Color rim = accent; rim.a = .25f;
-                Line(vh, origin + new Vector2(55, top), origin + new Vector2(w - 55, top), 2, rim);
-                // Relay bracket shape changes per bay, producing a deliberate five-section rhythm.
-                float side = band % 2 == 0 ? 60 : w - 60;
-                Line(vh, origin + new Vector2(side, bottom + 180), origin + new Vector2(side, bottom + 310 + band % 3 * 30), 4, VisualTheme.TrackAccent);
-                Line(vh, origin + new Vector2(side, bottom + 180), origin + new Vector2(side + (band % 2 == 0 ? 32 : -32), bottom + 180), 4, VisualTheme.TrackAccent);
-            }
             for (int i = 0; i < count - 1; i++)
             {
                 Vector2 start = new Vector2(LevelMapView.NodeX(i, w), LevelMapView.NodeY(i));
                 Vector2 end = new Vector2(LevelMapView.NodeX(i + 1, w), LevelMapView.NodeY(i + 1));
-                Color energy = i < current ? VisualTheme.Tether : i + 1 <= unlocked ? VisualTheme.TrackAccent : VisualTheme.Track;
+                Color energy = i < current ? VisualTheme.Tether : LevelMapView.RouteLine;
                 Vector2 previous = start;
                 for (int s = 1; s <= 12; s++)
                 {
                     float t = s / 12f, smooth = t * t * (3 - 2 * t);
                     Vector2 next = new Vector2(Mathf.Lerp(start.x, end.x, smooth), Mathf.Lerp(start.y, end.y, t));
-                    Color glow = energy; glow.a = .13f;
-                    Line(vh, origin + previous, origin + next, 18, glow);
-                    Line(vh, origin + previous, origin + next, 5, energy); previous = next;
+                    Line(vh, origin + previous, origin + next, 3, energy); previous = next;
                 }
             }
-            for (int i = 0; i < count; i++) if (completed != null && i < completed.Length && completed[i])
-            {
-                Vector2 badge = origin + new Vector2(LevelMapView.NodeX(i, w) + 47, LevelMapView.NodeY(i) + 47);
-                Disc(vh, badge, 13, VisualTheme.Tether);
-                Line(vh, badge + new Vector2(-6, 0), badge + new Vector2(-1, -5), 3, VisualTheme.Void);
-                Line(vh, badge + new Vector2(-1, -5), badge + new Vector2(7, 5), 3, VisualTheme.Void);
-            }
-        }
-        private static void Quad(VertexHelper vh, Vector2 p, Vector2 size, Color color)
-        {
-            int k = vh.currentVertCount;
-            vh.AddVert(p, color, Vector2.zero); vh.AddVert(p + new Vector2(size.x, 0), color, Vector2.zero);
-            vh.AddVert(p + size, color, Vector2.zero); vh.AddVert(p + new Vector2(0, size.y), color, Vector2.zero);
-            vh.AddTriangle(k, k + 1, k + 2); vh.AddTriangle(k, k + 2, k + 3);
         }
         private static void Line(VertexHelper vh, Vector2 a, Vector2 b, float width, Color color)
         {
@@ -253,17 +236,6 @@ namespace TetherRush.Presentation
             vh.AddVert(a - n, color, Vector2.zero); vh.AddVert(a + n, color, Vector2.zero);
             vh.AddVert(b + n, color, Vector2.zero); vh.AddVert(b - n, color, Vector2.zero);
             vh.AddTriangle(k, k + 1, k + 2); vh.AddTriangle(k, k + 2, k + 3);
-        }
-        private static void Disc(VertexHelper vh, Vector2 p, float r, Color color)
-        {
-            int k = vh.currentVertCount; vh.AddVert(p, color, Vector2.zero);
-            const int segments = 20;
-            for (int s = 0; s <= segments; s++)
-            {
-                float a = s * Mathf.PI * 2 / segments;
-                vh.AddVert(p + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * r, color, Vector2.zero);
-                if (s > 0) vh.AddTriangle(k, k + s, k + s + 1);
-            }
         }
     }
 }

@@ -15,105 +15,86 @@ namespace TetherRush.Presentation
         public int Energy, EnergyCapacity, Bonus, ActivatedTargets;
         public string Hint, FailureReason;
         public string CourseTitle;
-        public bool Endless, CanGoHome, CanAdvance;
+        public bool Endless, CanGoHome, CanAdvance, TeachControls;
         public int Score, BestScore;
     }
 
-    /// <summary>Presentation only. All gameplay changes are delegated to supplied callbacks.</summary>
+    /// <summary>Presentation only; input, simulation and navigation remain callback owned.</summary>
     public sealed class GameHud : MonoBehaviour
     {
         public Canvas Canvas { get; private set; }
-        private RectTransform safeArea, progressFill, energyContainer, primaryRect;
-        private Text subtitle, distance, bonus, energyLabel, hint, audioLabel, cardTitle, cardBody, primaryLabel, secondaryLabel;
-        private Button pauseButton, secondaryButton, homeButton;
-        private Action goHome, nextLevel;
-        private Text homeLabel;
-        private bool nextAction;
-        private GameObject card;
+        private RectTransform safeArea, progressFill;
+        private Text subtitle, score, record, bonus, energyLabel, hint, cardTitle, cardNumber, cardBody;
+        private Text primaryLabel, secondaryLabel, homeLabel;
+        private Button pauseButton, audioButton, primaryButton, secondaryButton, homeButton;
+        private UiIcon audioIcon;
+        private GameObject outcome, energyRow, progressRail;
         private Image[] energySegments;
-        private Image cardAccent;
-        private Texture2D roundedTexture;
-        private Sprite roundedSprite;
-        private Font font;
+        private Action goHome, nextLevel;
+        private bool initialized, nextAction;
         private Rect previousSafeArea;
         private int previousWidth, previousHeight;
-        private bool initialized;
-        private float displayedProgress;
+        private float displayedProgress, coachRemaining;
+        private string previousHint;
+        private RunPhase previousPhase;
 
         public void Initialize(bool advanced, Action startOrResume, Action pause, Action toggleAudio, Action otherCourse)
         {
             if (initialized) return;
             initialized = true;
-            font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            CreateRoundedSprite();
-            var root = new GameObject("Tether Rush HUD", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            var root = new GameObject("Tether Rush HUD", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
             root.transform.SetParent(transform, false);
             Canvas = root.GetComponent<Canvas>();
             Canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             Canvas.sortingOrder = 20;
+            if (root.GetComponent<GraphicRaycaster>() == null) root.AddComponent<GraphicRaycaster>();
             var scaler = root.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(540, 960);
-            scaler.matchWidthOrHeight = .5f;
+            scaler.matchWidthOrHeight = 0;
             safeArea = Rect("Safe area", root.transform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
 
-            var top = Panel("Flight instruments", safeArea, Alpha(VisualTheme.UIBackground, .94f),
-                new Vector2(0, 1), Vector2.one, new Vector2(16, -152), new Vector2(-16, -12));
-            Label("Title", top.transform, "TETHER RUSH", 20, VisualTheme.UIText, 18, 12, 252, 27, FontStyle.Bold);
-            subtitle = Label("Course", top.transform, advanced ? "02  /  ZAMANLAMA" : "01  /  TEMEL PARKUR", 12, VisualTheme.UIMuted, 18, 37, 245, 17);
-            Control("Audio", top.transform, "Ses açık", VisualTheme.Inlay, VisualTheme.Silver,
-                new Vector2(1, 1), Vector2.one, new Vector2(-174, -58), new Vector2(-94, -10), toggleAudio, out audioLabel);
-            audioLabel.fontSize = 14;
-            pauseButton = Control("Pause", top.transform, "Duraklat", VisualTheme.Inlay, VisualTheme.Silver,
-                new Vector2(1, 1), Vector2.one, new Vector2(-88, -58), new Vector2(-10, -10), pause, out var pauseLabel);
-            pauseLabel.fontSize = 14;
-            distance = Label("Distance", top.transform, "0 / 180 m", 17, VisualTheme.UIText, 18, 65, 220, 22, FontStyle.Bold);
-            bonus = Label("Bonus", top.transform, "BONUS  0", 14, VisualTheme.Bonus, 268, 66, 214, 20);
-            bonus.rectTransform.anchorMin = bonus.rectTransform.anchorMax = Vector2.one;
-            bonus.rectTransform.offsetMin = new Vector2(-242, -86);
-            bonus.rectTransform.offsetMax = new Vector2(-18, -66);
-            bonus.alignment = TextAnchor.MiddleRight;
-            var progress = Panel("Progress rail", top.transform, VisualTheme.Inlay, Vector2.zero, Vector2.one,
-                new Vector2(18, 41), new Vector2(-18, -93));
-            progressFill = Panel("Progress", progress.transform, VisualTheme.Tether, Vector2.zero, new Vector2(0, 1), Vector2.zero, Vector2.zero).rectTransform;
-            energyLabel = Label("Energy caption", top.transform, "ENERJİ  0 / 5", 12, VisualTheme.UIMuted, 18, 108, 205, 20);
-            energyContainer = Rect("Energy segments", top.transform, new Vector2(.46f, 0), new Vector2(1, 0), new Vector2(0, 16), new Vector2(-18, 26));
-            var hintPanel = Panel("Course hint", safeArea, Alpha(VisualTheme.UIBackground, .9f),
-                new Vector2(0, 1), Vector2.one, new Vector2(28, -197), new Vector2(-28, -162));
-            hint = StretchLabel("Instruction", hintPanel.transform, "", 15, VisualTheme.UIText, 12);
+            pauseButton = IconButton("Pause", safeArea, UiGlyph.Pause, 12, 8, pause, out _);
+            subtitle = Label("Course", safeArea, "BÖLÜM 01", 20, UiResources.Paper, 116, 16, 308, 30, true);
+            subtitle.alignment = TextAnchor.MiddleCenter;
+            progressRail = Panel("Progress rail", safeArea, UiResources.Line, new Vector2(0, 1), new Vector2(0, 1),
+                new Vector2(116, -63), new Vector2(424, -58), false).gameObject;
+            progressFill = Panel("Progress", progressRail.transform, UiResources.Paper, Vector2.zero,
+                new Vector2(0, 1), Vector2.zero, Vector2.zero, false).rectTransform;
+            Icon("Crystal", safeArea, UiGlyph.Crystal, UiResources.Paper, 448, 28, 22);
+            bonus = Label("Bonus", safeArea, "0", 20, UiResources.Paper, 474, 24, 52, 30);
+            score = Label("Score", safeArea, "", 36, UiResources.Paper, 116, 25, 308, 43, true);
+            score.alignment = TextAnchor.MiddleCenter;
+            record = Label("Best", safeArea, "", 16, UiResources.Muted, 116, 64, 308, 20);
+            record.alignment = TextAnchor.MiddleCenter;
 
-            var footer = Panel("Touch reminder", safeArea, Alpha(VisualTheme.UIBackground, .83f),
-                Vector2.zero, new Vector2(1, 0), new Vector2(46, 9), new Vector2(-46, 35));
-            StretchLabel("Gesture", footer.transform, "BASILI TUT: AÇIL     /     BIRAK: DARAL", 12, VisualTheme.Silver, 8);
+            energyRow = Rect("Pulse status", safeArea, new Vector2(0, 1), new Vector2(0, 1),
+                new Vector2(116, -103), new Vector2(424, -82)).gameObject;
+            energyLabel = Label("Energy caption", energyRow.transform, "PULSE", 16, UiResources.Muted, 0, 0, 110, 21);
+            energySegments = new Image[5];
+            for (int i = 0; i < energySegments.Length; i++)
+                energySegments[i] = Panel("Energy " + (i + 1), energyRow.transform, UiResources.Line,
+                    new Vector2(0, 1), new Vector2(0, 1), new Vector2(114 + i * 39, -14), new Vector2(147 + i * 39, -7), false);
+            hint = Label("Instruction", safeArea, "", 19, UiResources.Paper, 36, 115, 468, 28);
+            hint.alignment = TextAnchor.MiddleCenter;
 
-            var cardImage = Panel("Run card", safeArea, Alpha(VisualTheme.UIBackground, .97f),
-                Vector2.zero, new Vector2(1, 0), new Vector2(24, 45), new Vector2(-24, 265));
-            card = cardImage.gameObject;
-            cardImage.raycastTarget = true;
-            cardAccent = Panel("State accent", card.transform, VisualTheme.Tether,
-                new Vector2(0, 1), new Vector2(0, 1), new Vector2(20, -29), new Vector2(49, -25));
-            Panel("Core peach", card.transform, VisualTheme.CoreA, new Vector2(1, 1), Vector2.one, new Vector2(-47, -29), new Vector2(-35, -17));
-            Panel("Core lavender", card.transform, VisualTheme.CoreB, new Vector2(1, 1), Vector2.one, new Vector2(-29, -29), new Vector2(-17, -17));
-            cardTitle = Label("State title", card.transform, "Bağa güven.", 24, VisualTheme.UIText, 20, 39, 440, 31, FontStyle.Bold);
-            cardBody = Label("State explanation", card.transform, "", 16, VisualTheme.UIMuted, 20, 78, 440, 63);
-            cardBody.alignment = TextAnchor.UpperLeft;
-            cardBody.horizontalOverflow = HorizontalWrapMode.Wrap;
-            cardTitle.rectTransform.anchorMax = Vector2.one;
-            cardTitle.rectTransform.offsetMax = new Vector2(-20, -39);
-            cardBody.rectTransform.anchorMax = Vector2.one;
-            cardBody.rectTransform.offsetMax = new Vector2(-20, -78);
-            var primary = Control("Start retry resume", card.transform, "Başla", VisualTheme.Tether, VisualTheme.Void,
-                Vector2.zero, new Vector2(.5f, 0), new Vector2(20, 20), new Vector2(-5, 68), startOrResume, out primaryLabel);
-            primaryRect = (RectTransform)primary.transform;
-            secondaryButton = Control("Other course", card.transform, advanced ? "Temel parkur" : "Zamanlama",
-                VisualTheme.Track, VisualTheme.UIText, new Vector2(.5f, 0), new Vector2(1, 0), new Vector2(5, 20), new Vector2(-20, 68),
+            // The outcome is a calm flat scrim, without decorative instrument cards.
+            outcome = Panel("Run card", safeArea, new Color(UiResources.Background.r, UiResources.Background.g, UiResources.Background.b, .97f),
+                Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, false).gameObject;
+            outcome.GetComponent<Image>().raycastTarget = true;
+            var contents = Rect("Outcome content", outcome.transform, new Vector2(0, .5f), new Vector2(1, .5f),
+                new Vector2(36, -270), new Vector2(-36, 270));
+            cardTitle = Label("State title", contents, "", 42, UiResources.Paper, 0, 20, 468, 60, true);
+            cardTitle.alignment = TextAnchor.MiddleCenter;
+            cardNumber = Label("State number", contents, "", 72, UiResources.Paper, 0, 100, 468, 88, true);
+            cardNumber.alignment = TextAnchor.MiddleCenter;
+            cardBody = Label("State explanation", contents, "", 17, UiResources.Muted, 20, 196, 428, 68);
+            cardBody.alignment = TextAnchor.UpperCenter;
+            primaryButton = Control("Start retry resume", contents, "Başla", startOrResume, out primaryLabel);
+            secondaryButton = Control("Other course", contents, "Sonraki bölüm",
                 () => { if (nextAction) nextLevel?.Invoke(); else otherCourse?.Invoke(); }, out secondaryLabel);
-            secondaryLabel.fontSize = 16;
-            homeButton = Control("Main menu", card.transform, "Ana menü", VisualTheme.Inlay, VisualTheme.Silver,
-                Vector2.zero, new Vector2(1, 0), new Vector2(20, 16), new Vector2(-20, 60), () => goHome?.Invoke(), out homeLabel);
-            homeLabel.fontSize = 15;
-            homeButton.gameObject.SetActive(false);
-
+            homeButton = Control("Main menu", contents, "Haritaya dön", () => goHome?.Invoke(), out homeLabel);
+            audioButton = IconButton("Audio", outcome.transform, UiGlyph.SoundOn, 12, 8, toggleAudio, out audioIcon);
             if (EventSystem.current == null)
             {
                 var events = new GameObject("HUD EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
@@ -129,83 +110,100 @@ namespace TetherRush.Presentation
         {
             if (!initialized) return;
             ApplySafeArea();
-            subtitle.text = state.Endless ? "SONSUZ AKIŞ" : !string.IsNullOrEmpty(state.CourseTitle) ? state.CourseTitle : state.AdvancedCourse ? "02  /  ZAMANLAMA" : "01  /  TEMEL PARKUR";
-            distance.text = state.Endless ? "SKOR  " + state.Score.ToString("N0") : Mathf.FloorToInt(state.Distance) + " / " + Mathf.RoundToInt(state.FinishDistance) + " m";
-            bonus.text = state.Endless ? "EN İYİ  " + state.BestScore.ToString("N0") : "BONUS  " + state.Bonus + "   /   HEDEF  " + state.ActivatedTargets;
-            progressFill.parent.gameObject.SetActive(!state.Endless);
-            audioLabel.text = state.AudioEnabled ? "Ses açık" : "Sessiz";
-            pauseButton.gameObject.SetActive(state.Phase == RunPhase.Running);
+            subtitle.text = state.Endless ? "SONSUZ AKIŞ" : !string.IsNullOrEmpty(state.CourseTitle)
+                ? state.CourseTitle : state.AdvancedCourse ? "BÖLÜM 02" : "BÖLÜM 01";
+            subtitle.rectTransform.offsetMin = new Vector2(116, state.Endless ? -30 : -46);
+            subtitle.rectTransform.offsetMax = new Vector2(424, state.Endless ? 0 : -16);
+            bonus.text = state.Bonus.ToString();
+            score.gameObject.SetActive(state.Endless);
+            record.gameObject.SetActive(state.Endless);
+            score.text = state.Score.ToString("N0");
+            record.text = "REKOR  " + state.BestScore.ToString("N0");
+            progressRail.SetActive(!state.Endless);
             float progress = state.FinishDistance > 0 ? Mathf.Clamp01(state.Distance / state.FinishDistance) : 0;
-            displayedProgress = state.Phase == RunPhase.Ready ? 0 : Mathf.Lerp(displayedProgress, progress, 1 - Mathf.Exp(-12 * Mathf.Max(0, dt)));
+            displayedProgress = state.Phase == RunPhase.Ready ? 0 :
+                Mathf.Lerp(displayedProgress, progress, 1 - Mathf.Exp(-12 * Mathf.Max(0, dt)));
             progressFill.anchorMax = new Vector2(displayedProgress, 1);
             bool charged = state.EnergyCapacity > 0 && state.Energy >= state.EnergyCapacity;
-            energyLabel.text = state.AdvancedCourse ? "RİTMİ YAKALA" : charged ? "PULSE HAZIR" : "ENERJİ  " + state.Energy + " / " + state.EnergyCapacity;
-            energyLabel.color = charged ? VisualTheme.TetherReady : VisualTheme.UIMuted;
-            UpdateEnergy(state);
-            hint.text = state.Endless ? Mathf.FloorToInt(state.Distance) + " m   ·   BONUS " + state.Bonus + "   /   " + (state.Hint ?? string.Empty) : state.Hint ?? string.Empty;
-            hint.color = charged ? VisualTheme.TetherReady : VisualTheme.UIText;
-            bool showCard = state.Phase != RunPhase.Running;
-            card.SetActive(showCard);
-            if (!showCard) return;
-            bool canSwitch = state.CanSwitchCourse && (state.Phase == RunPhase.Ready || state.Phase == RunPhase.Failed || state.Phase == RunPhase.Completed);
+            energyRow.SetActive(!state.AdvancedCourse);
+            energyLabel.text = charged ? "PULSE HAZIR" : "PULSE";
+            energyLabel.color = charged ? UiResources.Accent : UiResources.Muted;
+            for (int i = 0; i < energySegments.Length; i++)
+                energySegments[i].color = (i + 1f) / energySegments.Length <= (float)state.Energy / Mathf.Max(1, state.EnergyCapacity)
+                    ? (charged ? Color.Lerp(UiResources.Accent, UiResources.Paper, .25f) : UiResources.Accent) : UiResources.Line;
+
+            UpdateCoach(state, dt);
+            bool running = state.Phase == RunPhase.Running;
+            pauseButton.gameObject.SetActive(running);
+            outcome.SetActive(!running);
+            audioButton.gameObject.SetActive(!running);
+            audioIcon.Glyph = state.AudioEnabled ? UiGlyph.SoundOn : UiGlyph.SoundOff;
+            if (running) { previousPhase = state.Phase; return; }
+
             nextAction = state.CanAdvance && state.Phase == RunPhase.Completed;
-            bool canSecondary = canSwitch || nextAction;
-            bool canHome = state.CanGoHome && (state.Phase == RunPhase.Ready || state.Phase == RunPhase.Paused || state.Phase == RunPhase.Failed || state.Phase == RunPhase.Completed);
-            secondaryButton.gameObject.SetActive(canSecondary);
-            secondaryLabel.text = nextAction ? "Sonraki bölüm →" : state.AdvancedCourse ? "Temel parkur" : "Zamanlama";
-            homeButton.gameObject.SetActive(canHome);
+            bool canSwitch = state.CanSwitchCourse && (state.Phase == RunPhase.Ready || state.Phase == RunPhase.Failed || state.Phase == RunPhase.Completed);
+            secondaryButton.gameObject.SetActive(nextAction || canSwitch);
+            secondaryLabel.text = nextAction ? "Sonraki bölüm" : state.AdvancedCourse ? "Temel parkur" : "Zamanlama";
+            homeButton.gameObject.SetActive(state.CanGoHome);
             homeLabel.text = state.Endless ? "Ana menü" : "Haritaya dön";
-            ((RectTransform)card.transform).offsetMax = new Vector2(-24, canHome ? 325 : 265);
-            // One primary action expands to the full card width when switching is unavailable.
-            primaryRect.anchorMax = new Vector2(canSecondary ? .5f : 1, 0);
-            primaryRect.offsetMin = new Vector2(20, canHome ? 76 : 20);
-            primaryRect.offsetMax = new Vector2(canSecondary ? -5 : -20, canHome ? 124 : 68);
-            var secondaryRect = (RectTransform)secondaryButton.transform;
-            secondaryRect.offsetMin = new Vector2(5, canHome ? 76 : 20);
-            secondaryRect.offsetMax = new Vector2(-20, canHome ? 124 : 68);
+            // Other course owns Next; Start retry resume keeps its original retry/resume callback.
+            StyleButton(nextAction ? secondaryButton : primaryButton, true, 288);
+            if (nextAction) StyleButton(primaryButton, false, 374);
+            else if (canSwitch) StyleButton(secondaryButton, false, 374);
+            StyleButton(homeButton, false, nextAction || canSwitch ? 456 : 374);
+            cardNumber.gameObject.SetActive(state.Phase == RunPhase.Completed || state.Phase == RunPhase.Failed);
             switch (state.Phase)
             {
                 case RunPhase.Paused:
-                    cardTitle.text = "Bir nefes al.";
-                    cardBody.text = "Hazır olduğunda devam et.\nAçılmak için yeniden basılı tut.";
+                    cardTitle.text = "DURAKLATILDI";
+                    cardBody.text = "Devam ettikten sonra yeniden basılı tut.";
                     primaryLabel.text = "Devam et";
-                    cardAccent.color = VisualTheme.CoreB;
                     break;
                 case RunPhase.Failed:
-                    cardTitle.text = state.Endless ? "Akış tamamlandı." : "Bir kez daha.";
-                    cardBody.text = state.Endless ? "SKOR  " + state.Score.ToString("N0") + "   ·   EN İYİ  " + state.BestScore.ToString("N0") + "\n" + (state.FailureReason ?? "Yeniden akışa katıl.") : string.IsNullOrEmpty(state.FailureReason) ? "İki küreyi de koru.\nYeni denemede ritmi yakala." : state.FailureReason;
-                    primaryLabel.text = "Yeniden dene";
-                    cardAccent.color = VisualTheme.Danger;
+                    cardTitle.text = state.Endless ? "AKIŞ BİTTİ" : "TEKRAR DENE";
+                    cardNumber.text = state.Endless ? state.Score.ToString("N0") : state.Bonus.ToString();
+                    cardBody.text = (state.Endless ? "SKOR · REKOR " + state.BestScore.ToString("N0") : "BONUS") +
+                        (string.IsNullOrEmpty(state.FailureReason) ? "" : "\n" + state.FailureReason);
+                    primaryLabel.text = "Tekrar dene";
                     break;
                 case RunPhase.Completed:
-                    cardTitle.text = "Bağ tamamlandı.";
-                    cardBody.text = state.Bonus + " bonus topladın.  " + state.ActivatedTargets + " hedef açıldı.\n" + (nextAction ? "Sıradaki ritme hazır mısın?" : "Bir tur daha?");
+                    cardTitle.text = "BÖLÜM TAMAM";
+                    cardNumber.text = state.Bonus.ToString();
+                    cardBody.text = "BONUS";
                     primaryLabel.text = "Tekrar oyna";
-                    cardAccent.color = VisualTheme.Bonus;
                     break;
                 default:
-                    cardTitle.text = "Bağa güven.";
-                    cardBody.text = state.AdvancedCourse ? "Basılı tut, açıl. Bırak, daral.\nHareketli engellerin ritmini yakala." : "Basılı tut, açıl. Bırak, daral.\nEnerji tamken menzilde bırak: Pulse.";
+                    cardTitle.text = subtitle.text;
+                    cardBody.text = "Basılı tut: açıl\nBırak: daral";
                     primaryLabel.text = "Başla";
-                    cardAccent.color = VisualTheme.Tether;
                     break;
             }
+            previousPhase = state.Phase;
         }
 
-        private void UpdateEnergy(HudState state)
+        private void UpdateCoach(HudState state, float dt)
         {
-            int count = state.AdvancedCourse ? 0 : Mathf.Clamp(state.EnergyCapacity, 0, 16);
-            if (energySegments == null || energySegments.Length != count)
+            string current = state.Hint ?? string.Empty;
+            if (state.Phase == RunPhase.Ready || (state.Phase == RunPhase.Running && previousPhase != RunPhase.Running && previousPhase != RunPhase.Paused))
+                previousHint = null;
+            if (state.Phase != RunPhase.Paused && current != previousHint)
             {
-                if (energySegments != null) foreach (var segment in energySegments) { segment.gameObject.SetActive(false); Destroy(segment.gameObject); }
-                energySegments = new Image[count];
-                for (int i = 0; i < count; i++)
-                    energySegments[i] = Panel("Energy " + (i + 1), energyContainer, VisualTheme.Track,
-                        new Vector2((float)i / count, 0), new Vector2((float)(i + 1) / count, 1), new Vector2(2, 0), new Vector2(-2, 0));
+                previousHint = current;
+                coachRemaining = 2.2f;
             }
-            for (int i = 0; i < count; i++)
-                energySegments[i].color = (float)(i + 1) / count <= (float)state.Energy / Mathf.Max(1, state.EnergyCapacity)
-                    ? VisualTheme.Energy : VisualTheme.Track;
+            if (state.Phase == RunPhase.Running) coachRemaining = Mathf.Max(0, coachRemaining - Mathf.Max(0, dt));
+            bool critical = current.IndexOf("MENZİLDE", StringComparison.OrdinalIgnoreCase) >= 0;
+            bool show = state.Phase == RunPhase.Running && (critical || (state.TeachControls && coachRemaining > 0));
+            hint.gameObject.SetActive(show);
+            if (!show) return;
+            if (critical) hint.text = "MENZİLDE · BIRAK";
+            else
+            {
+                int split = current.IndexOf('•');
+                string shortHint = (split >= 0 ? current.Substring(split + 1) : current).Trim();
+                hint.text = shortHint.Length > 36 || shortHint.Length == 0 ? "Basılı tut: açıl · Bırak: daral" : shortHint;
+            }
+            hint.color = critical ? UiResources.Accent : UiResources.Paper;
         }
 
         private void ApplySafeArea()
@@ -220,75 +218,82 @@ namespace TetherRush.Presentation
 
         private RectTransform Rect(string name, Transform parent, Vector2 min, Vector2 max, Vector2 low, Vector2 high)
         {
-            var go = new GameObject(name, typeof(RectTransform)); go.transform.SetParent(parent, false);
+            var go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer));
+            go.transform.SetParent(parent, false);
             var rect = (RectTransform)go.transform;
             rect.anchorMin = min; rect.anchorMax = max; rect.offsetMin = low; rect.offsetMax = high;
             return rect;
         }
 
-        private Image Panel(string name, Transform parent, Color color, Vector2 min, Vector2 max, Vector2 low, Vector2 high)
+        private Image Panel(string name, Transform parent, Color color, Vector2 min, Vector2 max, Vector2 low, Vector2 high, bool rounded = true)
         {
-            var rect = Rect(name, parent, min, max, low, high);
-            var image = rect.gameObject.AddComponent<Image>();
-            image.sprite = roundedSprite; image.type = Image.Type.Sliced; image.color = color; image.raycastTarget = false;
+            var image = Rect(name, parent, min, max, low, high).gameObject.AddComponent<Image>();
+            if (rounded) { image.sprite = UiResources.PanelSprite; image.type = Image.Type.Sliced; }
+            image.color = color; image.raycastTarget = false;
             return image;
         }
 
-        private Text Label(string name, Transform parent, string value, int size, Color color, float x, float y, float width, float height, FontStyle style = FontStyle.Normal)
+        private Text Label(string name, Transform parent, string value, int size, Color color, float x, float y, float width, float height, bool display = false)
         {
-            var text = Rect(name, parent, new Vector2(0, 1), new Vector2(0, 1), new Vector2(x, -y - height), new Vector2(x + width, -y)).gameObject.AddComponent<Text>();
-            SetText(text, value, size, color, style); return text;
-        }
-
-        private Text StretchLabel(string name, Transform parent, string value, int size, Color color, float padding)
-        {
-            var text = Rect(name, parent, Vector2.zero, Vector2.one, new Vector2(padding, 0), new Vector2(-padding, 0)).gameObject.AddComponent<Text>();
-            SetText(text, value, size, color, FontStyle.Normal); text.alignment = TextAnchor.MiddleCenter; return text;
-        }
-
-        private void SetText(Text text, string value, int size, Color color, FontStyle style)
-        {
-            text.font = font; text.text = value; text.fontSize = size; text.fontStyle = style; text.color = color;
+            var text = Rect(name, parent, new Vector2(0, 1), new Vector2(0, 1),
+                new Vector2(x, -y - height), new Vector2(x + width, -y)).gameObject.AddComponent<Text>();
+            text.font = display ? UiResources.Display : UiResources.Body;
+            text.fontStyle = FontStyle.Normal;
+            text.text = value; text.fontSize = size; text.color = color;
             text.alignment = TextAnchor.MiddleLeft; text.raycastTarget = false;
-            text.horizontalOverflow = HorizontalWrapMode.Wrap; text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            return text;
         }
 
-        private Button Control(string name, Transform parent, string caption, Color background, Color foreground,
-            Vector2 min, Vector2 max, Vector2 low, Vector2 high, Action callback, out Text label)
+        private UiIcon Icon(string name, Transform parent, UiGlyph glyph, Color color, float x, float y, float size)
         {
-            var image = Panel(name, parent, background, min, max, low, high); image.raycastTarget = true;
-            var button = image.gameObject.AddComponent<Button>(); button.targetGraphic = image;
-            var colors = button.colors;
-            colors.highlightedColor = new Color(.9f, .96f, 1);
-            colors.pressedColor = new Color(.65f, .78f, .88f);
-            colors.selectedColor = Color.white; colors.fadeDuration = .12f; button.colors = colors;
-            button.onClick.AddListener(() => callback?.Invoke());
-            label = StretchLabel("Caption", image.transform, caption, 18, foreground, 8); label.fontStyle = FontStyle.Bold;
+            var icon = Rect(name, parent, new Vector2(0, 1), new Vector2(0, 1),
+                new Vector2(x, -y - size), new Vector2(x + size, -y)).gameObject.AddComponent<UiIcon>();
+            icon.color = color; icon.Glyph = glyph; icon.raycastTarget = false;
+            return icon;
+        }
+
+        private Button IconButton(string name, Transform parent, UiGlyph glyph, float x, float y, Action callback, out UiIcon icon)
+        {
+            var image = Panel(name, parent, new Color(1, 1, 1, 0), new Vector2(0, 1), new Vector2(0, 1),
+                new Vector2(x, -y - 72), new Vector2(x + 72, -y), false);
+            var button = AddButton(image, callback);
+            icon = Icon("Glyph", image.transform, glyph, UiResources.Paper, 24, 24, 24);
             return button;
         }
 
-        private void CreateRoundedSprite()
+        private Button Control(string name, Transform parent, string caption, Action callback, out Text label)
         {
-            const int size = 64;
-            const float radius = 18;
-            roundedTexture = new Texture2D(size, size, TextureFormat.RGBA32, false) { name = "HUD rounded corners", filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
-            var pixels = new Color[size * size];
-            for (int y = 0; y < size; y++) for (int x = 0; x < size; x++)
-            {
-                float dx = Mathf.Max(Mathf.Abs(x + .5f - size / 2f) - (size / 2f - radius), 0);
-                float dy = Mathf.Max(Mathf.Abs(y + .5f - size / 2f) - (size / 2f - radius), 0);
-                pixels[y * size + x] = new Color(1, 1, 1, Mathf.Clamp01(radius + .5f - Mathf.Sqrt(dx * dx + dy * dy)));
-            }
-            roundedTexture.SetPixels(pixels); roundedTexture.Apply(false, true);
-            roundedSprite = Sprite.Create(roundedTexture, new Rect(0, 0, size, size), new Vector2(.5f, .5f), 100, 0, SpriteMeshType.FullRect, new Vector4(20, 20, 20, 20));
-            roundedSprite.name = "HUD rounded nine-slice";
+            var image = Panel(name, parent, UiResources.Surface, new Vector2(0, 1), new Vector2(1, 1), Vector2.zero, Vector2.zero);
+            var button = AddButton(image, callback);
+            label = Label("Caption", image.transform, caption, 22, UiResources.Paper, 12, 0, 444, 72);
+            label.alignment = TextAnchor.MiddleCenter;
+            return button;
         }
 
-        private static Color Alpha(Color color, float alpha) { color.a = alpha; return color; }
-        private void OnDestroy()
+        private Button AddButton(Image image, Action callback)
         {
-            if (roundedSprite != null) Destroy(roundedSprite);
-            if (roundedTexture != null) Destroy(roundedTexture);
+            image.raycastTarget = true;
+            var button = image.gameObject.AddComponent<Button>();
+            button.targetGraphic = image;
+            var colors = button.colors;
+            colors.highlightedColor = new Color(.88f, .92f, .96f);
+            colors.pressedColor = new Color(.64f, .72f, .8f);
+            colors.selectedColor = Color.white;
+            colors.fadeDuration = .1f;
+            button.colors = colors;
+            button.onClick.AddListener(() => callback?.Invoke());
+            return button;
+        }
+
+        private void StyleButton(Button button, bool primary, float top)
+        {
+            var rect = (RectTransform)button.transform;
+            rect.anchorMin = new Vector2(0, 1); rect.anchorMax = Vector2.one;
+            rect.offsetMin = new Vector2(0, -top - 72); rect.offsetMax = new Vector2(0, -top);
+            button.GetComponent<Image>().color = primary ? UiResources.Paper : new Color(1, 1, 1, 0);
+            button.GetComponentInChildren<Text>().color = primary ? UiResources.Background : UiResources.Paper;
         }
     }
 }

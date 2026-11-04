@@ -4,7 +4,7 @@ Unity ile geliştirilecek, ortak bir enerji bağıyla bağlı iki küreyi tek pa
 
 ## Durum
 
-Güncel paket **0.4.0 (5)**: enerji tesisi temasında kaydırılabilir **25 bölümlük harita**. Bölümler yalnız numarayla gösterilir; başarı bir sonrakini açar, tamamlananlar tekrar oynanır. İlk beş parkur korunur, 20 yeni parkur eklenir. Önceki kayıtlar/bonuslar/Sonsuz Akış rekoru/ses ayarları korunarak v2 profile taşınır. **182/182 Unity testi**, Windows ve imzası doğrulanan Android test build geçti. Yürütüm sonuçları [doğrulama kaydında](Docs/QA/LEVEL_MAP_25_VALIDATION.md). Fiziksel cihaz testi son aşamadadır.
+Güncel paket **0.5.0 (6)**: hypercasual UI araştırmasına dayanan yeni menü, kompakt oyun HUD'u ve sade bölüm haritası. Barlow tipografi, özgün simgeler, mevcut Blender modellerinin menü önizlemesi ve tek baskın eylem ortak bir dil kurar. **25 bölüm**, sıralı açılma, eski kayıtların v2 göçü ve tek tut/bırak oynanışı korunur. **185/185 Unity testi**, Windows build ve imzası doğrulanan Android APK geçti. Ayrıntılar [doğrulama kaydında](Docs/QA/UI_REFRESH_VALIDATION.md). Fiziksel cihaz testi son aşamadadır.
 
 - Hedef: **Android telefon, dikey ekran** (kullanıcı onayı: 31.10.2026).
 - Tasarım kaynağı: [GDD v2.0](Docs/Source/Tether_Rush_GDD_v2.pdf), 31.10.2026.
@@ -13,6 +13,12 @@ Güncel paket **0.4.0 (5)**: enerji tesisi temasında kaydırılabilir **25 böl
 - Kaynak depo: https://github.com/anilcay/TetherRush-MobileGame
 
 ## Proje kayıtları
+
+- [UI yenilemesi doğrulaması](Docs/QA/UI_REFRESH_VALIDATION.md)
+- [UI araştırma ve sentezi](Docs/Research/UI_SYNTHESIS.md)
+- [Yeni menü ve HUD tasarımı](Docs/Art/UI_REFRESH_MENU_HUD.md)
+- [Yeni harita UI tasarımı](Docs/Art/UI_REFRESH_MAP.md)
+- [Yeni gerçek Unity menü görüntüsü](Docs/Art/Previews/UIRefresh_Menu_Home.png)
 
 - [25 bölüm haritası doğrulaması](Docs/QA/LEVEL_MAP_25_VALIDATION.md)
 - [25 bölüm içeriği](Docs/Design/LEVELS_25.md)
@@ -40,7 +46,7 @@ Güncel paket **0.4.0 (5)**: enerji tesisi temasında kaydırılabilir **25 böl
 4. Game görünümünü **9:16** yap ve Play'e bas. **Leveller** düğmesinden haritayı aç. Açık bir numaraya dokununca koşu başlar; haritayı sürükleyebilir veya fare tekeriyle kaydırabilirsin.
 5. Oyun alanında **sol fareyi veya Space'i basılı tut: açıl; bırak: daral**. Enerji doluysa bırakmak aynı zamanda tek Pulse üretir. Space yalnız Editor kolaylığıdır; mobilde tek dokunma vardır.
 
-Haritada **1–25** numaraları vardır. Yeni profilde yalnız 1 açıktır. Bir bölümü iki küreyle bitirmek sonraki düğümü açar; tamamlananlar tekrar oynanabilir. Başarı ve en iyi bonus cihazda saklanır. Sonuç ekranında **Sonraki bölüm**, duraklatma/sonuç ekranında **Haritaya dön** bulunur. Harita dönüşte son oynanan veya yeni açılan düğüme odaklanır. Tamamlanan, sıradaki ve kilitli durumlar renk/işaret/metinle ayrılır.
+Haritada **1–25** numaraları vardır. Yeni profilde yalnız 1 açıktır. Bir bölümü iki küreyle bitirmek sonraki düğümü açar; tamamlananlar tekrar oynanabilir. Başarı ve en iyi bonus cihazda saklanır. Sonuç ekranında **Sonraki bölüm**, duraklatma/sonuç ekranında **Haritaya dön** bulunur. Harita dönüşte son oynanan veya yeni açılan düğüme odaklanır. Tamamlanan, sıradaki ve kilitli durumlar sayı, renk ve check/lock işaretleriyle ayrılır.
 
 İlk beşin oynanış yerleşimleri korunur. 20 yeni parkur; dar/geniş ritmi, hareketli duvar, dönen kol ve birden fazla bağımsız Pulse dizisini birleştirir. En uzun bölüm 280 m'dir. Ayrı bölüm isimleri kullanılmaz. Önceki beş bölümlük v1 kayıt, 25 bölümlük v2 yapıya kayıpsız genişler; eski ilerleme geri alınmaz.
 
@@ -63,7 +69,7 @@ Unity Editor'ü kapattıktan sonra proje kökünde PowerShell ile:
 ./Tools/Unity.ps1 -Action Android
 ```
 
-`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-LevelMap25.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-level-map/TetherRush.exe` altında üretir. Eski M1/M2/cila/ilk menü çıktıları karşılaştırma için ayrı klasörlerde korunur.
+`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-UIRefresh.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-ui-refresh/TetherRush.exe` altında üretir. Eski M1/M2/cila/ilk menü çıktıları karşılaştırma için ayrı klasörlerde korunur.
 
 Android araçları Türkçe karakter içeren proje yollarını kabul etmez. Bu klasör için `-Action Android` aynı depoya işaret eden geçici bir ASCII junction yolunu otomatik kullanır; kaynaklar taşınmaz veya kopyalanmaz. Bağlantı TEMP altında kalır ve tekrar kullanılır. Editor'dan doğrudan Android build almak için de ASCII bir proje yolu gerekir; mevcut klasörde Editor oynanışı etkilenmez.
 

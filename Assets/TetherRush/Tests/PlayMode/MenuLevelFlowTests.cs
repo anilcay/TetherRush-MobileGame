@@ -110,25 +110,37 @@ namespace TetherRush.Tests
         public IEnumerator CaptureActualMenuLevelsSettingsAndNewCourses()
         {
             CreateApp(); yield return null;
-            yield return Capture("Map25_Menu_Home.png");
-            app.ShowLevels(); yield return Capture("Map25_Menu_Levels.png");
-            app.ShowEndless(); yield return Capture("Map25_Menu_Endless.png");
-            app.ShowSettings(); yield return Capture("Map25_Menu_Settings.png");
-            app.ShowHome(); yield return Capture("Map25_Menu_HomeTall.png", 1170);
+            yield return Capture("UIRefresh_Menu_Home.png");
+            app.ShowLevels(); yield return Capture("UIRefresh_Menu_Levels.png");
+            app.ShowEndless(); yield return Capture("UIRefresh_Menu_Endless.png");
+            app.ShowSettings(); yield return Capture("UIRefresh_Menu_Settings.png");
+            app.ShowHome(); yield return Capture("UIRefresh_Menu_HomeTall.png", 1170);
             app.Progress.CompleteLevel(0, 0); app.Progress.CompleteLevel(1, 0);
             app.PlayLevel(2); app.Game.AutoSimulate = false; int cue = 0; var course = LevelCatalog.Get(2);
             while (app.Game.Model.Distance < 50 && app.Game.Model.Phase == RunPhase.Running) StepRoute(app.Game, course, ref cue);
             Assert.That(app.Game.Model.Phase, Is.EqualTo(RunPhase.Running));
-            yield return Capture("Map25_Menu_Level3.png");
-            app.Game.PauseRun(); yield return Capture("Map25_Menu_Paused.png");
+            yield return Capture("UIRefresh_Menu_Level3.png");
+            app.Game.PauseRun(); yield return Capture("UIRefresh_Menu_Paused.png");
+            app.Game.ResumeRun();
+            // Pause cancels a held pointer. Restore it with a fresh press, like the player must.
+            app.Game.SimulateStep(1f / 120, press: true);
+            while (app.Game.Model.Phase == RunPhase.Running) StepRoute(app.Game, course, ref cue);
+            Assert.That(app.Game.Model.Phase, Is.EqualTo(RunPhase.Completed));
+            yield return Capture("UIRefresh_Menu_Completed.png");
             app.ShowHome(); yield return null; app.StartEndless(); app.Game.AutoSimulate = false;
             cue = 0; course = EndlessCourse.CreateChunk(0);
             while (app.Game.Model.Distance < 35 && app.Game.Model.Phase == RunPhase.Running) StepRoute(app.Game, course, ref cue);
             Assert.That(app.Game.Model.Phase, Is.EqualTo(RunPhase.Running));
-            yield return Capture("Map25_Menu_EndlessRun.png");
+            yield return Capture("UIRefresh_Menu_EndlessRun.png");
+            app.Game.Model.CancelInput();
+            for (int i = 0; i < 2400 && app.Game.Model.Phase == RunPhase.Running; i++) app.Game.SimulateStep(1f / 60);
+            Assert.That(app.Game.Model.Phase, Is.EqualTo(RunPhase.Failed));
+            yield return Capture("UIRefresh_Menu_Failed.png");
         }
         private IEnumerator Capture(string file, int height = 960)
         {
+            // Manual simulation suppresses Update. Settle the HUD snapshot after result listeners update records.
+            if (app.Game != null) app.Game.SimulateStep(0);
             yield return null; // Settle activation and UI culling before changing canvas render mode.
             Camera camera = app.Game != null ? app.Game.GetComponentInChildren<Camera>() : root.GetComponentInChildren<Camera>();
             Canvas canvas = app.Game != null ? app.Game.GetComponentInChildren<Canvas>() : app.Menu.Canvas;
@@ -143,6 +155,8 @@ namespace TetherRush.Tests
                 target.Create(); camera.targetTexture = target; canvas.renderMode = RenderMode.ScreenSpaceCamera;
                 canvas.worldCamera = camera; canvas.planeDistance = 1; scaler.enabled = false; canvas.scaleFactor = 1;
                 Canvas.ForceUpdateCanvases(); yield return null; Canvas.ForceUpdateCanvases();
+                RenderPipeline.SubmitRenderRequest(camera, new UniversalRenderPipeline.SingleCameraRequest { destination = target });
+                yield return null; Canvas.ForceUpdateCanvases();
                 RenderPipeline.SubmitRenderRequest(camera, new UniversalRenderPipeline.SingleCameraRequest { destination = target });
                 RenderTexture.active = target; image = new Texture2D(540, height, TextureFormat.RGB24, false);
                 image.ReadPixels(new Rect(0, 0, 540, height), 0, 0); image.Apply();

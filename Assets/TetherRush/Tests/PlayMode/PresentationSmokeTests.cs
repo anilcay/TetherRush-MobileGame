@@ -175,15 +175,15 @@ namespace TetherRush.Tests
                 Is.True, "Initialize and validate the actual render pipeline before offscreen requests");
             Assert.That(RenderPipelineManager.currentPipeline, Is.InstanceOf<UniversalRenderPipeline>());
             game.SimulateStep(Step);
-            yield return Capture("Polish_Ready.png");
+            yield return Capture("UIRefresh_Legacy_Ready.png");
             game.StartRun(); ReachCharge(); AdvanceTo(90);
             Assert.That(game.Model.Energy, Is.EqualTo(game.Model.Tuning.EnergyCapacity));
-            yield return Capture("Polish_Foundation.png");
+            yield return Capture("UIRefresh_Legacy_Foundation.png");
             AdvanceTo(96); game.SimulateStep(Step, release: true); game.SimulateStep(.12f);
             Assert.That(game.Model.PulseCount, Is.EqualTo(1));
             Assert.That(game.ActivatedTargetCount, Is.EqualTo(1));
             Assert.That(FindVisibleRing(), Is.Not.Null);
-            yield return Capture("Polish_Pulse.png");
+            yield return Capture("UIRefresh_Legacy_Pulse.png");
 
             CreateGame(true); yield return null;
             game.StartRun(); AdvanceTo(25); game.SimulateStep(Step, press: true);
@@ -191,12 +191,12 @@ namespace TetherRush.Tests
             AdvanceTo(85); game.SimulateStep(Step, press: true); AdvanceTo(88);
             Assert.That(game.TimedHazardCount, Is.EqualTo(3));
             Assert.That(game.Model.Phase, Is.EqualTo(RunPhase.Running));
-            yield return Capture("Polish_Challenge.png");
+            yield return Capture("UIRefresh_Legacy_Challenge.png");
             CreateGame(); yield return null;
             game.StartRun(); game.SimulateStep(Step, press: true);
             for (int i = 0; i < 600 && game.Model.Phase == RunPhase.Running; i++) game.SimulateStep(Step);
             Assert.That(game.Model.Phase, Is.EqualTo(RunPhase.Failed));
-            yield return Capture("Polish_Failed.png");
+            yield return Capture("UIRefresh_Legacy_Failed.png");
         }
 
         private IEnumerator Capture(string fileName)

@@ -1,6 +1,14 @@
 # Proje durumu
 
-Son güncelleme: 02.11.2026.
+Son güncelleme: 04.11.2026.
+
+## UI yenilemesi — 0.5.0 (6)
+
+D-031 ile kullanıcı başarılı hypercasual UI incelemesi ardından menü ve oyun arayüzünü yenilememizi istedi. Uygulamadan önce yedi resmî ürün/mağaza ve gerçek ekran görselleri incelendi; gözlem/çıkarım ve promo/runtime ayrımı Docs/Research altında kayıtlı. Barlow/OFL tipografi, özgün simgeler, düz koyu/kırık beyaz yüzeyler, tek baskın eylem ortak dil oluşturur. Ana menü gerçek Blender modelleri içerir; harita düz soketlere, HUD 103px üst bilgiye indirildi. Kalıcı alt açıklama kaldırıldı; kısa öğretici ilk beşte, Pulse menzil uyarısı her bölümde korunur.
+
+**96 EditMode + 89 PlayMode = 185/185** geçti. Son kaynaklarla 25 gerçek rota, kayıt göçü, sıralı erişim, harita kaydırma/odak/dönüş, ayarlar, sonuç/sonraki, font Türkçe glyphleri ve Blender preview yaşam döngüsü doğrulandı. 21 gerçek URP karesi 540×960 / 540×1170 olarak alındı; temsilî tüm sayfalar görsel incelendi. Windows strict build exit 0: output/windows-ui-refresh/TetherRush.exe. Android strict build exit 0; APK 38.133.750 bayt, 0.5.0 (6), ARM64, API25/36, portrait ve v2 imzası doğrulandı. Kalıcı kayıt Docs/QA/UI_REFRESH_VALIDATION.md ve Results/UIRefresh_test_results.json. Ekranlar Docs/Art/Previews/UIRefresh_*.png.
+
+25 bölüm/oynanış/kayıt şeması korunur. Kullanıcının görsel beğeni ve insan oynanış incelemesi açıktır; telefon testi D-017 gereği sonda. Yeni bir ekonomi, yıldız veya kontrol eklenmedi.
 
 ## 25 bölümlük harita — 0.4.0 (5)
 
@@ -39,11 +47,11 @@ Cila tesliminden sonra kullanıcı 02.11.2026 tarihinde menü ve ilk bölümleri
 | Araç | Gözlenen durum |
 | --- | --- |
 | Unity | Proje 6000.3.19f1 (7689f4515d75) ile açıldı, C# derlendi ve prototip sahnesi kaydedildi. URP 17.3.0, Input System 1.19.0 kilitlendi. |
-| Android desteği | Harita 25 APK build exit 0: 38.005.586 bayt, 0.4.0 (5), ARM64, min API 25 / target 36, portrait; v2 imzası doğrulandı. output/android/TetherRush-LevelMap25.apk. ASCII junction ve generated-cache callback kullanılır. |
+| Android desteği | UI APK build exit 0: 38.133.750 bayt, 0.5.0 (6), ARM64, min API 25 / target 36, portrait; v2 imzası doğrulandı. output/android/TetherRush-UIRefresh.apk. ASCII junction ve generated-cache callback kullanılır. |
 | Blender | 5.2.3 LTS ile 14 FBX, düzenlenebilir kaynak ve pafta. Bağımsız re-import 14/14 ve Unity model kontrolü geçti. Kit 6.548 üçgen, 20 mesh; kaynak ArtSource/Blender içinde. |
 | Git | origin GitHub TetherRush-MobileGame, dal main. Kod, Blender kaynak/FBX, gerçek Unity kareleri ve doğrulama özetleri sürüm kontrolüne alınır; build/cache çıktıları dışarıda tutulur. Son teslim hash'i git log ve yönetim sohbetindeki teslim raporundan izlenir. |
-| Unity testleri | Harita25: EditMode 96/96 +PlayMode 86/86 = 182/182. Docs/QA/Results/LevelMap25_test_results.json; eski124/61 kayıtları korunur. |
-| Windows önizleme | Harita25 build exit 0, output/windows-level-map/TetherRush.exe. Gerçek kareler Docs/Art/Previews/Map25_*.png; kullanıcı değerlendirmesi açık. |
+| Unity testleri | UI: EditMode 96/96 + PlayMode 89/89 = 185/185. Docs/QA/Results/UIRefresh_test_results.json; önceki 182/124/61 kayıtları korunur. |
+| Windows önizleme | UI build exit 0, output/windows-ui-refresh/TetherRush.exe. Gerçek kareler Docs/Art/Previews/UIRefresh_*.png; kullanıcı değerlendirmesi açık. |
 
 ## Kilometre taşları
 
@@ -54,6 +62,7 @@ Cila tesliminden sonra kullanıcı 02.11.2026 tarihinde menü ve ilk bölümleri
 | M2 – Görsel ve içerik | Blender kiti, animasyon/VFX/ses ilk seti, hareketli duvar/dönen kol ve ikinci alıştırma. | M2 ilk tesliminden sonra D-021 görsel cila uygulandı. Cila: 61 test, Windows ve imzası doğrulanan Android 0.2.1 build geçti. Son görsel/oynanış kabulü kullanıcıda. |
 | Menü ve ilk bölüm paketi | Ana menü, beş öğretici bölüm, Sonsuz Akış, yerel skor/ayarlar. | Kullanıcı kapsamı onayladı; 124 test ve Windows build geçti. Android 0.3.0 (4) ve imzası doğrulandı. |
 | 25 bölüm haritası | Numaralı tematik yol, sıralı açılma,20 yeni bölüm, eski kayıt göçü. | 182 test ve Windows build geçti; Android 0.4.0 (5) ve imzası doğrulandı. |
+| UI yenilemesi | Referans araştırması, ortak menü/HUD/harita dili, font/simge ve Blender önizleme. | 185 test, gerçek render, Windows ve imzası doğrulanan Android 0.5.0 build geçti. |
 | M3 – Mobil doğrulama | Fiziksel cihaz, performans, ekran oranları, pause/resume, ses ve titreşim. | Cihaz ve hedef bütçeler belirlenecek. |
 | M4 – Yayına hazırlık | Mağaza gereksinimleri ve dağıtım. | Kullanıcı ayrıca kapsam/onay verecek. |
 
@@ -63,4 +72,4 @@ Başlangıç MainMenu; Leveller numaralı 25 düğümlük haritayı açar. Yeni 
 
 ## Sıradaki yönetim kararı
 
-Kullanıcı harita görünümünü, dokunma/kaydırma hissini ve 25 bölümün insan tarafından zorluk ritmini bu sürümde inceleyecek. Yeni oyun sistemi veya ekonomi eklenmeden kapsam tartışılacak. Android telefon testi D-017 gereği sonda; tekrar cihaz talep edilmeyecek. Oynama README.md, güncel gerçek kareler Docs/Art/Previews/Map25_*.png altında.
+Kullanıcı yeni menü/HUD/harita görünümünü, dokunma/kaydırma hissini ve 25 bölümün insan tarafından zorluk ritmini bu sürümde inceleyecek. Yeni oyun sistemi veya ekonomi eklenmeden kapsam tartışılacak. Android telefon testi D-017 gereği sonda; tekrar cihaz talep edilmeyecek. Oynama README.md, güncel gerçek kareler Docs/Art/Previews/UIRefresh_*.png altında.

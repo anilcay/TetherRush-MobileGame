@@ -46,6 +46,9 @@ namespace TetherRush
         public void ShowHome()
         {
             CloseRun(); Page = MenuPage.Home;
+            int completed = 0;
+            for (int i = 0; i < PlayerProgress.LevelCount; i++) if (Progress.IsCompleted(i)) completed++;
+            Menu.SetProgress(completed, Progress.HighestUnlockedLevel);
             Menu.ShowHome(Progress.BestEndlessScore, Progress.AudioEnabled, Progress.Volume);
         }
         public void ShowLevels()

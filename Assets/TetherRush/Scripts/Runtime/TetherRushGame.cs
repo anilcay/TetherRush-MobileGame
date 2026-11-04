@@ -551,6 +551,7 @@ namespace TetherRush
                 Hint = definition != null || IsEndless ? AuthoredHint() : SectionHint(Section()), FailureReason = Model.FailureReason,
                 CourseTitle = IsEndless ? "SONSUZ AKIŞ" : definition != null ? "BÖLÜM " + (SelectedLevelIndex + 1).ToString("00") : null,
                 Endless = IsEndless, Score = Score, BestScore = BestScore,
+                TeachControls = !IsEndless && (definition == null || SelectedLevelIndex < 5),
                 CanGoHome = NavigationEnabled, CanAdvance = NavigationEnabled && SelectedLevelIndex >= 0 && SelectedLevelIndex + 1 < LevelCatalog.Count
             }, Model.Phase == RunPhase.Paused ? 0 : dt);
             Feedback.Tick(Model.Phase == RunPhase.Paused ? 0 : dt, Model.IsHeld, Model.Energy == tuning.EnergyCapacity, Model.Phase);

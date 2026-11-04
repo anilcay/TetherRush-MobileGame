@@ -86,14 +86,14 @@ namespace TetherRush.Tests
         [UnityTest]
         public IEnumerator CaptureActualStartProgressEndAndTallLevelMaps()
         {
-            CreateApp(); yield return null; yield return Capture("Map25_Start.png");
-            app.Menu.FocusLevel(24); yield return Capture("Map25_EndLocked.png");
-            app.ShowHome(); yield return Capture("Map25_Home.png");
+            CreateApp(); yield return null; yield return Capture("UIRefresh_Start.png");
+            app.Menu.FocusLevel(24); yield return Capture("UIRefresh_EndLocked.png");
+            app.ShowHome(); yield return Capture("UIRefresh_Home.png");
             for (int i = 0; i < 12; i++) app.Progress.CompleteLevel(i, i % 5);
-            app.ShowLevels(); yield return Capture("Map25_Progress.png");
-            yield return Capture("Map25_ProgressTall.png", 1170);
+            app.ShowLevels(); yield return Capture("UIRefresh_Progress.png");
+            yield return Capture("UIRefresh_ProgressTall.png", 1170);
             for (int i = 12; i < 25; i++) app.Progress.CompleteLevel(i, 2);
-            app.ShowLevels(); yield return Capture("Map25_Complete.png");
+            app.ShowLevels(); yield return Capture("UIRefresh_Complete.png");
             Assert.That(app.Menu.MapNodeCount, Is.EqualTo(25));
             app.Menu.FocusLevel(0); Assert.That(app.Menu.MapScrollPosition, Is.EqualTo(0).Within(.001));
             app.Menu.FocusLevel(24); Assert.That(app.Menu.MapScrollPosition, Is.EqualTo(1).Within(.001));
