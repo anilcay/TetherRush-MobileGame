@@ -1,100 +1,72 @@
 # Tether Rush
 
-Unity ile geliştirilecek, ortak bir enerji bağıyla bağlı iki küreyi tek parmakla yönettiğimiz 3D mobil parkur oyunu.
+![Tether Rush — two cores, one connection](Docs/Portfolio/Media/cover.svg)
 
-## Durum
+**One touch. Two cores. Every gap is a decision.**
 
-Güncel paket **0.9.0 (10)**: HUD metin önbelleği, sabit menü önizlemesinde demand render, muhafazakâr temas ön elemesi ve toplu efekt güncellemeleri. Aynı kontrollü Editor rotalarında GC.Alloc olayları **%97–99**, ortalama oyun döngüsü işlem süresi **%43–61** azaldı; bu ölçüm telefon FPS veya RAM yüzdesi değildir. Oynanış, 25 bölüm/kayıt, görsel kalite ve ses korunur. **256/256 Unity testi**, Windows ve imzası doğrulanan Android build geçti. [Doğrulama ve ölçüm sınırları](Docs/QA/OPTIMIZATION_VALIDATION.md); fiziksel cihaz testi son aşamadadır.
+A 3D arcade runner for portrait Android phones, built with Unity and C#. Hold to spread two connected cores apart; release to bring them together. Guide the energy tether through pickups, thread the cores around hazards, and time a charged Pulse to open the way ahead.
 
-- Hedef: **Android telefon, dikey ekran** (kullanıcı onayı: 31.10.2026).
-- Tasarım kaynağı: [GDD v2.0](Docs/Source/Tether_Rush_GDD_v2.pdf), 31.10.2026.
-- Yönetim merkezi: kullanıcının ana Codex sohbeti.
-- Alt ajanlar: **GPT-6.1 Sol / medium**.
-- Kaynak depo: https://github.com/anilcay/TetherRush-MobileGame
+**Unity 6 · C# · URP · Blender · Android / Portrait**
 
-## Proje kayıtları
+<p align="center">
+  <a href="Docs/Portfolio/Media/trailer.mp4"><img src="Docs/Portfolio/Media/trailer-preview.gif" width="270" alt="15-second Tether Rush gameplay preview: spreading cores, Pulse lock and tether relay"></a>
+</p>
 
-- [Optimizasyon doğrulaması](Docs/QA/OPTIMIZATION_VALIDATION.md)
-- [Önce/sonra ölçümleri](Docs/QA/Results/Optimization_comparison.json)
-- [Optimize gerçek menü karesi](Docs/Art/Previews/Optimized_Menu.png)
+▶ **[Watch / download the 15-second trailer · MP4](Docs/Portfolio/Media/trailer.mp4)**
 
-- [Müzik/coin doğrulaması](Docs/QA/AUDIO_COIN_VALIDATION.md)
-- [Özgün müzik ve efektler](Docs/Audio/AUDIO_ASSETS.md)
-- [Ses entegrasyonu](Docs/Audio/AUDIO_INTEGRATION.md)
-- [Coin Blender tasarımı](Docs/Art/COIN_DESIGN.md)
-- [Müzik/efekt miks önizlemesi — 14 sn](AudioSource/TetherFlow.gameplay-preview.wav)
-- [Gerçek oyun/HUD görüntüsü](Docs/Art/Previews/AudioCoin_Game.png)
+*Real Unity Editor gameplay · 540 × 960 · 30 fps. Three continuous five-second shots, captured at normal game speed using scripted inputs. Original music and event-timed sound effects are mixed for the edit.*
 
-- [Yeni sistemler doğrulaması](Docs/QA/SYSTEMS_VALIDATION.md)
-- [Sade tasarım ve mekanik araştırması](Docs/Research/INTERACTIVE_REDESIGN.md)
-- [Engel sanat revizyonu](Docs/Art/OBSTACLE_ART_REVISION.md)
-- [Bağ rölesi / Pulse kilidi](Docs/Design/INTERACTIVE_COURSE.md)
-- [Sonsuz tempo ayarı](Docs/Design/ENDLESS_PACE.md)
+## Gameplay
 
-- [Engel modelleri doğrulaması](Docs/QA/OBSTACLE_VARIANTS_VALIDATION.md)
-- [Kısa engel araştırması](Docs/Research/OBSTACLE_VARIANTS.md)
-- [Blender engel varlıkları](Docs/Art/OBSTACLE_VARIANTS.md)
-- [Gerçek oyun içi kenet modeli](Docs/Art/Previews/Obstacles_ClampBarrier_Level1.png)
+- **One-touch control:** two cores expand and contract symmetrically around a shared center during automatic forward motion.
+- **Two ways to collect:** the tether gathers energy; the cores collect gold bonus coins. Contact between either core and a lethal obstacle ends the run.
+- **Release-to-Pulse:** release at full energy to trigger one short-range Pulse against specially marked targets. Timing matters; ordinary hazards remain dangerous.
+- **Interactive routes:** spread the tether across conductive relay pads to open a linked gate, or use a charged Pulse to retract an amber moving lock.
+- **25 levels + Endless Flow:** unlock a numbered level map, replay completed courses, or chase a local high score as Endless Flow gradually increases its pace up to a speed cap.
 
-- [UI yenilemesi doğrulaması](Docs/QA/UI_REFRESH_VALIDATION.md)
-- [UI araştırma ve sentezi](Docs/Research/UI_SYNTHESIS.md)
-- [Yeni menü ve HUD tasarımı](Docs/Art/UI_REFRESH_MENU_HUD.md)
-- [Yeni harita UI tasarımı](Docs/Art/UI_REFRESH_MAP.md)
-- [Yeni gerçek Unity menü görüntüsü](Docs/Art/Previews/UIRefresh_Menu_Home.png)
+## In-game screenshots
 
-- [25 bölüm haritası doğrulaması](Docs/QA/LEVEL_MAP_25_VALIDATION.md)
-- [25 bölüm içeriği](Docs/Design/LEVELS_25.md)
-- [Harita görsel tasarımı](Docs/Art/LEVEL_MAP_DESIGN.md)
-- [Önceki menü/bölüm doğrulaması](Docs/QA/MENU_LEVELS_VALIDATION.md)
-- [İlk beş bölüm ve Sonsuz Akış tasarımı](Docs/Design/FIRST_LEVELS.md)
-- [Menü tasarımı](Docs/Art/MENU_DESIGN.md)
-- [Durum ve iş listesi](Docs/Planning/PROJECT_STATUS.md)
-- [Kararlar ve onay bekleyen öneriler](Docs/Planning/DECISIONS.md)
-- [İş akışı ve ajan görevleri](Docs/Planning/WORKFLOW.md)
-- [Unity teknik planı](Docs/Planning/TECHNICAL_PLAN.md)
-- [Blender ve animasyon hattı](Docs/Art/ART_PIPELINE.md)
-- [Kabul testleri](Docs/QA/ACCEPTANCE_TESTS.md)
-- [M2 doğrulama ve test sonuçları](Docs/QA/M2_VALIDATION.md)
-- [Blender varlık manifesti](Docs/Art/M2_ASSET_MANIFEST.md)
-- [Görsel cila doğrulaması](Docs/QA/POLISH_VALIDATION.md)
-- [Güncel Blender kiti](Docs/Art/POLISH_ASSETS.md)
-- [Gerçek Unity harita görüntüsü](Docs/Art/Previews/Map25_Progress.png)
+<table>
+  <tr>
+    <td align="center"><img src="Docs/Portfolio/Media/gameplay.png" width="250" alt="Portrait gameplay with the connected cores, obstacles, and compact HUD"><br><sub>One-touch obstacle navigation</sub></td>
+    <td align="center"><img src="Docs/Portfolio/Media/pulse.png" width="250" alt="Charged Pulse interacting with a specially marked target"><br><sub>Charged Pulse timing</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="Docs/Portfolio/Media/relay.png" width="250" alt="The expanded tether activating a conductive relay"><br><sub>Tether relay interaction</sub></td>
+    <td align="center"><img src="Docs/Portfolio/Media/level-map.png" width="250" alt="The vertically scrolling numbered level map"><br><sub>25-level progression</sub></td>
+  </tr>
+</table>
 
-## Unity'de aç ve oyna
+[Main menu screenshot](Docs/Portfolio/Media/menu.png)
 
-1. Unity Hub → Projects → Add ile bu deponun kök klasörünü seç. Editor: **6000.3.19f1**.
-2. İlk açılışta paket çözümleme ve import işlemlerinin bitmesini bekle. URP **17.3.0**, Input System **1.19.0**; çözümlenen sürümler `Packages/packages-lock.json` içinde.
-3. `Assets/TetherRush/Scenes/MainMenu.unity` sahnesini aç. Sahne yoksa **Tether Rush → Prepare Project** menüsünü kullan.
-4. Game görünümünü **9:16** yap ve Play'e bas. **Leveller** düğmesinden haritayı aç. Açık bir numaraya dokununca koşu başlar; haritayı sürükleyebilir veya fare tekeriyle kaydırabilirsin.
-5. Oyun alanında **sol fareyi veya Space'i basılı tut: açıl; bırak: daral**. Enerji doluysa bırakmak aynı zamanda tek Pulse üretir. Space yalnız Editor kolaylığıdır; mobilde tek dokunma vardır.
+## Technical highlights
 
-Haritada **1–25** numaraları vardır. Yeni profilde yalnız 1 açıktır. Bir bölümü iki küreyle bitirmek sonraki düğümü açar; tamamlananlar tekrar oynanabilir. Başarı ve en iyi bonus cihazda saklanır. Sonuç ekranında **Sonraki bölüm**, duraklatma/sonuç ekranında **Haritaya dön** bulunur. Harita dönüşte son oynanan veya yeni açılan düğüme odaklanır. Tamamlanan, sıradaki ve kilitli durumlar sayı, renk ve check/lock işaretleriyle ayrılır.
+Built in **Unity 6000.3.19f1** with **C#**, **URP 17.3.0**, and **Input System 1.19.0**. Blender source models are kept separately from the controlled FBX exports used in Unity.
 
-İlk bölümden itibaren sade omuz/kama engelleri, dördüncüde kayan/dönen tipler görülebilir. **Bölüm 6** bağ rölesini öğretir: zemindeki iki cyan iletkeni geniş bağla kapsa; ilerideki bağlı kapı açılır. **Bölüm 8** amber hareketli Pulse kilidini öğretir: beş enerjiyi sakla, MENZİLDE yazısında bırak. Röleye Pulse işlemez; normal engellere de Pulse işlemez.
+- Shared gameplay rules across authored levels and streamed endless course patterns.
+- Persistent level progression, best scores, and audio settings, including migration from the earlier five-level save format.
+- Automated EditMode and PlayMode coverage for gameplay, input transitions, progression, save migration, UI, and rendering behavior.
+- Measured optimization of HUD text updates, static menu preview rendering, collision candidate filtering, and visual-effect updates.
 
-İlk beşin oynanış yerleşimleri korunur. 20 yeni parkur; dar/geniş ritmi, hareketli duvar, dönen kol ve birden fazla bağımsız Pulse dizisini birleştirir. En uzun bölüm 280 m'dir. Ayrı bölüm isimleri kullanılmaz. Önceki beş bölümlük v1 kayıt, 25 bölümlük v2 yapıya kayıpsız genişler; eski ilerleme geri alınmaz.
+In controlled, matched Unity Editor/Mono routes, optimization reduced **GC.Alloc event counts by 97–99%** and **mean simulation-step processing time by 43–61%**. These figures measure Editor workloads; they are not mobile FPS, allocation-byte, or peak-memory results. See the [measurement method and limits](Docs/QA/OPTIMIZATION_VALIDATION.md).
 
-**Sonsuz Akış** ekranından **Akışa başla**: skora göre temposu artan, beş kalıpla çeşitlenen parkurda çarpışana kadar skor topla. Her tam metre 1, her coin 100 puandır. İlk500 skordan sonra tempo artar, 5500 hedefinde11,5m/sn tavanına yaklaşır; hız değişimi en fazla0,25m/sn² ile yumuşatılır. En iyi skor deneme sonunda saklanır. Tekrar deneme skor/parkur/hızı sıfırlar, rekoru korur.
+## Development status
 
-**Ayarlar** ses açık/kapalı, ses düzeyi ve kontrol açıklamasını içerir. Tercihler uygulama yeniden açılınca korunur. Kamera ve GUI görüntüleri otomatik testte gerçek URP'den alınır; ses duyumu ve fiziksel cihaz kabulü ayrıca bekler.
+**Playable development build: 0.9.0 (10).** The current validation record reports **256/256 gameplay and regression checks passing**, successful Windows and Android builds, and a verified Android APK signature.
 
-Dar geçitte dar kal; orta bariyerden önce açıl. Enerjiyi geniş bağla, altın bonusları kürelerle topla. Amber Pulse hedefine yaklaşınca **MENZİLDE** ipucunda bırak. Kapalı hedefe çarpma denemeyi bitirir; **Yeniden dene** ile baştan başla. Kırmızı engeller Pulse ile açılmaz.
+Physical Android device validation is pending, including touch feel, frame rate, thermal behavior, screen cutouts, and app lifecycle checks. The project is not presented as a released store title. Current evidence and remaining checks are tracked in the [project status](Docs/Planning/PROJECT_STATUS.md).
 
-Önceki 180 m temel prototip ve 130 m zamanlama alıştırması `Prototype.unity` / `Challenge.unity` sahnelerinde tarihsel karşılaştırma için korunur. Yeni başlangıç **MainMenu** sahnesidir. Sahne oyun dünyasını Play sırasında kurar; Edit görünümünde boş olması beklenir. Yeni içerik `LevelCatalog` / `EndlessCourse` verisindedir; bu ilk sürüm bir görsel bölüm editörü içermez.
+## Open and play
 
-## Tekrarlanabilir kontroller
+1. Open the repository folder in **Unity 6000.3.19f1** and let package resolution and import finish.
+2. Open `Assets/TetherRush/Scenes/MainMenu.unity`. If the scene is missing, run **Tether Rush → Prepare Project**.
+3. Set the Game view to **9:16** and enter Play Mode. Choose **Leveller** for the level map or **Sonsuz Akış** for Endless Flow.
+4. **Hold the left mouse button or Space to spread; release to contract.** A release at full energy also fires a Pulse. On mobile, use one touch in the play area.
 
-Unity Editor'ü kapattıktan sonra proje kökünde PowerShell ile:
+For the full Turkish development guide, see [Geliştirme ve test rehberi](Docs/DEVELOPMENT_TR.md). For repeatable test/build commands, see [Tools/Unity.ps1](Tools/Unity.ps1). Android builds require Unity Android Build Support, SDK/NDK, and OpenJDK; package versions are locked in [Packages/packages-lock.json](Packages/packages-lock.json).
 
-```powershell
-./Tools/Unity.ps1 -Action Prepare
-./Tools/Unity.ps1 -Action EditMode
-./Tools/Unity.ps1 -Action PlayMode
-./Tools/Unity.ps1 -Action Android
-```
+## Project documentation
 
-`-UnityPath` farklı kurulum yolu verebilir. Log/XML çıktıları `output/validation`, güncel test APK'sı `output/android/TetherRush-Optimized.apk` altında oluşur; build/cache çıktıları Git'e alınmaz. Android desteği için Unity Hub'da Android Build Support, SDK/NDK ve OpenJDK kurulu olmalıdır. `-Action Windows` güncel önizlemeyi `output/windows-optimized/TetherRush.exe` altında üretir. Eski M1/M2/cila/ilk menü çıktıları karşılaştırma için ayrı klasörlerde korunur.
+[Design decisions](Docs/Planning/DECISIONS.md) · [Development workflow](Docs/Planning/WORKFLOW.md) · [Art pipeline](Docs/Art/ART_PIPELINE.md) · [Original audio](Docs/Audio/AUDIO_ASSETS.md) · [Optimization validation](Docs/QA/OPTIMIZATION_VALIDATION.md)
 
-Android araçları Türkçe karakter içeren proje yollarını kabul etmez. Bu klasör için `-Action Android` aynı depoya işaret eden geçici bir ASCII junction yolunu otomatik kullanır; kaynaklar taşınmaz veya kopyalanmaz. Bağlantı TEMP altında kalır ve tekrar kullanılır. Editor'dan doğrudan Android build almak için de ASCII bir proje yolu gerekir; mevcut klasörde Editor oynanışı etkilenmez.
-
-Fiziksel Android cihaz testi kullanıcı kararıyla son aşamaya ertelendi. Editor ve otomatik testler gerçek cihaz performansı/dokunma doğrulaması yerine geçmez. Güncel yürütüm sonuçları [proje durumunda](Docs/Planning/PROJECT_STATUS.md) kaydedilir.
+Media capture and encoding details: [portfolio media notes](Docs/Portfolio/MEDIA_NOTES.md).

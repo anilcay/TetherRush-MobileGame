@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+<title id="title">Tether Rush</title><desc id="desc">Two cores. One connection. A portrait arcade runner.</desc>
+<defs><radialGradient id="peach" cx="30%" cy="25%"><stop stop-color="#ffe7d5"/><stop offset="1" stop-color="#ffb48f"/></radialGradient><radialGradient id="purple" cx="30%" cy="25%"><stop stop-color="#e2dcff"/><stop offset="1" stop-color="#b5a4ff"/></radialGradient></defs>
+<rect width="1200" height="360" rx="0" fill="#0d1722"/>
+<path d="M0 359H1200" stroke="#314356"/>
+<g font-family="Arial,Helvetica,sans-serif"><text x="64" y="76" fill="#8293a3" font-size="15" letter-spacing="4">ONE-TOUCH ARCADE</text>
+<text x="60" y="170" fill="#f5f2e9" font-size="76" font-weight="900" letter-spacing="-3">TETHER RUSH</text>
+<text x="64" y="225" fill="#f5f2e9" font-size="25">Two cores. One connection.</text>
+<text x="64" y="292" fill="#8293a3" font-size="17">25 LEVELS  /  ENDLESS FLOW  /  ANDROID</text></g>
+<path d="M850 180H1080" stroke="#42dff5" stroke-width="5" stroke-linecap="round"/>
+<circle cx="850" cy="180" r="51" fill="url(#peach)"/><circle cx="1080" cy="180" r="51" fill="url(#purple)"/>
+<circle cx="850" cy="180" r="51" fill="none" stroke="#ffdac7" stroke-opacity=".4"/>
+<circle cx="1080" cy="180" r="51" fill="none" stroke="#ded6ff" stroke-opacity=".4"/>
+<circle cx="835" cy="151" r="5" fill="#30465a"/><circle cx="1065" cy="151" r="5" fill="#30465a"/>
+</svg>

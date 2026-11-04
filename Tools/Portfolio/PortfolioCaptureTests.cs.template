@@ -1,0 +1,240 @@
+#if UNITY_EDITOR
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using NUnit.Framework;
+using TetherRush.Core;
+using TetherRush.Course;
+using TetherRush.Presentation;
+using Unity.Collections;
+using UnityEditor;
+using UnityEditor.Media;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.TestTools;
+using UnityEngine.UI;
+using Object = UnityEngine.Object;
+
+namespace TetherRush.Tests
+{
+    // Explicit export fixture: real runtime simulation/rendering, editorial audio mix (not DSP capture).
+    public sealed class PortfolioCaptureTests
+    {
+        const int Width = 540, Height = 960, Fps = 30, Frames = 450, SampleRate = 48000;
+        const float Step = 1f / 120f;
+        GameObject root;
+        TetherRushGame game;
+        CourseDefinition course;
+        int cue, coinSequence;
+        readonly List<Sound> sounds = new List<Sound>();
+        readonly List<EventRecord> events = new List<EventRecord>();
+        readonly Dictionary<AudioClip, ClipData> clips = new Dictionary<AudioClip, ClipData>();
+
+        [Serializable] sealed class EventRecord { public string kind, clip; public int shot, frame; public float seconds, distance; }
+        [Serializable] sealed class ShotRecord { public int levelIndex; public float startDistance, endDistance; public string phase; }
+        [Serializable] sealed class Manifest
+        {
+            public int width = Width, height = Height, fps = Fps, frameCount = Frames, audioSampleRate = SampleRate;
+            public float durationSeconds = 15;
+            public string source = "Unity Editor real gameplay; SafeRoute input; not Android device footage";
+            public string audio = "Editorial mix of original master music and runtime-event-timed SFX; not Unity DSP capture";
+            public bool allFramesRunning;
+            public ShotRecord[] shots;
+            public EventRecord[] events;
+        }
+        sealed class ClipData { public float[] samples; public int channels, rate; }
+        sealed class Sound { public ClipData clip; public double start; public float gain; }
+
+        [TearDown] public void Cleanup() { if (root != null) Object.DestroyImmediate(root); }
+
+        void Create(int index)
+        {
+            Cleanup(); root = new GameObject("Portfolio real gameplay"); root.SetActive(false);
+            game = root.AddComponent<TetherRushGame>(); game.ConfigureLevel(index); root.SetActive(true);
+            game.AutoSimulate = false; game.Feedback.AudioEnabled = false; game.StartRun();
+            course = LevelCatalog.Get(index); cue = 0; coinSequence = 0;
+        }
+
+        void RouteStep()
+        {
+            bool press = false, release = false;
+            if (cue < course.SafeRoute.Length && game.Model.Distance >= course.SafeRoute[cue].Distance)
+            { press = course.SafeRoute[cue].Press; release = !press; cue++; }
+            game.SimulateStep(Step, press, release);
+            Assert.That(game.Model.Phase, Is.EqualTo(RunPhase.Running), "Capture route must remain alive");
+        }
+
+        void Advance(float destination)
+        {
+            int guard = 0;
+            while (game.Model.Distance < destination && guard++ < 12000) RouteStep();
+            Assert.That(game.Model.Distance, Is.InRange(destination, destination + .08f));
+        }
+
+        void SoundEvent(string kind, AudioClip clip, int shot, double time, float gain)
+        {
+            Assert.That(clip, Is.Not.Null, kind);
+            if (!clips.TryGetValue(clip, out var data))
+            {
+                data = new ClipData { samples = new float[clip.samples * clip.channels], channels = clip.channels, rate = clip.frequency };
+                Assert.That(clip.GetData(data.samples, 0), Is.True, "SFX PCM read: " + clip.name); clips.Add(clip, data);
+            }
+            sounds.Add(new Sound { clip = data, start = time, gain = gain * .55f });
+            events.Add(new EventRecord { kind = kind, clip = clip.name, shot = shot, frame = Mathf.Min(Frames - 1, Mathf.FloorToInt((float)time * Fps)), seconds = (float)time, distance = game.Model.Distance });
+        }
+
+        void CaptureStep(int shot, int frame)
+        {
+            bool coinThisFrame = false;
+            for (int sub = 0; sub < 4; sub++)
+            {
+                int bonus = game.Model.Bonus, energy = game.Model.Energy, pulse = game.Model.PulseCount, relay = game.ActivatedRelayCount;
+                RouteStep(); double t = frame / (double)Fps + (sub + 1) / 120.0;
+                if (game.Model.Bonus > bonus && !coinThisFrame)
+                { SoundEvent("coin", AudioPalette.Coin(coinSequence++), shot, t, .9f); coinThisFrame = true; }
+                if (game.Model.Energy > energy) SoundEvent("energy", AudioPalette.Energy, shot, t, .8f);
+                if (game.Model.Energy == 5 && energy < 5) SoundEvent("ready", AudioPalette.Ready, shot, t, .8f);
+                if (game.Model.PulseCount > pulse) SoundEvent("pulse", AudioPalette.Pulse, shot, t, .8f);
+                if (game.ActivatedRelayCount > relay) SoundEvent("relay", AudioPalette.Relay, shot, t, .8f);
+            }
+        }
+
+        [UnityTest, Explicit("Exports 15 seconds of real gameplay media; run only by explicit name filter")]
+        public IEnumerator ExportRealGameplayPortfolio()
+        {
+            sounds.Clear(); events.Clear(); clips.Clear();
+            string project = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+            string media = Path.Combine(project, "Docs", "Portfolio", "Media");
+            string gif = Path.Combine(project, "output", "portfolio", "gif-frames");
+            Directory.CreateDirectory(media); Directory.CreateDirectory(gif);
+            var music = ReadPcm16Wave(Path.Combine(project, "AudioSource", "TetherFlow.master.wav"));
+            int[] indices = { 0, 7, 5 }; float[] starts = { 18, 41, 27 };
+            var shots = new List<ShotRecord>();
+            var h264 = new H264EncoderAttributes { gopSize = 60, numConsecutiveBFrames = 2, profile = VideoEncodingProfile.H264High };
+            var video = new VideoTrackEncoderAttributes(h264) { width = Width, height = Height,
+                frameRate = new MediaRational(Fps, 1), includeAlpha = false, targetBitRate = 4000000 };
+            var audio = new AudioTrackAttributes { sampleRate = new MediaRational(SampleRate, 1), channelCount = 2, language = "" };
+            using (var encoder = new MediaEncoder(Path.Combine(media, "trailer.mp4"), video, audio))
+            using (var pcm = new NativeArray<float>(1600 * 2, Allocator.Persistent))
+            {
+                for (int shot = 0; shot < 3; shot++)
+                {
+                    Create(indices[shot]); Advance(starts[shot]);
+                    float actualStart = game.Model.Distance;
+                    using (var render = new FrameRenderer(root))
+                    {
+                        yield return render.Warm();
+                        for (int local = 0; local < 150; local++)
+                        {
+                            int frame = shot * 150 + local; CaptureStep(shot, frame);
+                            render.Render(); Assert.That(encoder.AddFrame(render.Image), Is.True, "Video frame " + frame);
+                            if (frame % 3 == 0) File.WriteAllBytes(Path.Combine(gif, "frame" + (frame / 3).ToString("D4") + ".png"), render.Image.EncodeToPNG());
+                            FillAudio(pcm, frame, music); Assert.That(encoder.AddSamples(pcm), Is.True, "Audio frame " + frame);
+                            yield return null;
+                        }
+                    }
+                    Assert.That(game.Model.Distance - actualStart, Is.EqualTo(35).Within(.025f));
+                    shots.Add(new ShotRecord { levelIndex = indices[shot], startDistance = actualStart, endDistance = game.Model.Distance, phase = game.Model.Phase.ToString() });
+                }
+            }
+            int[] stillLevels = { 0, 7, 5 }; float[] stillDistances = { 35, 71.75f, 41.6f };
+            string[] stillNames = { "gameplay.png", "pulse.png", "relay.png" };
+            for (int i = 0; i < 3; i++)
+            {
+                Create(stillLevels[i]); Advance(stillDistances[i]);
+                using (var render = new FrameRenderer(root))
+                { yield return render.Warm(); render.Render(); File.WriteAllBytes(Path.Combine(media, stillNames[i]), render.Image.EncodeToPNG()); }
+            }
+            Assert.That(events.Exists(e => e.kind == "pulse"), Is.True);
+            Assert.That(events.Exists(e => e.kind == "relay"), Is.True);
+            Assert.That(events.Exists(e => e.kind == "ready"), Is.True);
+            var manifest = new Manifest { allFramesRunning = true, shots = shots.ToArray(), events = events.ToArray() };
+            File.WriteAllText(Path.Combine(project, "output", "portfolio", "movie.json"), JsonUtility.ToJson(manifest, true));
+        }
+
+        void FillAudio(NativeArray<float> destination, int frame, ClipData music)
+        {
+            float peak = 0; bool finite = true;
+            for (int sample = 0; sample < 1600; sample++)
+            {
+                double t = (frame * 1600L + sample) / (double)SampleRate;
+                float fade = Mathf.Min(1, (float)t / .25f, (15 - (float)t) / .45f);
+                for (int channel = 0; channel < 2; channel++)
+                {
+                    float value = At(music, t, channel) * .275f;
+                    foreach (var sound in sounds)
+                        if (t >= sound.start) value += At(sound.clip, t - sound.start, channel) * sound.gain;
+                    value *= fade;
+                    finite &= !float.IsNaN(value) && !float.IsInfinity(value); peak = Mathf.Max(peak, Mathf.Abs(value));
+                    destination[sample * 2 + channel] = value;
+                }
+            }
+            Assert.That(finite && peak <= 1, Is.True, "Audio mix must remain finite and not clip; frame " + frame + " peak " + peak);
+        }
+
+        static float At(ClipData clip, double seconds, int channel)
+        {
+            double position = seconds * clip.rate; int a = (int)position;
+            int count = clip.samples.Length / clip.channels;
+            if (position < 0 || a >= count) return 0;
+            int b = Math.Min(a + 1, count - 1), c = Math.Min(channel, clip.channels - 1);
+            return Mathf.Lerp(clip.samples[a * clip.channels + c], clip.samples[b * clip.channels + c], (float)(position - a));
+        }
+
+        static ClipData ReadPcm16Wave(string path)
+        {
+            using (var reader = new BinaryReader(File.OpenRead(path)))
+            {
+                Assert.That(new string(reader.ReadChars(4)), Is.EqualTo("RIFF")); reader.ReadInt32();
+                Assert.That(new string(reader.ReadChars(4)), Is.EqualTo("WAVE"));
+                int channels = 0, rate = 0, bits = 0, format = 0; byte[] bytes = null;
+                while (reader.BaseStream.Position + 8 <= reader.BaseStream.Length)
+                {
+                    string id = new string(reader.ReadChars(4)); int length = reader.ReadInt32(); long end = reader.BaseStream.Position + length;
+                    if (id == "fmt ") { format = reader.ReadUInt16(); channels = reader.ReadUInt16(); rate = reader.ReadInt32(); reader.ReadInt32(); reader.ReadUInt16(); bits = reader.ReadUInt16(); }
+                    if (id == "data") bytes = reader.ReadBytes(length);
+                    reader.BaseStream.Position = end + (length & 1);
+                }
+                Assert.That(format, Is.EqualTo(1)); Assert.That(bits, Is.EqualTo(16)); Assert.That(channels, Is.InRange(1, 2)); Assert.That(bytes, Is.Not.Null);
+                var result = new ClipData { samples = new float[bytes.Length / 2], channels = channels, rate = rate };
+                for (int i = 0; i < result.samples.Length; i++) result.samples[i] = (short)(bytes[i * 2] | bytes[i * 2 + 1] << 8) / 32768f;
+                return result;
+            }
+        }
+
+        sealed class FrameRenderer : IDisposable
+        {
+            readonly Camera camera; readonly Canvas canvas; readonly CanvasScaler scaler;
+            readonly RenderTexture target, oldActive, oldTarget;
+            readonly RenderMode oldMode; readonly Camera oldCamera;
+            readonly float oldScale, oldPlane; readonly bool oldScaler;
+            public readonly Texture2D Image;
+            public FrameRenderer(GameObject root)
+            {
+                camera = root.GetComponentInChildren<Camera>(); canvas = root.GetComponentInChildren<Canvas>(); scaler = canvas.GetComponent<CanvasScaler>();
+                Assert.That(RenderPipeline.SupportsRenderRequest(camera, new UniversalRenderPipeline.SingleCameraRequest()), Is.True);
+                oldActive = RenderTexture.active; oldTarget = camera.targetTexture; oldMode = canvas.renderMode; oldCamera = canvas.worldCamera;
+                oldScale = canvas.scaleFactor; oldPlane = canvas.planeDistance; oldScaler = scaler.enabled;
+                target = new RenderTexture(Width, Height, 24, RenderTextureFormat.ARGB32); target.Create();
+                camera.targetTexture = target; canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = camera;
+                canvas.planeDistance = 1; scaler.enabled = false; canvas.scaleFactor = 1;
+                Image = new Texture2D(Width, Height, TextureFormat.RGBA32, false);
+            }
+            public IEnumerator Warm() { Canvas.ForceUpdateCanvases(); yield return null; Render(); yield return null; Render(); }
+            public void Render()
+            {
+                Canvas.ForceUpdateCanvases(); RenderPipeline.SubmitRenderRequest(camera, new UniversalRenderPipeline.SingleCameraRequest { destination = target });
+                RenderTexture.active = target; Image.ReadPixels(new Rect(0, 0, Width, Height), 0, 0); Image.Apply(); RenderTexture.active = oldActive;
+            }
+            public void Dispose()
+            {
+                camera.targetTexture = oldTarget; canvas.renderMode = oldMode; canvas.worldCamera = oldCamera; canvas.planeDistance = oldPlane;
+                scaler.enabled = oldScaler; canvas.scaleFactor = oldScale; RenderTexture.active = oldActive;
+                Object.DestroyImmediate(Image); target.Release(); Object.DestroyImmediate(target);
+            }
+        }
+    }
+}
+#endif

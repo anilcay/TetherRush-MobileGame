@@ -54,6 +54,8 @@ Tarih: 31.10.2026. `ONAYLI` kullanıcı isteğini/onayını, `ÖNERİ` henüz on
 
 | D-042 | ONAYLI | Oyunun optimizasyonu geliştirilecek. Aynı oynanış, kayıtlar, görsel kalite ve ses korunarak ölçülen CPU/GC ve gereksiz çizim yükü azaltılır. | Kullanıcının 04.11.2026 optimizasyon isteği. Fiziksel cihaz testi D-017 gereği sonda kalır. |
 
+| D-043 | ONAYLI | Oyun portfolyo sunumu için gerçek ekran görüntüleri ve10–20 saniyelik oynanış videosu üretilecek, GitHub README içine eklenecek. | Kullanıcının 04.11.2026 portfolyo/README isteği. Gerçek Editor görüntüsü, özgün müzik/olay sesleri ve15sn montaj; ürün oynanışı değişmez. |
+
 ## M1 onay paketi
 
 Kullanıcı D-008, D-009, D-010 ve D-014 kararlarını onayladı; M1 üretimi başlatıldı. İlk teslim Editor'da oynanabilir prototip, otomatik doğrulama ve Android test build'idir. D-017 ile fiziksel cihaz testi son aşamaya ertelendi; Editor prototipi kabulünü engellemez. Mobil performans ve gerçek dokunma kabulü cihaz testi yapılana kadar açık kalır.

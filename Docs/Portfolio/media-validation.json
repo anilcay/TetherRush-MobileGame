@@ -1,0 +1,240 @@
+{
+  "video": {
+    "bytes": 3812631,
+    "sha256": "739469c39b1ca40be443d5cee56b82dc082ea11dd37aeee245ad638c8b58fcc7",
+    "index_precedes_media": true,
+    "tracks": [
+      {
+        "type": "vide",
+        "codec": "avc1",
+        "duration_s": 15.0,
+        "sample_count": 450,
+        "width": 540,
+        "height": 960
+      },
+      {
+        "type": "soun",
+        "codec": "mp4a",
+        "duration_s": 15.018666666666666,
+        "sample_count": 704
+      }
+    ]
+  },
+  "index_relocated": true,
+  "gif": {
+    "width": 216,
+    "height": 384,
+    "frames": 150,
+    "duration_s": 15,
+    "bytes": 2478200,
+    "sha256": "6a40f361b50a1bcb91abdf894b315c9d03d994986dad2dc3f2870103e7236c7f"
+  },
+  "capture": {
+    "width": 540,
+    "height": 960,
+    "fps": 30,
+    "frameCount": 450,
+    "audioSampleRate": 48000,
+    "durationSeconds": 15.0,
+    "source": "Unity Editor real gameplay; SafeRoute input; not Android device footage",
+    "audio": "Editorial mix of original master music and runtime-event-timed SFX; not Unity DSP capture",
+    "allFramesRunning": true,
+    "shots": [
+      {
+        "levelIndex": 0,
+        "startDistance": 18.024982452392578,
+        "endDistance": 53.0251350402832,
+        "phase": "Running"
+      },
+      {
+        "levelIndex": 7,
+        "startDistance": 41.00825881958008,
+        "endDistance": 76.00886535644531,
+        "phase": "Running"
+      },
+      {
+        "levelIndex": 5,
+        "startDistance": 27.0081787109375,
+        "endDistance": 62.00862503051758,
+        "phase": "Running"
+      }
+    ],
+    "events": [
+      {
+        "kind": "coin",
+        "clip": "Coin1",
+        "shot": 0,
+        "frame": 87,
+        "seconds": 2.9083333015441895,
+        "distance": 38.38321304321289
+      },
+      {
+        "kind": "energy",
+        "clip": "Energy",
+        "shot": 1,
+        "frame": 153,
+        "seconds": 5.116666793823242,
+        "distance": 41.8249397277832
+      },
+      {
+        "kind": "energy",
+        "clip": "Energy",
+        "shot": 1,
+        "frame": 170,
+        "seconds": 5.691666603088379,
+        "distance": 45.85000991821289
+      },
+      {
+        "kind": "energy",
+        "clip": "Energy",
+        "shot": 1,
+        "frame": 188,
+        "seconds": 6.266666889190674,
+        "distance": 49.87508010864258
+      },
+      {
+        "kind": "energy",
+        "clip": "Energy",
+        "shot": 1,
+        "frame": 205,
+        "seconds": 6.833333492279053,
+        "distance": 53.84181594848633
+      },
+      {
+        "kind": "energy",
+        "clip": "Energy",
+        "shot": 1,
+        "frame": 222,
+        "seconds": 7.4083333015441895,
+        "distance": 57.866886138916016
+      },
+      {
+        "kind": "ready",
+        "clip": "Ready",
+        "shot": 1,
+        "frame": 222,
+        "seconds": 7.4083333015441895,
+        "distance": 57.866886138916016
+      },
+      {
+        "kind": "coin",
+        "clip": "Coin1",
+        "shot": 1,
+        "frame": 246,
+        "seconds": 8.199999809265137,
+        "distance": 63.40864944458008
+      },
+      {
+        "kind": "pulse",
+        "clip": "Pulse",
+        "shot": 1,
+        "frame": 274,
+        "seconds": 9.149999618530273,
+        "distance": 70.05876159667969
+      },
+      {
+        "kind": "relay",
+        "clip": "Relay",
+        "shot": 2,
+        "frame": 355,
+        "seconds": 11.858333587646484,
+        "distance": 40.01657485961914
+      },
+      {
+        "kind": "coin",
+        "clip": "Coin1",
+        "shot": 2,
+        "frame": 426,
+        "seconds": 14.199999809265137,
+        "distance": 56.40852737426758
+      }
+    ]
+  },
+  "source_note": "Real Unity Editor gameplay with scripted SafeRoute input; original music + event-timed editorial SFX; not phone/DSP footage.",
+  "playback": {
+    "prepared": true,
+    "upright": true,
+    "videoDecoded": true,
+    "width": 540,
+    "height": 960,
+    "frames": 450,
+    "fps": 30.0,
+    "seconds": 15.0,
+    "audioChannels": 2,
+    "audioSampleRate": 48000,
+    "samples": [
+      {
+        "frame": 30,
+        "meanRgbDelta": 2.95651941872428,
+        "flippedMeanRgbDelta": 20.425282278806584
+      },
+      {
+        "frame": 279,
+        "meanRgbDelta": 4.445720164609053,
+        "flippedMeanRgbDelta": 20.81343492798354
+      },
+      {
+        "frame": 366,
+        "meanRgbDelta": 2.8017283950617284,
+        "flippedMeanRgbDelta": 20.264476594650205
+      }
+    ]
+  },
+  "video_encoding": {
+    "profile": "H264 High",
+    "target_bitrate": 4000000,
+    "gop_frames": 60,
+    "consecutive_b_frames": 2
+  },
+  "wrapper_verify_passed": true,
+  "product_sources_packages_unchanged": true,
+  "files": [
+    {
+      "path": "Docs/Portfolio/Media/cover.svg",
+      "bytes": 1523,
+      "sha256": "eb9808f0f6e768e29aa5ba494fa401c7f0a4ef21198a002abf18035b5d810fbf"
+    },
+    {
+      "path": "Docs/Portfolio/Media/gameplay.png",
+      "bytes": 79334,
+      "sha256": "b5e2b27da0de5f3c60aff01aef54ba97cb016fa09eb3edf88f3cdd6b6b943d39"
+    },
+    {
+      "path": "Docs/Portfolio/Media/level-map.png",
+      "bytes": 48818,
+      "sha256": "e69ac5a5f538172e5fe5766cdb5e15c71ca6f0c34207e9a1215e704f94f9daf1"
+    },
+    {
+      "path": "Docs/Portfolio/Media/menu.png",
+      "bytes": 63774,
+      "sha256": "d4441bdadce7d0d435234bdf63e34db014040e3e63ad21e1152a0927d4464f09"
+    },
+    {
+      "path": "Docs/Portfolio/Media/pulse.png",
+      "bytes": 95488,
+      "sha256": "9516161fa212c32d6d857bd7acd1de5f41522ed00e5b888bd63cf4573eb0bf1f"
+    },
+    {
+      "path": "Docs/Portfolio/Media/relay.png",
+      "bytes": 83291,
+      "sha256": "636ac0fd36fbaa9a2028145270dd767fb032545a1c6518a547ed168f7e35212c"
+    },
+    {
+      "path": "Docs/Portfolio/Media/trailer-preview.gif",
+      "bytes": 2478200,
+      "sha256": "6a40f361b50a1bcb91abdf894b315c9d03d994986dad2dc3f2870103e7236c7f"
+    },
+    {
+      "path": "Docs/Portfolio/Media/trailer.mp4",
+      "bytes": 3812631,
+      "sha256": "739469c39b1ca40be443d5cee56b82dc082ea11dd37aeee245ad638c8b58fcc7"
+    }
+  ],
+  "checks": {
+    "capture_and_gallery": "Passed",
+    "high_quality_export": "Passed",
+    "native_decode_and_helper_cleanup": "Passed",
+    "no_runtime_or_package_diff": true,
+    "browser_visual_check": "Blocked: computer-use could not establish current browser URL"
+  }
+}

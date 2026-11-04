@@ -2,6 +2,16 @@
 
 Son güncelleme: 04.11.2026.
 
+## Portfolyo sunumu — 0.9.0 medya paketi
+
+D-043: README kısa İngilizce tanıtım, vektör kapak, hareketli önizleme, gerçek oyun/Pulse/röle/harita galerisi ve MP4 bağlantısıyla yenilendi. Beş gerçek 540×960 ekran ve 15 saniyelik 30fps/450 kare H.264 High + 48kHz stereo AAC montajı üretildi. Üç 5s kesit Bölüm 1/8/6 SafeRoute girdileriyle normal 7m/sn çalışır; enerji/konum/hız/kapı durumuna müdahale yok. Ses özgün master ve gerçek olay zamanlarından editoryal miks, DSP kaydı değil. Harita profili yalnız bellekte; kullanıcı kaydı yazılmaz.
+
+Son MP4 3.812.631 bayt; GIF 2.478.200 bayt/150 kare/15sn. Fast-start index ve chunk offsetleri doğrulandı. İki capture testi, yüksek kaliteli yeniden export ve yerel VideoPlayer doğrulaması geçti: 450 kare/15s/30fps,540×960,48kHz stereo; üç decoded kare gerçek kaynaklarla karşılaştırıldı ve görsel incelendi. Native decoder test yardımcısı uçtan uca geçti. Tarayıcı otomasyonu güvenilir URL belirleyemediği için araç tarafından durduruldu; Windows tarayıcı önizlemesi doğrulanmadı. Tekrar tarayıcı otomasyonu yapılmadı.
+
+Capture/verify kaynakları Tools/Portfolio altında isteğe bağlı template olarak saklanır. Yardımcı geçici Video modülü/test referanslarını ve fixture'larını finally içinde temizler; Assets/Packages/ProjectSettings kaynakları 0.9.0 ile birebir aynı. Ürün kodu, bağımlılığı, sürümü ve son 256 regresyon kaydı değişmez; yeni uygulama build'i gerektirmez. Ayrıntılar Docs/Portfolio/MEDIA_NOTES.md ve media-validation.json. Eski uzun Türkçe README, bağlantıları düzeltilerek Docs/DEVELOPMENT_TR.md içine taşındı.
+
+portfolio_capture ve portfolio_readme GPT-6.1 Sol medium ile ayrı kaynak/taslak sahipliğinde çalıştı; ana yönetici native export entegrasyonu, kalite, GIF/MP4 paketleme, decoder/bağlantı kontrolleri, son README, kayıt ve GitHub yayınını yürütür. Telefon kaydı veya manuel insan oynanışı iddiası yoktur.
+
 ## Optimizasyon — 0.9.0 (10)
 
 D-042 kapsamında önce kalibre GC.Alloc olay sayacı ve aynı rota CPU ölçümü alındı. GameHud sabit sayı/koç/kart formatını önbellekliyor; MenuHero statik önizlemeyi iki ilk render sonrası saklıyor ve texture kaybında yeniliyor. Temasta muhafazakâr Z ön elemesi, sabit bölüm/öğretici bilgisi, pointer reuse ve chunk kimliğiyle emeklilik var. GameFeedback halka noktalarını toplu yüklüyor, sabit MPB ve gizli aura işini atlıyor; ghost materyal slotlarını tekrar kullanıyor. Kontrol, solver, 25 bölüm/kayıt, ses ve URP MSAA 2/renderScale 1 korunur.

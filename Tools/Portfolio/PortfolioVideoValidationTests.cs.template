@@ -1,0 +1,82 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
+using UnityEngine.Video;
+using Object = UnityEngine.Object;
+
+namespace TetherRush.Tests
+{
+    public sealed class PortfolioVideoValidationTests
+    {
+        [Serializable] private sealed class Sample { public int frame; public double meanRgbDelta, flippedMeanRgbDelta; }
+        [Serializable] private sealed class Report { public bool prepared, upright, videoDecoded; public int width, height; public long frames; public double fps, seconds; public int audioChannels, audioSampleRate; public Sample[] samples; }
+        [UnityTest, Explicit("Decode the published MP4 and compare it with real capture frames")]
+        public IEnumerator DecodePublishedTrailer()
+        {
+            var root = new GameObject("Portfolio MP4 validation");
+            var player = root.AddComponent<VideoPlayer>();
+            var target = new RenderTexture(540, 960, 0, RenderTextureFormat.ARGB32);
+            var decoded = new Texture2D(540, 960, TextureFormat.RGB24, false);
+            var reference = new Texture2D(2, 2, TextureFormat.RGB24, false);
+            var oldActive = RenderTexture.active;
+            string project = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+            string error = null; long wanted = 0, received = -1;
+            var samples = new List<Sample>();
+            try
+            {
+                target.Create(); player.playOnAwake = false; player.source = VideoSource.Url;
+                player.url = new Uri(Path.Combine(project, "Docs", "Portfolio", "Media", "trailer.mp4")).AbsoluteUri;
+                player.renderMode = VideoRenderMode.RenderTexture; player.targetTexture = target;
+                player.audioOutputMode = VideoAudioOutputMode.None; player.skipOnDrop = false;
+                player.sendFrameReadyEvents = true; player.waitForFirstFrame = true;
+                player.errorReceived += (_, message) => error = message;
+                player.frameReady += (source, frame) => { if (frame >= wanted) { received = frame; source.Pause(); } };
+                player.Prepare(); double deadline = Time.realtimeSinceStartupAsDouble + 20;
+                while (!player.isPrepared && error == null && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
+                Assert.That(error, Is.Null); Assert.That(player.isPrepared, Is.True);
+                Assert.That(player.width, Is.EqualTo(540)); Assert.That(player.height, Is.EqualTo(960));
+                Assert.That(player.frameCount, Is.EqualTo(450)); Assert.That(player.frameRate, Is.EqualTo(30).Within(.01));
+                Assert.That(player.length, Is.InRange(14.9, 15.15));
+                Assert.That(player.audioTrackCount, Is.EqualTo(1));
+                Assert.That(player.GetAudioChannelCount(0), Is.EqualTo(2));
+                Assert.That(player.GetAudioSampleRate(0), Is.EqualTo(48000));
+                foreach (int frame in new[] { 30, 279, 366 })
+                {
+                    wanted = frame; received = -1; player.frame = frame; player.Play();
+                    deadline = Time.realtimeSinceStartupAsDouble + 10;
+                    while (received < wanted && error == null && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
+                    Assert.That(error, Is.Null); Assert.That(received, Is.EqualTo(wanted));
+                    yield return null;
+                    RenderTexture.active = target; decoded.ReadPixels(new Rect(0, 0, 540, 960), 0, 0); decoded.Apply();
+                    File.WriteAllBytes(Path.Combine(project, "output", "portfolio", "decoded_" + frame + ".png"), decoded.EncodeToPNG());
+                    Assert.That(reference.LoadImage(File.ReadAllBytes(Path.Combine(project, "output", "portfolio", "gif-frames", "frame" + (frame / 3).ToString("D4") + ".png"))), Is.True);
+                    var a = decoded.GetPixels32(); var b = reference.GetPixels32(); double delta = 0, flipped = 0;
+                    for (int y = 0; y < 960; y++) for (int x = 0; x < 540; x++)
+                    {
+                        var actual = a[y * 540 + x]; var expected = b[y * 540 + x]; var inverse = b[(959 - y) * 540 + x];
+                        delta += Math.Abs(actual.r - expected.r) + Math.Abs(actual.g - expected.g) + Math.Abs(actual.b - expected.b);
+                        flipped += Math.Abs(actual.r - inverse.r) + Math.Abs(actual.g - inverse.g) + Math.Abs(actual.b - inverse.b);
+                    }
+                    delta /= a.Length * 3; flipped /= a.Length * 3;
+                    Assert.That(delta, Is.LessThan(12), "Decoded RGB difference at frame " + frame);
+                    Assert.That(delta, Is.LessThan(flipped), "Encoded video must be upright");
+                    samples.Add(new Sample { frame = frame, meanRgbDelta = delta, flippedMeanRgbDelta = flipped });
+                }
+                var report = new Report { prepared = true, upright = true, videoDecoded = true, width = (int)player.width,
+                    height = (int)player.height, frames = (long)player.frameCount, fps = player.frameRate, seconds = player.length,
+                    audioChannels = player.GetAudioChannelCount(0), audioSampleRate = (int)player.GetAudioSampleRate(0), samples = samples.ToArray() };
+                File.WriteAllText(Path.Combine(project, "output", "portfolio", "playback-validation.json"), JsonUtility.ToJson(report, true));
+            }
+            finally
+            {
+                player.Stop(); player.targetTexture = null; RenderTexture.active = oldActive;
+                target.Release(); Object.DestroyImmediate(root); Object.DestroyImmediate(target);
+                Object.DestroyImmediate(decoded); Object.DestroyImmediate(reference);
+            }
+        }
+    }
+}

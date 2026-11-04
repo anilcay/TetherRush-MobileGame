@@ -1,0 +1,62 @@
+using System.Collections;
+using System.IO;
+using NUnit.Framework;
+using TetherRush.Core;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.TestTools;
+using UnityEngine.UI;
+
+namespace TetherRush.Tests
+{
+    public sealed class PortfolioGalleryTests
+    {
+        private GameObject root;
+        [TearDown] public void Cleanup() { if (root != null) Object.DestroyImmediate(root); }
+        [UnityTest, Explicit("Portfolio publication capture; use the exact test filter")]
+        public IEnumerator CaptureMenuAndLevelMap()
+        {
+            root = new GameObject("Portfolio gallery"); root.SetActive(false);
+            var progress = new PlayerProgress();
+            for (int i = 0; i < 7; i++) progress.CompleteLevel(i, i % 3 + 2);
+            var app = root.AddComponent<TetherRushApp>(); app.ConfigureSession(progress); root.SetActive(true);
+            for (int i = 0; i < 8; i++) yield return null;
+            yield return Capture(app, "menu.png");
+            app.ShowLevels(); app.Menu.FocusLevel(7);
+            for (int i = 0; i < 3; i++) yield return null;
+            yield return Capture(app, "level-map.png");
+            Assert.That(app.Progress.HighestUnlockedLevel, Is.EqualTo(7));
+        }
+        private IEnumerator Capture(TetherRushApp app, string file)
+        {
+            var camera = root.GetComponentInChildren<Camera>(); var canvas = app.Menu.Canvas;
+            var scaler = canvas.GetComponent<CanvasScaler>();
+            var target = new RenderTexture(540, 960, 24, RenderTextureFormat.ARGB32);
+            var texture = new Texture2D(540, 960, TextureFormat.RGB24, false);
+            var oldTarget = camera.targetTexture; var oldActive = RenderTexture.active;
+            var oldMode = canvas.renderMode; var oldCamera = canvas.worldCamera;
+            float oldPlane = canvas.planeDistance, oldScale = canvas.scaleFactor; bool oldEnabled = scaler.enabled;
+            try
+            {
+                target.Create(); camera.targetTexture = target;
+                canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = camera;
+                canvas.planeDistance = 1; scaler.enabled = false; canvas.scaleFactor = 1;
+                var request = new UniversalRenderPipeline.SingleCameraRequest { destination = target };
+                Canvas.ForceUpdateCanvases(); yield return null;
+                RenderPipeline.SubmitRenderRequest(camera, request); yield return null;
+                Canvas.ForceUpdateCanvases(); RenderPipeline.SubmitRenderRequest(camera, request);
+                RenderTexture.active = target; texture.ReadPixels(new Rect(0, 0, 540, 960), 0, 0); texture.Apply();
+                string folder = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Docs", "Portfolio", "Media"));
+                Directory.CreateDirectory(folder); File.WriteAllBytes(Path.Combine(folder, file), texture.EncodeToPNG());
+            }
+            finally
+            {
+                camera.targetTexture = oldTarget; RenderTexture.active = oldActive;
+                canvas.renderMode = oldMode; canvas.worldCamera = oldCamera; canvas.planeDistance = oldPlane;
+                scaler.enabled = oldEnabled; canvas.scaleFactor = oldScale;
+                target.Release(); Object.DestroyImmediate(target); Object.DestroyImmediate(texture);
+            }
+        }
+    }
+}
